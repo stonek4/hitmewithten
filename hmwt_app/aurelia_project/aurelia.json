@@ -46,6 +46,13 @@
     "valueConverters": "src/resources/value-converters",
     "bindingBehaviors": "src/resources/binding-behaviors"
   },
+  "dist": {
+    "output": "www",
+    "sources": [
+        "./scripts/**/*",
+        "./index.html"
+    ]
+  },
   "testFramework": {
     "id": "jasmine",
     "displayName": "Jasmine"
