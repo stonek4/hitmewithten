@@ -1,0 +1,56 @@
+$btns: 5;
+
+.content{
+  background-color: white;
+  position:fixed;
+  text-align:center;
+  border-radius: 10px;
+  height: 70vh;
+  width: 90vw;
+  left: 5vw;
+}
+
+.btn-cont{
+  display: inline-block;
+}
+
+.menu-btn{
+  background-color: green;
+  color: white;
+  border-style: solid;
+  box-sizing: border-box;
+  border-color:black;
+  border-width: thin;
+  border-radius: 10px;
+  height:95%;
+  width:95%;
+  top: 50%;
+  transform: translateY(-50%);
+  position: relative;
+  margin:auto;
+  box-shadow: 2px 2px 1px grey;
+}
+
+.menu-btn:active{
+  box-shadow: 2px 2px 1px white;
+  border-color: blue;
+  background-color:yellow;
+}
+
+.space{
+  height: 25vh;
+}
+
+@media (orientation: portrait){
+  .btn-cont{
+    height: 100% / $btns;
+    width: 100%;
+  }
+}
+
+@media (orientation: landscape){
+  .btn-cont{
+    height: 100% / ceil($btns/2);
+    width: 45%;
+  }
+}
