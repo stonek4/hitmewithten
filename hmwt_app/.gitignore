@@ -3,7 +3,6 @@ scripts/*-bundle.*
 platforms
 plugins
 www/*
-!www/config.xml
 src/environments.ts
 .idea
 .DS_STORE
