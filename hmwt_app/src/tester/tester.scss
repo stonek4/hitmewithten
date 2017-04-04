@@ -1,39 +1,61 @@
-.space {
+.tester-space {
   width: 100vw;
   height: 25vh;
 }
 
-.content {
+em{
+  color:red;
+}
+
+.tester {
   width: 100vw;
   height: 50vh;
   background-color: white;
   position:fixed;
 }
 
-.definition{
+.tester-definition{
   width:100vw;
-  height:80%;
+  height:70%;
   text-align: center;
   position:absolute;
 }
 
-.text{
+.tester-text{
   margin-top:15vh;
-  color:red;
+  color:blue;
   font-size: 6vh;
   position:relative;
 }
 
-.answer{
+.tester-answer{
   position:absolute;
   width:100vw;
-  height:20%;
+  height:30%;
   text-align: center;
   bottom:0;
 }
 
-.input{
+.tester-input{
   height:50%;
   width:50%;
   font-size:3vh;
+}
+
+@media (orientation: portrait){
+  .tester{
+    height:50vh;
+  }
+  .tester-space {
+    height: 25vh;
+  }
+}
+
+@media (orientation: landscape){
+  .tester{
+    height:80vh;
+  }
+  .tester-space {
+    height: 10vh;
+  }
 }

@@ -1,18 +1,19 @@
 <template>
   <require from="./menu.css"></require>
-  <div class="content">
+  <div class="menu-space"></div>
+  <div class="menu">
     <div class="btn-cont">
       <div class="test-10  menu-btn" click.delegate="serve(10)">
         Hit Me With 10
       </div>
     </div>
     <div class="btn-cont">
-      <div class="test-all menu-btn">
+      <div class="test-all menu-btn" click.delegate="serve(0)">
         Hit Me With All
       </div>
     </div>
     <div class="btn-cont">
-      <div class="load menu-btn">
+      <div class="load menu-btn" click.delegate="load()">
         Change Sets
       </div>
     </div>
@@ -22,7 +23,7 @@
       </div>
     </div>
     <div class="btn-cont">
-      <div class="about menu-btn">
+      <div class="about menu-btn" click.delegate="about()">
         About
       </div>
     </div>

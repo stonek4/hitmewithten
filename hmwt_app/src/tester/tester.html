@@ -1,13 +1,18 @@
 <template>
   <require from="./tester.css"></require>
-  <div class="content">
-    <div class="definition">
-      <div class="text">
-        ${definition}
-      </div>
+  <div class="tester-space"></div>
+  <div class="tester">
+    <div class="tester-definition">
+      <div class="tester-text" innerhtml.bind="definition"></div>
     </div>
-    <form class = "answer">
-      <input type = "text" class = "input"/>
+    <form class = "tester-answer" submit.delegate="submit()">
+      <button type= "button" class = "tester-back" click.delegate = "back()">Back</button>
+      <input type = "text" class = "tester-input" value.bind="answer" autofocus/>
+      <input type="submit"
+       style="position: absolute; left: -9999px; width: 1px; height: 1px;"
+       tabindex="-1" />
+      <button type= "button" class = "tester-next" click.delegate = "next()">Skip</button>
     </form>
   </div>
+
 </template>
