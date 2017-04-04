@@ -25,7 +25,7 @@ export class Menu {
   load(){
     var storage = window.localStorage;
     var keys = storage.getItem("keys");
-    if (keys === null || keys == ""{
+    if (keys === null || keys == ""){
       storage.setItem("keys", "")
       window.alert("No cards found, please create some!")
       this.create();

@@ -1,11 +1,11 @@
 <template>
-  <require from="./tester.css"></require>
+  <require from="./creator.css"></require>
   <div class="content">
-    <input type = "text" class = "input definition"/>
-    <input type = "text" class = "input answer"/>
-    <button type= "button" class = "next" delegate.click("next()")>Next</button>
-    <button type= "button" class = "back" delegate.click("back()")>Back</button>
-    <button type= "button" class = "done" delegate.click("done()")>Done</button>
-    <button type= "button" class = "delete" delegate.click("delete()")>Delete</button>
+    <input type = "text" class = "input definition" value.bind="definition"/>
+    <input type = "text" class = "input answer" value.bind="answer"/>
+    <button type= "button" class = "next" click.delegate = "next()">Next</button>
+    <button type= "button" class = "back" click.delegate = "back()">Back</button>
+    <button type= "button" class = "done" click.delegate = "done()">Done</button>
+    <button type= "button" class = "delete" click.delegate = "delete()">Delete</button>
   </div>
 </template>

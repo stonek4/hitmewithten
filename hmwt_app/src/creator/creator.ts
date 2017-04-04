@@ -2,7 +2,7 @@ import {inject} from 'aurelia-framework';
 import {Router} from 'aurelia-router';
 
 interface Card{
-  definition: string;
+  definition: string[];
   answers: string[];
 }
 
@@ -13,35 +13,61 @@ export class Creator {
   definition: string;
   answer: string;
   index: number;
+  name: string;
 
   constructor(private router: Router){
     this.index = 0;
+    this.name = prompt("Please enter a name for the card set.");
   }
 
   next(){
-    Card card = {definition: this.definition; answer: this.answer};
-    if (cards.length < index + 1){
-      cards.append(card);
+    let card: Card = {definition: [this.definition], answers: [this.answer]};
+    if (this.cards.length < this.index + 1){
+      this.cards.push(card);
       this.definition = "";
       this.answer = "";
     }
     else{
-      cards[index] = card;
-      if (cards.length === index + 1){
+      this.cards[this.index] = card;
+      if (this.cards.length === this.index + 1){
         this.definition = "";
         this.answer = "";
       }
       else{
-        this.definition = cards[index+1].definition;
-        this.answer = cards[index+1].definition;
+        this.definition = this.cards[this.index+1].definition[0];
+        this.answer = this.cards[this.index+1].answers[0];
       }
     }
-    index += 1;
+    this.index += 1;
   }
 
   back(){
-    if (index != 0){
-
+    if (this.index != 0){
+      this.definition = this.cards[this.index-1].definition[0];
+      this.answer = this.cards[this.index-1].answers[0];
+      this.index -= 1;
+    } else{
+      if (this.cards.length > 0){
+        this.definition = this.cards[this.index].definition[0];
+        this.answer = this.cards[this.index].answers[0];
+      }
+      else{
+        this.definition = "";
+        this.answer = "";
+      }
     }
+  }
+
+  delete(){
+    if (this.cards.length > this.index){
+      this.cards.splice(this.index, 1);
+    }
+    this.back();
+  }
+
+  done(){
+    var storage = window.localStorage;
+    storage.setItem(this.name, JSON.stringify(this.cards));
+    this.router.navigateToRoute('/');
   }
 }
