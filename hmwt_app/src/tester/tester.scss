@@ -16,7 +16,7 @@ em{
 
 .tester-definition{
   width:100vw;
-  height:70%;
+  height:80%;
   text-align: center;
   position:absolute;
 }
@@ -31,15 +31,28 @@ em{
 .tester-answer{
   position:absolute;
   width:100vw;
-  height:30%;
+  height:20%;
   text-align: center;
   bottom:0;
 }
 
+.tester-back{
+  position:absolute;
+  left:0;
+  width: 20%;
+}
+
+.tester-next{
+  position:absolute;
+  right:0;
+  width:20%;
+}
+
 .tester-input{
-  height:50%;
   width:50%;
   font-size:3vh;
+  position:absolute;
+  left: 25%;
 }
 
 @media (orientation: portrait){

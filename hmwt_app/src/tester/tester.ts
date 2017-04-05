@@ -27,6 +27,10 @@ export class Tester {
     this.definition = this.cards[this.index].definitions[0];
   }
 
+  attached(){
+    (<HTMLElement>document.querySelector(".tester-input")).focus();
+  }
+
   submit(){
     if (this.answer === this.cards[this.index].answers[0]){
       this.next();
@@ -49,6 +53,7 @@ export class Tester {
       this.definition = marked;
       return;
     }
+    (<HTMLElement>document.querySelector(".creator-definition")).focus();
   }
 
   next() {

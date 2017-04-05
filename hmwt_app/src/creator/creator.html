@@ -1,12 +1,23 @@
 <template>
   <require from="./creator.css"></require>
   <div class="creator-space"></div>
-  <form class="creator">
-    <input type = "text" class = "input creator-definition" value.bind="definition" placeholder="Question"/>
-    <input type = "text" class = "input creator-answer" value.bind="answer" placeholder="Answer"/>
-    <button type= "button" class = "creator-next" click.delegate = "next()">Next</button>
-    <button type= "button" class = "creator-back" click.delegate = "back()">Back</button>
-    <button type= "button" class = "creator-done" click.delegate = "done()">Done</button>
-    <button type= "button" class = "creator-delete" click.delegate = "delete()">Delete</button>
+  <form class="creator" submit.delegate="next()">
+    <div class="creator-top">
+      <button type= "button" class = "form-control creator-delete" click.delegate = "delete()">Delete</button>
+    </div>
+    <div class="creator-middle">
+      <center>
+        <input type = "text" class = "form-control creator-input creator-definition" value.bind="definition" placeholder="Question"/>
+        <input type = "text" class = "form-control creator-input creator-answer" value.bind="answer" placeholder="Answer"/>
+      </center>
+    </div>
+    <div class="creator-bottom">
+      <button type= "button" class = "form-control creator-next" click.delegate = "next()">Next</button>
+      <button type= "button" class = "form-control creator-back" click.delegate = "back()">Back</button>
+      <button type= "button" class = "form-control creator-done" click.delegate = "done()">Done</button>
+      <input type="submit"
+       style="position: absolute; left: -9999px; width: 1px; height: 1px;"
+       tabindex="-1" />
+    </div>
   </form>
 </template>

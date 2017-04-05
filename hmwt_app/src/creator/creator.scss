@@ -9,3 +9,65 @@
   background-color: white;
   position:fixed;
 }
+
+.creator-top{
+  width: 100%;
+  height: 20%;
+  position:relative;
+}
+
+.creator-middle{
+  width: 100%;
+  height: 60%;
+  position:relative;
+}
+
+.creator-bottom{
+  width: 100%;
+  height: 20%;
+  position:relative;
+}
+
+.creator-input{
+  width: 90%;
+  left: 5%;
+}
+
+.creator-definition{
+  top: 20%;
+  position: absolute;
+}
+
+.creator-answer{
+  top: 70%;
+  position: absolute;
+}
+
+.creator-delete{
+  float:right;
+}
+
+.creator-next{
+  right:0;
+  bottom: 0;
+  position: absolute;
+  width: 20%;
+}
+
+.creator-back{
+  left:0;
+  bottom: 0;
+  position: absolute;
+  width: 20%;
+}
+
+.creator-done{
+  bottom: 0;
+  left:40%;
+  position: absolute;
+  width: 20%;
+}
+
+.creator-delete{
+  width: 20%;
+}

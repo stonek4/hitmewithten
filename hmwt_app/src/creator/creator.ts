@@ -10,8 +10,8 @@ interface Card{
 export class Creator {
 
   cards: Card[] = [];
-  definition: string;
-  answer: string;
+  definition: string = "";
+  answer: string = "";
   index: number;
   name: string;
 
@@ -20,9 +20,17 @@ export class Creator {
     this.name = prompt("Please enter a name for the card set.");
   }
 
+  attached(){
+    (<HTMLElement>document.querySelector(".creator-definition")).focus();
+  }
+
   next(){
-    if (this.definition == "" || this.answer == ""){
-      window.alert("Cannot Have a Blank!");
+    if (this.definition == ""){
+      (<HTMLElement>document.querySelector(".creator-definition")).focus();
+      return;
+    }
+    if ( this.answer == ""){
+      (<HTMLElement>document.querySelector(".creator-answer")).focus();
       return;
     }
     let card: Card = {definitions: [this.definition], answers: [this.answer]};
@@ -43,6 +51,7 @@ export class Creator {
       }
     }
     this.index += 1;
+    (<HTMLElement>document.querySelector(".creator-definition")).focus();
   }
 
   back(){
