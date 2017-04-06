@@ -38,18 +38,21 @@ export class Tester {
 
       var actual = this.cards[this.index].answers[0]
       var marked = "";
-      var path = this.calcDist(actual, this.answer);
+      var edit = this.calcDist(actual, this.answer);
 
-      for (var i = 0; i < path.length-1; i++){
-        if (path[i] < path[i+1]){
-          if (i == actual.length){
-            actual+="_";
-          }
-          marked += "<em>"+actual[i]+"</em>";
-        } else {
+      for (var i = 0; i < edit.length-1; i++){
+        if (edit[i] === "n"){
           marked += actual[i];
+        } else {
+          if (edit[i] === "d"){
+            actual = actual.slice(0, i) + "+" + actual.slice(i);
+          } else if (edit[i] === "i"){
+            actual = actual.slice(0, i) + "-" + actual.slice(i);
+          }
+          marked += "<em>"+actual[i]+"</em>"
+          }
         }
-      }
+
       this.definition = marked;
       return;
     }
@@ -76,21 +79,28 @@ export class Tester {
   }
 
   calcDist(aword, bword){
+
     var dist = new Array(aword.length+1);
     var paths = new Array(aword.length+1);
+    var edits = new Array(aword.length+1);
 
     for (var i = 0; i < dist.length; i++) {
       dist[i] = new Array(bword.length+1);
       paths[i] = new Array(bword.length+1);
+      edits[i] = new Array(bword.length+1);
     }
+
     for (var i = 0; i < dist.length; i++){
-      paths[i][0] = [i-1, 0];
       dist[i][0] = i;
+      paths[i][0] = [i-1, 0];
+      edits[i][0] = "d"
     }
     for (var j = 0; j < dist[0].length; j++){
-      paths[0][j] = [0, j-1];
       dist[0][j] = j;
+      paths[0][j] = [0, j-1];
+      edits[0][j] = "i"
     }
+
     var cost: number = 0;
     for (var j = 1; j < dist[0].length; j++){
       for (var i = 1; i < dist.length; i++){
@@ -103,21 +113,38 @@ export class Tester {
         dist[i][j] = Math.min(dist[i-1][j]+1, dist[i][j-1]+1, dist[i-1][j-1] + cost)
         if (dist[i][j] === dist[i-1][j-1] + cost){
           paths[i][j] = [i-1, j-1];
+          edits[i][j] = "s"
         } else if (dist[i][j] === dist[i-1][j]+1){
           paths[i][j] = [i-1, j];
+          edits[i][j] = "d"
         } else {
           paths[i][j] = [i, j-1];
+          edits[i][j] = "i"
         }
       }
     }
+
     var path = new Array(Math.max(aword.length, bword.length)+1)
+    var edit = new Array(Math.max(aword.length, bword.length)+1)
+    var prev_coord = [aword.length, bword.length]
     var coord = [aword.length, bword.length]
+
     for (i = path.length-1; i > -1; i--){
-      console.log(coord)
       path[i] = dist[coord[0]][coord[1]];
+      if (i != path.length-1){
+        if ( path[i+1] != path[i] ){
+          edit[i] = edits[coord[0]][coord[1]];
+        } else {
+          edit[i] = "n"
+        }
+      }
+      else{
+        edit[i] = "n"
+      }
+      prev_coord = coord;
       coord = paths[coord[0]][coord[1]];
     }
-    return path;
+    return edit;
   }
 
   done() {
