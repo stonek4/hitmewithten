@@ -38,15 +38,13 @@ export class Tester {
 
       var actual = this.cards[this.index].answers[0]
       var marked = "";
-      var edit = this.calcDist(actual, this.answer);
+      var edit = this.calcDist(this.answer, actual);
 
       for (var i = 0; i < edit.length-1; i++){
         if (edit[i] === "n"){
           marked += actual[i];
         } else {
           if (edit[i] === "d"){
-            actual = actual.slice(0, i) + "+" + actual.slice(i);
-          } else if (edit[i] === "i"){
             actual = actual.slice(0, i) + "-" + actual.slice(i);
           }
           marked += "<em>"+actual[i]+"</em>"
@@ -141,6 +139,8 @@ export class Tester {
       else{
         edit[i] = "n"
       }
+      console.log(path)
+      console.log(edit)
       prev_coord = coord;
       coord = paths[coord[0]][coord[1]];
     }
