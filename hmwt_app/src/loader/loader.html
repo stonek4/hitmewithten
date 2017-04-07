@@ -1,30 +1,11 @@
 <template>
-  <require from="./menu.css"></require>
-  <div class="content">
-    <div class="btn-cont">
-      <div class="test-10  menu-btn" click.delegate="serve(10)">
-        Hit Me With 10
-      </div>
-    </div>
-    <div class="btn-cont">
-      <div class="test-all menu-btn">
-        Hit Me With All
-      </div>
-    </div>
-    <div class="btn-cont">
-      <div class="load menu-btn">
-        Change Sets
-      </div>
-    </div>
-    <div class="btn-cont">
-      <div class="create menu-btn">
-        Create
-      </div>
-    </div>
-    <div class="btn-cont">
-      <div class="about menu-btn">
-        About
-      </div>
+  <require from="./loader.css"></require>
+  <div class="loader">
+    <div class="list-group">
+      <button class="loader-card-set list-group-item" repeat.for="set of sets" click.delegate="load(set)" type="button">
+        ${set.name}
+        <span class = "loader-set-number badge badge-default badge-pill">${set.number}</span>
+      </button>
     </div>
   </div>
 </template>

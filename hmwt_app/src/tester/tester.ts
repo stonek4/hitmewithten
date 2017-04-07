@@ -33,14 +33,15 @@ export class Tester {
 
   submit(){
     if (this.answer === this.cards[this.index].answers[0]){
-      this.next();
+      this.definition = "<correct>"+this.cards[this.index].answers[0]+"</correct>";
+      setTimeout(() => {this.next(); },500);
     } else {
 
       var actual = this.cards[this.index].answers[0]
       var marked = "";
       var edit = this.calcDist(this.answer, actual);
 
-      for (var i = 0; i < edit.length-1; i++){
+      for (var i = 0; i < edit.length; i++){
         if (edit[i] === "n"){
           marked += actual[i];
         } else {
@@ -109,21 +110,25 @@ export class Tester {
           cost = 1;
         }
         dist[i][j] = Math.min(dist[i-1][j]+1, dist[i][j-1]+1, dist[i-1][j-1] + cost)
-        if (dist[i][j] === dist[i-1][j-1] + cost){
-          paths[i][j] = [i-1, j-1];
-          edits[i][j] = "s"
-        } else if (dist[i][j] === dist[i-1][j]+1){
+        console.log(i, j, dist[i][j]);
+        if (dist[i][j] === dist[i-1][j]+1){
+          console.log("delete")
           paths[i][j] = [i-1, j];
           edits[i][j] = "d"
+        } else if (dist[i][j] === dist[i-1][j-1] + cost){
+          console.log("sub")
+          paths[i][j] = [i-1, j-1];
+          edits[i][j] = "s"
         } else {
+          console.log("insert")
           paths[i][j] = [i, j-1];
           edits[i][j] = "i"
         }
       }
     }
-
-    var path = new Array(Math.max(aword.length, bword.length)+1)
-    var edit = new Array(Math.max(aword.length, bword.length)+1)
+    console.log(aword, bword)
+    var path = new Array(Math.max(aword.length, bword.length))
+    var edit = new Array(Math.max(aword.length, bword.length))
     var prev_coord = [aword.length, bword.length]
     var coord = [aword.length, bword.length]
 
@@ -131,9 +136,14 @@ export class Tester {
       path[i] = dist[coord[0]][coord[1]];
       if (i != path.length-1){
         if ( path[i+1] != path[i] ){
+          edit[i+1] = edits[prev_coord[0]][prev_coord[1]];
+        } else {
+          edit[i+1] = "n";
+        }
+        if (i == 0 && path[i] == 1){
           edit[i] = edits[coord[0]][coord[1]];
         } else {
-          edit[i] = "n"
+          edit[i] = "n";
         }
       }
       else{

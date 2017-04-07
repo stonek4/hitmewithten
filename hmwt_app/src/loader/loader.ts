@@ -1,35 +1,28 @@
 import {inject} from 'aurelia-framework';
 import {Router} from 'aurelia-router';
 
-interface Card{
-  text: string;
-  definitions: string[];
+interface CardSet{
+  name: string;
+  number: number;
 }
 
 @inject(Router)
 export class Menu {
 
-  constructor(private router: Router){}
+  sets: CardSet[] = [];
+  storage = window.localStorage;
 
-  cards : Card[] = [];
-  card_name: string = "";
-
-  serve(number:any){
-    if (this.card_name !== ""){
-      var info = this.getRandomSubarray(this.cards, number);
-      this.router.routes.find(x => x.name === "Test").settings = info;
-      this.router.navigateToRoute('Test', { id:this.card_name});
+  constructor(private router: Router){
+    let keys = JSON.parse(this.storage.getItem('keys'));
+    for(let i = 0; i < keys.length; i++){
+      let nums = JSON.parse(this.storage.getItem(keys[i])).length;
+      this.sets.push({name:keys[i], number: nums});
     }
+    console.log(this.sets)
   }
 
-  getRandomSubarray(arr:any, size:any) {
-    var shuffled = arr.slice(0), i = arr.length, min = i - size, temp, index;
-    while (i-- > min) {
-        index = Math.floor((i + 1) * Math.random());
-        temp = shuffled[index];
-        shuffled[index] = shuffled[i];
-        shuffled[i] = temp;
-    }
-    return shuffled.slice(min);
+  load(aset: CardSet){
+    this.storage.setItem('current', aset.name);
+    this.router.navigateToRoute('Menu');
   }
 }
