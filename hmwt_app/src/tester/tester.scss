@@ -44,12 +44,14 @@ correct{
   position:absolute;
   left:0;
   width: 20%;
+  height: 50%;
 }
 
 .tester-next{
   position:absolute;
   right:0;
   width:20%;
+  height: 50%;
 }
 
 .tester-input{
@@ -57,6 +59,8 @@ correct{
   font-size:3vh;
   position:absolute;
   left: 25%;
+  height: 50%;
+  text-align: center;
 }
 
 @media (orientation: portrait){

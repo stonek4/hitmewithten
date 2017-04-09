@@ -1,13 +1,21 @@
 $btns: 5;
 
+@mixin gradient($color1, $color2){
+  background: -webkit-gradient(linear, top, bottom, $color1, $color2); /* Chrome, Safari4+ */
+  background: -webkit-linear-gradient(top, $color1, $color2); /* Chrome10+, Safari5.1+ */
+  background: -moz-linear-gradient(top, $color1, $color2);    /* FF3.6+ */
+  background: linear-gradient(to top, $color1, $color2);      /* W3C */
+}
+
 .menu{
   background-color: white;
   position:fixed;
   text-align:center;
   border-radius: 10px;
-  height: 70vh;
+  height: 65vh;
   width: 90vw;
   left: 5vw;
+  background: rgba(255,255,255,0.5)
 }
 
 .btn-cont{
@@ -15,34 +23,36 @@ $btns: 5;
 }
 
 .menu-btn{
-  background-color: green;
-  color: white;
-  border-style: solid;
   box-sizing: border-box;
-  border-color:black;
-  border-width: thin;
-  border-radius: 10px;
   height:95%;
+  padding-top: 3vh;
   width:95%;
   top: 50%;
   transform: translateY(-50%);
   position: relative;
   margin:auto;
-  box-shadow: 2px 2px 1px grey;
+  color: #fff;
+  text-shadow: -3px 3px #6b80a3;
+  border: none;
+  border-radius: 15px;
+  font-size: 5vh;
+  text-align: center;
+  box-shadow: inset 0 0 0, 0 1px 3px #193047;
+  @include gradient(#b5ccf2, #6b80a3);
 }
 
 .menu-btn:active{
-  box-shadow: 2px 2px 1px white;
-  border-color: blue;
-  background-color:yellow;
+  box-shadow: inset 0 0 0 1px #27496d,inset 0 5px 30px #193047;
+  text-shadow: -1px 1px #6b80a3;
 }
 
 .menu-space{
-  height: 25vh;
+  height: 30vh;
 }
 
 @media (orientation: portrait){
   .btn-cont{
+    margin-top: -1px;
     height: 100% / $btns;
     width: 100%;
   }
@@ -50,7 +60,7 @@ $btns: 5;
 
 @media (orientation: landscape){
   .btn-cont{
-    height: 100% / ceil($btns/2);
+    height: 95% / ceil($btns/2);
     width: 45%;
   }
 }

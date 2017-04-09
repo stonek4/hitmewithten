@@ -110,23 +110,19 @@ export class Tester {
           cost = 1;
         }
         dist[i][j] = Math.min(dist[i-1][j]+1, dist[i][j-1]+1, dist[i-1][j-1] + cost)
-        console.log(i, j, dist[i][j]);
         if (dist[i][j] === dist[i-1][j]+1){
-          console.log("delete")
           paths[i][j] = [i-1, j];
           edits[i][j] = "d"
         } else if (dist[i][j] === dist[i-1][j-1] + cost){
-          console.log("sub")
           paths[i][j] = [i-1, j-1];
           edits[i][j] = "s"
         } else {
-          console.log("insert")
           paths[i][j] = [i, j-1];
           edits[i][j] = "i"
         }
       }
     }
-    console.log(aword, bword)
+
     var path = new Array(Math.max(aword.length, bword.length))
     var edit = new Array(Math.max(aword.length, bword.length))
     var prev_coord = [aword.length, bword.length]
@@ -149,8 +145,7 @@ export class Tester {
       else{
         edit[i] = "n"
       }
-      console.log(path)
-      console.log(edit)
+
       prev_coord = coord;
       coord = paths[coord[0]][coord[1]];
     }
