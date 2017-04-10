@@ -51,7 +51,8 @@
     "sources": [
         "./scripts/**/*",
         "./index.html",
-        "./img/*"
+        "./img/*",
+        "./bootstrap/**/*"
     ]
   },
   "testFramework": {
