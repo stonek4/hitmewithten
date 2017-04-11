@@ -38,15 +38,11 @@ $btns: 5;
   align-items: center;
   justify-content: center;
   box-shadow: 5px 5px 2.5px grey;
-  @include gradient(#b5ccf2, #6b80a3);
+  @include gradient(#8492ff, #5a63ad);
 }
 
 .test-10, .test-all{
-  @include gradient(#84b77e, #357039);
-}
-
-.load{
-  @include gradient(#d1cd73, #63612f);
+  @include gradient(#86ff84, #5db55c);
 }
 
 .menu-btn:active{
