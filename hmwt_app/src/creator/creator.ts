@@ -83,7 +83,7 @@ export class Creator {
       this.next();
     }
     var storage = window.localStorage;
-    storage.setItem(this.name, JSON.stringify(this.cards));
+    storage.setItem(this.name + ".cards", JSON.stringify(this.cards));
     var keys = JSON.parse(storage.getItem('keys'));
     if (keys.indexOf(this.name) === -1){
       keys.push(this.name);

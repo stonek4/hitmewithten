@@ -19,7 +19,7 @@ export class Tester {
   activate(params, routeData){
     this.cards = routeData.settings;
     if (this.cards === null || typeof this.cards.length === 'undefined'){
-      this.cards = JSON.parse(window.localStorage.getItem(params.id));
+      this.cards = JSON.parse(window.localStorage.getItem(params.id+".cards"));
     }
     if (this.cards === null || typeof this.cards.length === 'undefined'){
       this.done();

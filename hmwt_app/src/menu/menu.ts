@@ -16,7 +16,7 @@ export class Menu {
   constructor(private router: Router){
     this.name = this.storage.getItem("current");
     if (this.name != null){
-      this.cards = JSON.parse(this.storage.getItem(this.name));
+      this.cards = JSON.parse(this.storage.getItem(this.name+".cards"));
     }
   }
 
@@ -35,21 +35,14 @@ export class Menu {
 
   load(){
     var keys = this.storage.getItem("keys");
-    if (keys === null || keys == ""){
-      window.alert("No cards found, please create some!")
-      this.create();
-    }
-    else {
       this.router.navigateToRoute('Loader');
-    }
   }
 
-  create(){
-    var keys = this.storage.getItem("keys");
+  settings(){
+    var keys = this.storage.getItem("settings");
     if (keys === null || keys == ""){
-      this.storage.setItem("keys", JSON.stringify([]))
+      this.storage.setItem("settings", JSON.stringify([]));
     }
-    this.router.navigateToRoute('Creator');
   }
 
   about(){

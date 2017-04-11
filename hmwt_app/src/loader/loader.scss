@@ -7,3 +7,29 @@ $btns: 5;
   width: 100%;
   overflow-y: auto;
 }
+
+.list-group{
+  height: 10vh;
+  margin:0;
+}
+
+.badge{
+  height: 5vh;
+  font-size: 2vh;
+  display:flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.loader-card-set{
+  height: 100%;
+  font-size: 5vh;
+}
+
+.loader-create{
+  position: fixed;
+  font-size: 5vh;
+  bottom: 0%;
+  width: 100%;
+  height: 10vh;
+}

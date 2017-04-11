@@ -1,8 +1,3 @@
 node_modules
-scripts/*-bundle.*
-platforms
-plugins
-www/*
-src/environments.ts
 .idea
 .DS_STORE
