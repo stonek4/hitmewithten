@@ -17,7 +17,7 @@ export class Creator {
 
   constructor(private router: Router){
     this.index = 0;
-    this.name = prompt("Please enter a name for the card set.");
+    //this.name = prompt("Please enter a name for the card set.");
   }
 
   attached(){
