@@ -29,6 +29,7 @@ export class Menu {
       } else {
         var info = this.cards.sort(function() { return 0.5 - Math.random() })
       }
+      this.router.routes.find(x => x.name === "Tester").settings = info;
       this.router.navigateToRoute('Tester', { id:this.name});
     }
   }

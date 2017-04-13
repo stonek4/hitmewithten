@@ -1,9 +1,21 @@
-import {inject} from 'aurelia-framework';
-import {Router} from 'aurelia-router';
+import {bindable, bindingMode, inject} from 'aurelia-framework';
+import {EventAggregator} from 'aurelia-event-aggregator';
 
-@inject(Router)
+@inject(EventAggregator)
 export class Modal {
 
-  constructor(private router: Router){
+  @bindable ({defaultBindingMode: bindingMode.twoWay}) value: string = "";
+
+  constructor(private eventAggregator: EventAggregator){ }
+
+  attached(){
+    (<HTMLElement>document.querySelector('.modal-input')).focus();
+  }
+
+  close(){
+    if (this.value != ""){
+        (<HTMLElement>document.querySelector('.modal')).style.display = "none";
+    }
+    this.eventAggregator.publish("modal-closed", {});
   }
 }

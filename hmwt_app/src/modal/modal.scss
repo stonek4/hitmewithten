@@ -1,9 +1,26 @@
 .modal {
   z-index: 99;
-  opacity: .8;
-  background-color: white;
+  background-color: rgba(0, 0, 0, 0.5);
   width: 100vw;
   height: 100vh;
   position:fixed;
   display:inline;
+}
+
+.modal-form{
+  position: relative;
+  top: 50%;
+  transform: translateY(-50%);
+  left: 5vw;
+  width: 90vw;
+}
+
+.modal-input{
+  height: 10vh;
+  font-size: 5vh;
+}
+
+.modal-input-addon{
+  font-size: 3vh;
+  opacity: 1;
 }

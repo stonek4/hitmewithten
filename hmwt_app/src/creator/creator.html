@@ -1,7 +1,7 @@
 <template>
   <require from="./creator.css"></require>
   <require from="modal/modal"></require>
-  <modal></modal>
+  <modal value.bind="name"></modal>
   <div class="creator-space"></div>
   <form class="creator" submit.delegate="next()">
     <div class="creator-top">

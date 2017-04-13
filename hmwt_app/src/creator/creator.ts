@@ -1,12 +1,13 @@
 import {inject} from 'aurelia-framework';
 import {Router} from 'aurelia-router';
+import {EventAggregator} from 'aurelia-event-aggregator';
 
 interface Card{
   definitions: string[];
   answers: string[];
 }
 
-@inject(Router)
+@inject(Router, EventAggregator)
 export class Creator {
 
   cards: Card[] = [];
@@ -15,16 +16,18 @@ export class Creator {
   index: number;
   name: string;
 
-  constructor(private router: Router){
+  constructor(private router: Router, private eventAggregator: EventAggregator){
     this.index = 0;
-    //this.name = prompt("Please enter a name for the card set.");
   }
 
   attached(){
-    (<HTMLElement>document.querySelector(".creator-definition")).focus();
+    this.eventAggregator.subscribe('modal-closed', payload => {
+      (<HTMLElement>document.querySelector('.creator-definition')).focus();
+    });
   }
 
   next(){
+    console.log(this.name);
     if (this.definition == ""){
       (<HTMLElement>document.querySelector(".creator-definition")).focus();
       return;
