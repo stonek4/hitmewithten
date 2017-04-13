@@ -1,10 +1,7 @@
 import {inject} from 'aurelia-framework';
 import {Router} from 'aurelia-router';
+import {Card} from '../card';
 
-interface Card{
-  definitions: string[];
-  answers: string[];
-}
 
 @inject(Router)
 export class Tester {

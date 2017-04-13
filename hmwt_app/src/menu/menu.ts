@@ -1,10 +1,6 @@
 import {inject} from 'aurelia-framework';
 import {Router} from 'aurelia-router';
-
-interface Card{
-  definitions: string[];
-  answers: string[];
-}
+import {Card} from '../card'
 
 @inject(Router)
 export class Menu {

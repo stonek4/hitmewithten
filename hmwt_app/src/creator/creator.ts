@@ -1,11 +1,7 @@
 import {inject} from 'aurelia-framework';
 import {Router} from 'aurelia-router';
 import {EventAggregator} from 'aurelia-event-aggregator';
-
-interface Card{
-  definitions: string[];
-  answers: string[];
-}
+import {Card} from '../card';
 
 @inject(Router, EventAggregator)
 export class Creator {
