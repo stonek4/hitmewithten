@@ -8,10 +8,16 @@
       <button type= "button" class = "form-control creator-delete" click.delegate = "delete()">Delete</button>
     </div>
     <div class="creator-middle">
-      <center>
-        <input type = "text" class = "form-control creator-input creator-definition" value.bind="definition" placeholder="Question"/>
-        <input type = "text" class = "form-control creator-input creator-answer" value.bind="answer" placeholder="Answer"/>
-      </center>
+      <div class="creator-inputs">
+        <div class="input-group creator-input-group">
+          <span class="input-group-addon modal-input-addon">Set Name:</span>
+          <input type = "text" class = "form-control creator-input creator-definition" value.bind="definition" placeholder="Question"/>
+        </div>
+        <div class="input-group creator-input-group">
+          <span class="input-group-addon modal-input-addon">Set Name:</span>
+          <input type = "text" class = "form-control creator-input creator-answer" value.bind="answer" placeholder="Answer"/>
+        </div>
+      </div>
     </div>
     <div class="creator-bottom">
       <button type= "button" class = "form-control creator-next" click.delegate = "next()">Next</button>

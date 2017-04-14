@@ -1,11 +1,11 @@
 .creator-space {
   width: 100vw;
-  height: 25vh;
+  height: 20vh;
 }
 
 .creator {
   width: 100vw;
-  height: 50vh;
+  height: 60vh;
   background-color: white;
   position:fixed;
 }
@@ -28,9 +28,19 @@
   position:relative;
 }
 
+.creator-inputs{
+  width: 90vw;
+  left: 5vw;
+  position: absolute;
+}
+
 .creator-input{
-  width: 90%;
-  left: 5%;
+  height: 10vh;
+  font-size: 5vh;
+}
+
+.creator-input-group{
+  margin-bottom: 5vh;
 }
 
 .creator-definition{
