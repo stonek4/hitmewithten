@@ -36,10 +36,11 @@
 
 .creator-input{
   height: 10vh;
-  font-size: 5vh;
+  font-size: 5vmin;
 }
 
 .creator-input-group{
+  margin-top: 5vh;
   margin-bottom: 5vh;
 }
 
@@ -61,23 +62,31 @@
   right:0;
   bottom: 0;
   position: absolute;
-  width: 20%;
 }
 
 .creator-back{
   left:0;
   bottom: 0;
   position: absolute;
-  width: 20%;
 }
 
 .creator-done{
-  bottom: 0;
-  left:40%;
+  left:0;
+  top:0;
   position: absolute;
-  width: 20%;
 }
 
 .creator-delete{
-  width: 20%;
+  color: red;
+}
+
+.btn-icon:before{
+  margin-right: 3vh;
+  margin-left: 3vh;
+}
+
+.creator-btn{
+  height: auto;
+  font-size: 5vmin;
+  width: auto;
 }

@@ -5,24 +5,35 @@
   <div class="creator-space"></div>
   <form class="creator" submit.delegate="next()">
     <div class="creator-top">
-      <button type= "button" class = "form-control creator-delete" click.delegate = "delete()">Delete</button>
+      <button type= "button" class = "form-control creator-done creator-btn" click.delegate = "done()">
+        <span class="btn-icon glyphicon glyphicon-floppy-disk"></span>
+        Done
+      </button>
+      <button type= "button" class = "form-control creator-delete creator-btn" click.delegate = "delete()">
+        <span class="btn-icon glyphicon glyphicon-remove"></span>
+      </button>
     </div>
     <div class="creator-middle">
       <div class="creator-inputs">
         <div class="input-group creator-input-group">
-          <span class="input-group-addon modal-input-addon">Set Name:</span>
-          <input type = "text" class = "form-control creator-input creator-definition" value.bind="definition" placeholder="Question"/>
+          <span class="input-group-addon modal-input-addon">Definition:</span>
+          <input type = "text" class = "form-control creator-input creator-definition" value.bind="definition" placeholder="A great vocab app"/>
         </div>
         <div class="input-group creator-input-group">
-          <span class="input-group-addon modal-input-addon">Set Name:</span>
-          <input type = "text" class = "form-control creator-input creator-answer" value.bind="answer" placeholder="Answer"/>
+          <span class="input-group-addon modal-input-addon">Answer:</span>
+          <input type = "text" class = "form-control creator-input creator-answer" value.bind="answer" placeholder="HMWT"/>
         </div>
       </div>
     </div>
     <div class="creator-bottom">
-      <button type= "button" class = "form-control creator-next" click.delegate = "next()">Next</button>
-      <button type= "button" class = "form-control creator-back" click.delegate = "back()">Back</button>
-      <button type= "button" class = "form-control creator-done" click.delegate = "done()">Done</button>
+      <button type= "button" class = "form-control creator-next creator-btn" click.delegate = "next()">
+        Next
+        <span class="btn-icon glyphicon glyphicon-circle-arrow-right"></span>
+      </button>
+      <button type= "button" class = "form-control creator-back creator-btn" click.delegate = "back()">
+        <span class="btn-icon glyphicon glyphicon-circle-arrow-left"></span>
+        Back
+      </button>
       <input type="submit"
        style="position: absolute; left: -9999px; width: 1px; height: 1px;"
        tabindex="-1" />
