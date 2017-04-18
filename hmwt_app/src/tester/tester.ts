@@ -55,7 +55,6 @@ export class Tester {
         }
 
       this.definition = marked;
-      return;
     }
     (<HTMLElement>document.querySelector(".tester-input")).focus();
   }
