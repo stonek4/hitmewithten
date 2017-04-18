@@ -6,12 +6,16 @@
       <div class="tester-text" innerhtml.bind="definition"></div>
     </div>
     <form class = "tester-answer" submit.delegate="submit()">
-      <button type= "button" class = "form-control tester-back" click.delegate = "back()">Back</button>
+      <button type= "button" class = "tester-btn tester-back" click.delegate = "back()">
+        <span class="btn-icon glyphicon glyphicon-circle-arrow-left"></span>
+      </button>
       <input type = "text" class = "form-control tester-input" value.bind="answer" autofocus/>
       <input type="submit"
        style="position: absolute; left: -9999px; width: 1px; height: 1px;"
        tabindex="-1" />
-      <button type= "button" class = "form-control tester-next" click.delegate = "next()">Skip</button>
+      <button type= "button" class = "tester-btn tester-next" click.delegate = "next()">
+        <span class="btn-icon glyphicon glyphicon-circle-arrow-right"></span>
+      </button>
     </form>
   </div>
 
