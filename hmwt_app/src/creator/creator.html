@@ -6,20 +6,20 @@
   <form class="creator" submit.delegate="next()">
     <div class="creator-top">
       <button type= "button" class = "creator-done creator-btn" click.delegate = "done()">
-        <span class="btn-icon glyphicon glyphicon-floppy-disk"></span>
+        Done
       </button>
       <button type= "button" class = "creator-delete creator-btn" click.delegate = "delete()">
-        <span class="btn-icon glyphicon glyphicon-remove"></span>
+        <span class="btn-icon glyphicon glyphicon-trash"></span>
       </button>
     </div>
     <div class="creator-middle">
       <div class="creator-inputs">
         <div class="input-group creator-input-group">
-          <span class="input-group-addon modal-input-addon">Definition:</span>
+          <span class="input-group-addon modal-input-addon creator-label">Hint:</span>
           <input type = "text" class = "form-control creator-input creator-definition" value.bind="definition" placeholder="A great vocab app"/>
         </div>
         <div class="input-group creator-input-group">
-          <span class="input-group-addon modal-input-addon">Answer:</span>
+          <span class="input-group-addon modal-input-addon creator-label">Answer:</span>
           <input type = "text" class = "form-control creator-input creator-answer" value.bind="answer" placeholder="HMWT"/>
         </div>
       </div>

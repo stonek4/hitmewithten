@@ -7,7 +7,7 @@ import {Card} from '../card';
 export class Tester {
 
   definition: string;
-  answer: string;
+  answer: string = "";
   cards: Card[];
   index: number = 0;
 
@@ -37,6 +37,9 @@ export class Tester {
       var actual = this.cards[this.index].answers[0]
       var marked = "";
       var edit = this.calcDist(this.answer, actual);
+      if (edit.length === 1){
+        edit[0] = "i";
+      }
 
       for (var i = 0; i < edit.length; i++){
         if (edit[i] === "n"){
@@ -52,7 +55,7 @@ export class Tester {
       this.definition = marked;
       return;
     }
-    (<HTMLElement>document.querySelector(".creator-definition")).focus();
+    (<HTMLElement>document.querySelector(".tester-input")).focus();
   }
 
   next() {
@@ -75,7 +78,6 @@ export class Tester {
   }
 
   calcDist(aword, bword){
-
     var dist = new Array(aword.length+1);
     var paths = new Array(aword.length+1);
     var edits = new Array(aword.length+1);
