@@ -3,6 +3,11 @@
   <div class="tester-space"></div>
   <div class="tester">
     <div class="tester-definition">
+      <div class="tester-progress">
+        <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow.bind="progressValue"
+          aria-valuemin="0" aria-valuemax="100" style.bind="progressStyle">
+        </div>
+      </div>
       <div class="tester-text" innerhtml.bind="definition"></div>
     </div>
     <form class = "tester-answer" submit.delegate="submit()">

@@ -10,6 +10,8 @@ export class Tester {
   answer: string = "";
   cards: Card[];
   index: number = 0;
+  progressStyle: string = "width:0%";
+  progressValue: string = "0";
 
   constructor(private router: Router){}
 
@@ -61,6 +63,7 @@ export class Tester {
   next() {
     if (this.index+1 < this.cards.length) {
       this.index += 1;
+      this.updateProgress();
       this.definition = this.cards[this.index].definitions[0];
       this.answer = "";
     }
@@ -75,6 +78,13 @@ export class Tester {
       this.definition = this.cards[this.index].definitions[0];
       this.answer = "";
     }
+  }
+
+  updateProgress(){
+    let progress = (this.index / this.cards.length) * 100;
+    this.progressStyle = "width:" + progress.toString() + "%";
+    this.progressValue = progress.toString();
+    return;
   }
 
   calcDist(aword, bword){

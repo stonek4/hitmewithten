@@ -57,6 +57,14 @@ correct{
   height: 50%;
 }
 
+.tester-progress{
+  width: 100%;
+  position: absolute;
+  top: 0;
+  height: 5vh;
+  background-color: blue;
+}
+
 .tester-input{
   width:50%;
   font-size:5vmin;
