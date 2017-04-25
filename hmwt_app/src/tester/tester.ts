@@ -60,15 +60,18 @@ export class Tester {
   }
 
   next() {
+
+    this.index += 1;
+    this.updateProgress();
+
     if (this.index < this.cards.length) {
-      this.index += 1;
-      this.updateProgress();
       this.definition = this.cards[this.index].definitions[0];
       this.answer = "";
     }
     else {
-      this.done();
+      setTimeout(() => {this.done()}, 500);
     }
+
   }
 
   back() {
