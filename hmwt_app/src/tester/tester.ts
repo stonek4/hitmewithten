@@ -1,9 +1,10 @@
 import {inject} from 'aurelia-framework';
 import {Router} from 'aurelia-router';
+import {CssAnimator} from 'aurelia-animator-css';
 import {Card} from '../card';
 
 
-@inject(Router)
+@inject(Router, CssAnimator)
 export class Tester {
 
   definition: string;
@@ -13,7 +14,9 @@ export class Tester {
   progressStyle: string = "width:0%";
   progressValue: string = "0";
 
-  constructor(private router: Router){}
+  constructor(private router: Router, private animator: CssAnimator){
+    this.animator = animator;
+  }
 
   activate(params, routeData){
     this.cards = routeData.settings;
@@ -57,6 +60,8 @@ export class Tester {
       this.definition = marked;
     }
     (<HTMLElement>document.querySelector(".tester-input")).focus();
+    var test = document.querySelector(".tester-text");
+    this.animator.animate(test, 'background-animation');
   }
 
   next() {

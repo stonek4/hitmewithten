@@ -125,6 +125,11 @@
           "aurelia-templating-binding",
           "jquery",
           {
+            "name": "aurelia-animator-css",
+            "path": "../node_modules/aurelia-animator-css/dist/amd",
+            "main": "aurelia-animator-css"
+          },
+          {
             "name": "bootstrap",
             "path": "../node_modules/bootstrap/dist",
             "main": "js/bootstrap.min",
