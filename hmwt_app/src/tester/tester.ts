@@ -60,7 +60,7 @@ export class Tester {
   }
 
   next() {
-    if (this.index+1 < this.cards.length) {
+    if (this.index < this.cards.length) {
       this.index += 1;
       this.updateProgress();
       this.definition = this.cards[this.index].definitions[0];
