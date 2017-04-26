@@ -1,5 +1,7 @@
 $btns: 5;
 
+@import '../animate';
+
 @mixin gradient($color1, $color2){
   background: -webkit-gradient(linear, top, bottom, $color1, $color2); /* Chrome, Safari4+ */
   background: -webkit-linear-gradient(top, $color1, $color2); /* Chrome10+, Safari5.1+ */

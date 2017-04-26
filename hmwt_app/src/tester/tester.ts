@@ -8,7 +8,11 @@ import {Card} from '../card';
 export class Tester {
 
   definition: string;
+  definition_element: string = ".tester-text";
+
   answer: string = "";
+  input_element: string = ".tester-input";
+
   cards: Card[];
   index: number = 0;
   progressStyle: string = "width:0%";
@@ -30,13 +34,16 @@ export class Tester {
   }
 
   attached(){
-    (<HTMLElement>document.querySelector(".tester-input")).focus();
+    (<HTMLElement>document.querySelector(this.input_element)).focus();
+    this.animator.animate(document.querySelector(this.definition_element), 'slideInRight');
   }
 
   submit(){
     if (this.answer === this.cards[this.index].answers[0]){
       this.definition = "<correct>"+this.cards[this.index].answers[0]+"</correct>";
-      setTimeout(() => {this.next(); },500);
+      setTimeout(() => {
+        this.next();
+      }, 100);
     } else {
 
       var actual = this.cards[this.index].answers[0]
@@ -58,25 +65,28 @@ export class Tester {
         }
 
       this.definition = marked;
+      this.animator.animate(document.querySelector(this.definition_element), 'shake');
     }
-    (<HTMLElement>document.querySelector(".tester-input")).focus();
-    var test = document.querySelector(".tester-text");
-    this.animator.animate(test, 'background-animation');
+    (<HTMLElement>document.querySelector(this.input_element)).focus();
   }
 
   next() {
-
-    this.index += 1;
-    this.updateProgress();
-
-    if (this.index < this.cards.length) {
-      this.definition = this.cards[this.index].definitions[0];
-      this.answer = "";
-    }
-    else {
-      setTimeout(() => {this.done()}, 500);
-    }
-
+    this.animator.animate(document.querySelector(this.definition_element), 'slide');
+    setTimeout(() => {
+      (<HTMLElement>document.querySelector(this.definition_element)).style.opacity = "0";
+      this.index += 1;
+      this.updateProgress();
+      if (this.index < this.cards.length) {
+        setTimeout(() => {
+          (<HTMLElement>document.querySelector(this.definition_element)).style.opacity = "1";
+          this.definition = this.cards[this.index].definitions[0];
+          this.answer = "";
+        },100);
+      }
+      else {
+        setTimeout(() => {this.done()}, 500);
+      }
+    },500);
   }
 
   back() {
