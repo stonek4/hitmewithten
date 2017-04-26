@@ -43,7 +43,7 @@ export class Tester {
       this.definition = "<correct>"+this.cards[this.index].answers[0]+"</correct>";
       setTimeout(() => {
         this.next();
-      }, 100);
+      }, 200);
     } else {
 
       var actual = this.cards[this.index].answers[0]
@@ -81,7 +81,7 @@ export class Tester {
           (<HTMLElement>document.querySelector(this.definition_element)).style.opacity = "1";
           this.definition = this.cards[this.index].definitions[0];
           this.answer = "";
-        },100);
+        });
       }
       else {
         setTimeout(() => {this.done()}, 500);
@@ -92,8 +92,19 @@ export class Tester {
   back() {
     if (this.index != 0){
       this.index -= 1;
-      this.definition = this.cards[this.index].definitions[0];
-      this.answer = "";
+      this.animator.animate(document.querySelector(this.definition_element), 'slideBack');
+      setTimeout(() => {
+        (<HTMLElement>document.querySelector(this.definition_element)).style.opacity = "0";
+        setTimeout(() => {
+          (<HTMLElement>document.querySelector(this.definition_element)).style.opacity = "1";
+          this.definition = this.cards[this.index].definitions[0];
+          this.answer = "";
+        });
+      },500);
+      (<HTMLElement>document.querySelector(this.input_element)).focus();
+    }
+    else{
+      this.done();
     }
   }
 
