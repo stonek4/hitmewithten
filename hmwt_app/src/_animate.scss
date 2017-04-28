@@ -8,11 +8,81 @@
  * Copyright (c) 2016 Daniel Eden
  */
 
+ /* Aurelia CSS Animator Bridges */
+$tiny: 300ms;
+$short: 500ms;
+$long: 1s;
+
+ .slideInRight-add{
+   -webkit-animation: slideInRight $short;
+   animation: slideInRight $short;
+ }
+
+ .slideInLeft-add{
+   -webkit-animation: slideInLeft $short;
+   animation: slideInLeft $short;
+ }
+
+ .slideOutLeft-add{
+   -webkit-animation: slideOutLeft $short;
+   animation: slideOutLeft $short;
+ }
+
+ .slideOutRight-add{
+   -webkit-animation: slideOutRight $short;
+   animation: slideOutRight $short;
+ }
+
+ .flipInX-add{
+   -webkit-animation: flipInX $short;
+   animation: flipInX $short;
+ }
+
+ .flipOutX-add{
+   -webkit-animation: flipOutX $short;
+   animation: flipOutX $short;
+ }
+
+ .slide-add{
+   -webkit-animation: slideOutLeft $short;
+   animation: slideOutLeft $short;
+ }
+
+ .slide-remove{
+   -webkit-animation: slideInRight $short;
+   animation: slideInRight $short;
+ }
+
+ .slideBack-add{
+   -webkit-animation: slideOutRight $short;
+   animation: slideOutRight $short;
+ }
+
+ .slideBack-remove{
+   -webkit-animation: slideInLeft $short;
+   animation: slideInLeft $short;
+ }
+
+ .shake-add {
+     -webkit-animation: shake $tiny;
+     animation: shake $tiny;
+ }
+
+ /* Animations */
+
 .animated {
   -webkit-animation-duration: 1s;
   animation-duration: 1s;
   -webkit-animation-fill-mode: both;
   animation-fill-mode: both;
+}
+
+.delayed-animated{
+  -webkit-animation-duration: 1s;
+  animation-duration: 1s;
+  -webkit-animation-fill-mode: both;
+  animation-fill-mode: both;
+  animation-delay: 1s;
 }
 
 .animated.infinite {

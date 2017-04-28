@@ -1,7 +1,8 @@
-$btns: 5;
+@import '../animate';
+@import '../general';
 
 .loader{
-  background-color: white;
+  background-color: rgba(255, 0, 0, 0);
   position:relative;
   height: 100%;
   width: 100%;
@@ -11,6 +12,7 @@ $btns: 5;
 .list-group{
   height: 10vh;
   margin:0;
+
 }
 
 .badge{
@@ -27,9 +29,10 @@ $btns: 5;
 }
 
 .loader-create{
+  @extend .general-btn;
   position: fixed;
-  font-size: 5vh;
-  bottom: 0%;
-  width: 100%;
+  bottom: 2vh;
+  left: 1vw;
+  width: 98vw;
   height: 10vh;
 }

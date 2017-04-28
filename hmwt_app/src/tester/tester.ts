@@ -33,9 +33,17 @@ export class Tester {
     this.definition = this.cards[this.index].definitions[0];
   }
 
-  attached(){
+  enterAnimations(){
+    this.animator.animate(document.querySelector('.tester'), 'slideInRight');
     (<HTMLElement>document.querySelector(this.input_element)).focus();
-    this.animator.animate(document.querySelector(this.definition_element), 'slideInRight');
+  }
+
+  exitAnimations(){
+    this.animator.animate(document.querySelector('.tester'), 'slideOutRight');
+  }
+
+  attached(){
+    this.enterAnimations();
   }
 
   submit(){
@@ -81,7 +89,7 @@ export class Tester {
           (<HTMLElement>document.querySelector(this.definition_element)).style.opacity = "1";
           this.definition = this.cards[this.index].definitions[0];
           this.answer = "";
-        });
+        },50);
       }
       else {
         setTimeout(() => {this.done()}, 500);
@@ -99,7 +107,7 @@ export class Tester {
           (<HTMLElement>document.querySelector(this.definition_element)).style.opacity = "1";
           this.definition = this.cards[this.index].definitions[0];
           this.answer = "";
-        });
+        },50);
       },500);
       (<HTMLElement>document.querySelector(this.input_element)).focus();
     }
@@ -190,6 +198,9 @@ export class Tester {
   }
 
   done() {
-    this.router.navigateToRoute('Menu');
+    this.exitAnimations();
+    setTimeout( () => {
+      this.router.navigateToRoute('Menu');
+    }, 400);
   }
 }

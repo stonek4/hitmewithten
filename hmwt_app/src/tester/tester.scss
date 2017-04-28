@@ -110,33 +110,3 @@ correct{
     height: 10vh;
   }
 }
-
-.slideInRight-add{
-  -webkit-animation: slideInRight 500ms;
-  animtion: slideInRight 500ms;
-}
-
-.slide-add{
-  -webkit-animation: slideOutLeft 500ms;
-  animation: slideOutLeft 500ms;
-}
-
-.slide-remove{
-  -webkit-animation: slideInRight 500ms;
-  animation: slideInRight 500ms;
-}
-
-.slideBack-add{
-  -webkit-animation: slideOutRight 500ms;
-  animation: slideOutRight 500ms;
-}
-
-.slideBack-remove{
-  -webkit-animation: slideInLeft 500ms;
-  animation: slideInLeft 500ms;
-}
-
-.shake-add {
-    -webkit-animation: shake .3s;
-    animation: shake .3s;
-}

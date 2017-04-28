@@ -1,14 +1,7 @@
 $btns: 5;
 
 @import '../animate';
-
-@mixin gradient($color1, $color2){
-  background: -webkit-gradient(linear, top, bottom, $color1, $color2); /* Chrome, Safari4+ */
-  background: -webkit-linear-gradient(top, $color1, $color2); /* Chrome10+, Safari5.1+ */
-  background: -moz-linear-gradient(top, $color1, $color2);    /* FF3.6+ */
-  background: linear-gradient(to top, $color1, $color2);      /* W3C */
-  text-shadow: -2px 2px $color2;
-}
+@import '../general';
 
 .menu{
   position:fixed;
@@ -28,23 +21,10 @@ $btns: 5;
 }
 
 .menu-btn{
-  box-sizing: border-box;
+  @extend .general-btn;
   height:100%;
   width:100%;
   position: relative;
-  color: #ffffff;
-  border: none;
-  border-radius: 15px;
-  font-size: 5vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 5px 5px 2.5px grey;
-  @include gradient(#8492ff, #5a63ad);
-}
-
-.test-10, .test-all{
-  @include gradient(#86ff84, #5db55c);
 }
 
 .menu-btn:active{

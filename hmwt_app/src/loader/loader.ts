@@ -1,18 +1,20 @@
 import {inject} from 'aurelia-framework';
 import {Router} from 'aurelia-router';
+import {CssAnimator} from 'aurelia-animator-css';
 
 interface CardSet{
   name: string;
   number: number;
 }
 
-@inject(Router)
+@inject(Router, CssAnimator)
 export class Menu {
 
   sets: CardSet[] = [];
   storage = window.localStorage;
 
-  constructor(private router: Router){
+  constructor(private router: Router, private animator: CssAnimator){
+    this.animator = animator;
     let keys = JSON.parse(this.storage.getItem('keys'));
     if (keys != null){
       for(let i = 0; i < keys.length; i++){
@@ -22,9 +24,30 @@ export class Menu {
     }
   }
 
+  enterAnimations(){
+    this.animator.animate(document.querySelector('.list-group'), 'slideInLeft');
+    this.animator.animate(document.querySelector('.loader-create'), 'flipInX');
+  }
+
+  exitAnimations(){
+    this.animator.animate(document.querySelector('.list-group'), 'slideOutLeft');
+    this.animator.animate(document.querySelector('.loader-create'), 'flipOutX');
+  }
+
+  navigateTo(location:string){
+    this.exitAnimations();
+    setTimeout(() => {
+      this.router.navigateToRoute(location);
+    }, 400);
+  }
+
+  attached(){
+    this.enterAnimations();
+  }
+
   load(aset: CardSet){
     this.storage.setItem('current', aset.name);
-    this.router.navigateToRoute('Menu');
+    this.navigateTo('Menu');
   }
 
   create(){
@@ -32,6 +55,6 @@ export class Menu {
     if (keys === null || keys == ""){
       this.storage.setItem("keys", JSON.stringify([]))
     }
-    this.router.navigateToRoute('Creator');
+    this.navigateTo('Creator');
   }
 }

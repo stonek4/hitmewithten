@@ -1,19 +1,51 @@
 import {inject} from 'aurelia-framework';
 import {Router} from 'aurelia-router';
 import {Card} from '../card'
+import {CssAnimator} from 'aurelia-animator-css';
 
-@inject(Router)
+@inject(Router, CssAnimator)
 export class Menu {
 
   cards : Card[] = [];
   name: string = "";
   storage: Storage = window.localStorage;
 
-  constructor(private router: Router){
+  constructor(private router: Router, private animator: CssAnimator){
     this.name = this.storage.getItem("current");
+    this.animator = animator;
     if (this.name != null){
       this.cards = JSON.parse(this.storage.getItem(this.name+".cards"));
     }
+  }
+
+  attached(){
+    this.enterAnimations();
+  }
+
+  enterAnimations(){
+    let elements = document.getElementsByClassName('btn-cont');
+    for(var i = 0; i < elements.length; i++){
+      this.animator.animate(elements[i], 'flipInX');
+    }
+  }
+
+  exitAnimations(){
+    let elements = document.getElementsByClassName('btn-cont');
+    for(var i = 0; i < elements.length; i++){
+      this.animator.animate(elements[i], 'flipOutX');
+    }
+  }
+
+  navigateTo(location:string){
+    this.exitAnimations();
+    setTimeout( () => {
+      if (location == "Tester"){
+        this.router.navigateToRoute(location, { id:this.name});
+      }
+      else{
+        this.router.navigateToRoute(location)
+      }
+    }, 400);
   }
 
   serve(number:any){
@@ -26,13 +58,13 @@ export class Menu {
         var info = this.cards.sort(function() { return 0.5 - Math.random() })
       }
       this.router.routes.find(x => x.name === "Tester").settings = info;
-      this.router.navigateToRoute('Tester', { id:this.name});
+      this.navigateTo("Tester");
     }
   }
 
   load(){
     var keys = this.storage.getItem("keys");
-      this.router.navigateToRoute('Loader');
+      this.navigateTo('Loader');
   }
 
   settings(){
@@ -43,6 +75,6 @@ export class Menu {
   }
 
   about(){
-    this.router.navigateToRoute('About');
+    this.navigateTo('About');
   }
 }
