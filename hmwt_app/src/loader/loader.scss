@@ -6,6 +6,8 @@
   position:relative;
   height: 100%;
   width: 100%;
+  background-color: white;
+  height: 85vh;
   overflow-y: auto;
 }
 
@@ -17,7 +19,7 @@
 
 .badge{
   height: 5vh;
-  font-size: 2vh;
+  font-size: 2.5vh;
   display:flex;
   align-items: center;
   justify-content: center;
@@ -34,5 +36,5 @@
   bottom: 2vh;
   left: 1vw;
   width: 98vw;
-  height: 10vh;
+  height: 15vh;
 }
