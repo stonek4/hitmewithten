@@ -12,6 +12,7 @@ export class Menu {
 
   sets: CardSet[] = [];
   storage = window.localStorage;
+  action: string;
 
   constructor(private router: Router, private animator: CssAnimator){
     this.animator = animator;

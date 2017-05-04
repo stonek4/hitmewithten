@@ -2,8 +2,9 @@ import {inject} from 'aurelia-framework';
 import {Router} from 'aurelia-router';
 import {EventAggregator} from 'aurelia-event-aggregator';
 import {Card} from '../card';
+import {CssAnimator} from 'aurelia-animator-css';
 
-@inject(Router, EventAggregator)
+@inject(Router, EventAggregator, CssAnimator)
 export class Creator {
 
   cards: Card[] = [];
@@ -12,14 +13,24 @@ export class Creator {
   index: number;
   name: string;
 
-  constructor(private router: Router, private eventAggregator: EventAggregator){
+  constructor(private router: Router, private eventAggregator: EventAggregator, private animator: CssAnimator){
     this.index = 0;
+    this.animator = animator;
   }
 
   attached(){
+    this.enterAnimations();
     this.eventAggregator.subscribe('modal-closed', payload => {
       (<HTMLElement>document.querySelector('.creator-definition')).focus();
     });
+  }
+
+  enterAnimations(){
+    this.animator.animate(document.querySelector('.creator'), 'slideInLeft');
+  }
+
+  exitAnimations(){
+    this.animator.animate(document.querySelector('.list-group'), 'slideOutLeft');
   }
 
   next(){
@@ -89,6 +100,9 @@ export class Creator {
     }
     storage.setItem('keys', JSON.stringify(keys));
     storage.setItem('current', this.name);
-    this.router.navigateToRoute('Menu');
+    this.exitAnimations();
+    setTimeout(() => {
+      this.router.navigateBack();
+    }, 400);
   }
 }

@@ -15,7 +15,7 @@ $btns: 5;
   height: 30vh;
 }
 
-.btn-cont{
+.menu-btn-cont{
   display: inline-block;
   margin-bottom: 1vh;
 }
@@ -38,7 +38,7 @@ $btns: 5;
 }
 
 @media (orientation: portrait){
-  .btn-cont{
+  .menu-btn-cont{
     height: 100% / $btns;
     width: 100%;
   }
@@ -49,7 +49,7 @@ $btns: 5;
 }
 
 @media (orientation: landscape){
-  .btn-cont{
+  .menu-btn-cont{
     height: 100% / ceil($btns/2);
     width: 45%;
   }

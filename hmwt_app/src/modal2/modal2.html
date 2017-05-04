@@ -1,0 +1,23 @@
+<template>
+  <require from="./modal2.css"></require>
+  <div class = "modal">
+    <div class="modal-btn-cont">
+      <div class="load modal-btn" click.delegate="load()">
+        <span class="modal-btn-icon glyphicon glyphicon-th-list"></span>
+        Manage Cards
+      </div>
+    </div>
+    <div class="modal-btn-cont">
+      <div class="settings modal-btn" click.delegate="settings()">
+        <span class="modal-btn-icon glyphicon glyphicon-cog"></span>
+        Settings
+      </div>
+    </div>
+    <div class="modal-btn-cont">
+      <div class="about modal-btn" click.delegate="about()">
+        <span class="modal-btn-icon glyphicon glyphicon-info-sign"></span>
+        About
+      </div>
+    </div>
+  </div>
+</template>
