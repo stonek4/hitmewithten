@@ -1,0 +1,14 @@
+<template>
+  <require from="modal/modal"></require>
+  <require from="./modal-form.css"></require>
+  <modal>
+    <div slot="modal-content">
+      <form submit.delegate = "closeForm()" class = "dialog modal-form">
+        <div class="input-group">
+            <span class="input-group-addon modal-form-input-addon">Name:</span>
+          <input type="text" value.bind="value" class="form-control modal-form-input" name="msg" placeholder="New Vocab" autofocus>
+        </div>
+      </form>
+    </div>
+  </modal>
+</template>

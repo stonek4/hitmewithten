@@ -7,20 +7,7 @@
   display:inline;
 }
 
-.modal-form{
-  position: relative;
-  top: 50%;
-  transform: translateY(-50%);
-  left: 5vw;
-  width: 90vw;
-}
-
-.modal-input{
-  height: 15vh;
-  font-size: 8vmin;
-}
-
-.modal-input-addon{
-  font-size: 5vmin;
-  opacity: 1;
+.modal > * {
+  height: 100vh;
+  width: 100vw;
 }

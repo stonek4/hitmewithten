@@ -1,20 +1,19 @@
 import {bindable, bindingMode, inject} from 'aurelia-framework';
 import {EventAggregator} from 'aurelia-event-aggregator';
+import {Modal} from '../modal/modal'
 
 @inject(EventAggregator)
-export class Modal2 {
+export class ModalForm extends Modal{
 
   @bindable ({defaultBindingMode: bindingMode.twoWay}) value: string = "";
 
-  constructor(private eventAggregator: EventAggregator){ }
-
   attached(){
+    (<HTMLElement>document.querySelector('.modal-form-input')).focus();
   }
 
-  close(){
+  closeForm(){
     if (this.value != ""){
-        (<HTMLElement>document.querySelector('.modal')).style.display = "none";
+        this.close();
     }
-    this.eventAggregator.publish("modal-closed", {});
   }
 }

@@ -1,7 +1,7 @@
 <template>
   <require from="./loader.css"></require>
-  <require from="modal2/modal2"></require>
-  <modal2 value.bind="action"></modal2>
+  <require from="modal-menu/modal-menu"></require>
+  <modal-menu value.bind="action"></modal-menu>
   <div class="loader">
     <div class="list-group">
       <button class="loader-card-set list-group-item" repeat.for="set of sets" click.delegate="load(set)" type="button">

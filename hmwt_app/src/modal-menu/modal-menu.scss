@@ -1,0 +1,34 @@
+$btns: 3;
+
+@import '../general';
+
+.modal-menu-btn-cont{
+  display: inline-block;
+  margin-bottom: 1vh;
+  position: relative;
+  height: 50% / $btns;
+  width: 50%;
+  left: 25%;
+  top: 25%;
+}
+
+.modal-menu-btn-icon:before{
+  margin-right: 3vw;
+}
+
+.modal-menu-btn{
+  @extend .general-btn;
+  height:100%;
+  width:100%;
+  position: relative;
+}
+
+.modal-menu-btn:active{
+  box-shadow: none;
+  text-shadow: none;
+}
+
+.modal-menu-btn:disabled{
+  box-shadow: none;
+  background-color: #8e8f91;
+}
