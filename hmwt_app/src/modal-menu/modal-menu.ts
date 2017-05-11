@@ -5,14 +5,32 @@ import {Modal} from '../modal/modal'
 @inject(EventAggregator)
 export class ModalMenu extends Modal{
 
-  @bindable ({defaultBindingMode: bindingMode.twoWay}) value: string = "";
+  // FIXME: Why doesn't this work???
+  @bindable ({defaultBindingMode: bindingMode.twoWay}) action: string = "";
 
   attached(){
   }
 
   closeForm(){
-    if (this.value != ""){
+    this.eventAggregator.publish('modal-action', this.action);
+    if (this.action != ""){
+      console.log(this.action)
         this.close();
     }
+  }
+
+  load(){
+    this.action = "load";
+    this.closeForm();
+  }
+
+  delete(){
+    this.action = "delete";
+    this.closeForm();
+  }
+
+  edit(){
+    this.action = "edit";
+    this.closeForm();
   }
 }

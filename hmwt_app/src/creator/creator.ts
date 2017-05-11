@@ -20,7 +20,8 @@ export class Creator {
 
   attached(){
     this.enterAnimations();
-    this.eventAggregator.subscribe('modal-closed', payload => {
+    this.eventAggregator.subscribeOnce('modal-closed', payload => {
+      console.log(this.name);
       (<HTMLElement>document.querySelector('.creator-definition')).focus();
     });
   }

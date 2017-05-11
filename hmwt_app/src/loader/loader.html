@@ -1,10 +1,10 @@
 <template>
   <require from="./loader.css"></require>
   <require from="modal-menu/modal-menu"></require>
-  <modal-menu value.bind="action"></modal-menu>
+  <modal-menu action.bind="action"></modal-menu>
   <div class="loader">
     <div class="list-group">
-      <button class="loader-card-set list-group-item" repeat.for="set of sets" click.delegate="load(set)" type="button">
+      <button class="loader-card-set list-group-item" repeat.for="set of sets" click.delegate="showModal(set)" type="button">
         ${set.name}
         <span class = "loader-set-number badge badge-default badge-pill">${set.number}</span>
       </button>

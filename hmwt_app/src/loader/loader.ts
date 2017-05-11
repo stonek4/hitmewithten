@@ -1,21 +1,25 @@
 import {inject} from 'aurelia-framework';
 import {Router} from 'aurelia-router';
 import {CssAnimator} from 'aurelia-animator-css';
+import {EventAggregator} from 'aurelia-event-aggregator';
 
 interface CardSet{
   name: string;
   number: number;
 }
 
-@inject(Router, CssAnimator)
+@inject(Router, CssAnimator, EventAggregator)
 export class Menu {
 
   sets: CardSet[] = [];
   storage = window.localStorage;
   action: string;
+  currentSet: CardSet;
 
-  constructor(private router: Router, private animator: CssAnimator){
+  constructor(private router: Router, private animator: CssAnimator, private eventAggregator: EventAggregator){
+
     this.animator = animator;
+
     let keys = JSON.parse(this.storage.getItem('keys'));
     if (keys != null){
       for(let i = 0; i < keys.length; i++){
@@ -43,12 +47,48 @@ export class Menu {
   }
 
   attached(){
+    (<HTMLElement>document.querySelector('modal-menu')).style.display = 'none';
     this.enterAnimations();
   }
 
-  load(aset: CardSet){
-    this.storage.setItem('current', aset.name);
+  showModal(aset: CardSet){
+    this.currentSet = aset;
+    this.eventAggregator.subscribeOnce('modal-action', (action) => {
+      this.action = action;
+    });
+    this.eventAggregator.subscribeOnce('modal-closed', () => {
+      console.log(this.action)
+      if (this.action == "load"){
+        this.load();
+      }
+      else if (this.action == "edit"){
+        this.edit();
+      }
+      else if (this.action == "delete"){
+        this.delete();
+      }
+    });
+    (<HTMLElement>document.querySelector('modal-menu')).style.display = 'block';
+  }
+
+  load(){
+    this.storage.setItem('current', this.currentSet.name);
     this.navigateTo('Menu');
+  }
+
+  edit(){
+    return;
+  }
+
+  delete(){
+    this.storage.removeItem(this.currentSet.name);
+    var keys = JSON.parse(this.storage.getItem('keys'));
+    keys.splice(keys.indexOf(this.currentSet.name), 1);
+    this.storage.setItem("keys", JSON.stringify(keys));
+    window.location.reload();
+    if (this.currentSet.name = this.storage.getItem('current')){
+      this.storage.setItem('current', null);
+    }
   }
 
   create(){
