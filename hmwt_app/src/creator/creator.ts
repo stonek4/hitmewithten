@@ -104,6 +104,6 @@ export class Creator {
     this.exitAnimations();
     setTimeout(() => {
       this.router.navigateBack();
-    }, 400);
+    }, 300);
   }
 }

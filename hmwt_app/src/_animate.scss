@@ -13,68 +13,85 @@ $tiny: 300ms;
 $short: 500ms;
 $long: 1s;
 
+.stayForward{
+  -webkit-animation-fill-mode: forwards;
+  transform: translate3d(0,0,0);
+  -webkit-transform: translate3d(0,0,0);
+}
+
  .slideInRight-add{
+   @extend .stayForward;
    -webkit-animation: slideInRight $short;
    animation: slideInRight $short;
  }
 
  .slideInLeft-add{
+   @extend .stayForward;
    -webkit-animation: slideInLeft $short;
    animation: slideInLeft $short;
  }
 
  .slideOutLeft-add{
+   @extend .stayForward;
    -webkit-animation: slideOutLeft $short;
    animation: slideOutLeft $short;
  }
 
  .slideOutRight-add{
+   @extend .stayForward;
    -webkit-animation: slideOutRight $short;
    animation: slideOutRight $short;
  }
 
  .flipInX-add{
+   @extend .stayForward;
    -webkit-animation: flipInX $short;
    animation: flipInX $short;
  }
 
  .flipOutX-add{
+   @extend .stayForward;
    -webkit-animation: flipOutX $short;
    animation: flipOutX $short;
  }
 
  .slide-add{
+   @extend .stayForward;
    -webkit-animation: slideOutLeft $short;
    animation: slideOutLeft $short;
  }
 
  .slide-remove{
+   @extend .stayForward;
    -webkit-animation: slideInRight $short;
    animation: slideInRight $short;
  }
 
  .slideBack-add{
+   @extend .stayForward;
    -webkit-animation: slideOutRight $short;
    animation: slideOutRight $short;
  }
 
  .slideBack-remove{
+   @extend .stayForward;
    -webkit-animation: slideInLeft $short;
    animation: slideInLeft $short;
  }
 
  .shake-add {
-     -webkit-animation: shake $tiny;
-     animation: shake $tiny;
+   @extend .stayForward;
+   -webkit-animation: shake $tiny;
+   animation: shake $tiny;
  }
 
  /* Animations */
 
 .animated {
-  -webkit-animation-duration: 1s;
-  animation-duration: 1s;
   -webkit-animation-fill-mode: both;
   animation-fill-mode: both;
+  -webkit-animation-duration: 1s;
+  animation-duration: 1s;
 }
 
 .delayed-animated{

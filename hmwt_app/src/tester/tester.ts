@@ -201,6 +201,6 @@ export class Tester {
     this.exitAnimations();
     setTimeout( () => {
       this.router.navigateToRoute('Menu');
-    }, 400);
+    }, 300);
   }
 }

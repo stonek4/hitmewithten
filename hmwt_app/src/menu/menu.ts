@@ -23,14 +23,14 @@ export class Menu {
   }
 
   enterAnimations(){
-    let elements = document.getElementsByClassName('btn-cont');
+    let elements = document.getElementsByClassName('menu-btn-cont');
     for(var i = 0; i < elements.length; i++){
       this.animator.animate(elements[i], 'flipInX');
     }
   }
 
   exitAnimations(){
-    let elements = document.getElementsByClassName('btn-cont');
+    let elements = document.getElementsByClassName('menu-btn-cont');
     for(var i = 0; i < elements.length; i++){
       this.animator.animate(elements[i], 'flipOutX');
     }
@@ -45,7 +45,7 @@ export class Menu {
       else{
         this.router.navigateToRoute(location)
       }
-    }, 400);
+    }, 300);
   }
 
   serve(number:any){
