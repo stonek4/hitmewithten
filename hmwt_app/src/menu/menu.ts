@@ -45,7 +45,7 @@ export class Menu {
       else{
         this.router.navigateToRoute(location)
       }
-    }, 400);
+    }, 300);
   }
 
   serve(number:any){

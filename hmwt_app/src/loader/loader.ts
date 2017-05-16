@@ -43,7 +43,7 @@ export class Menu {
     this.exitAnimations();
     setTimeout(() => {
       this.router.navigateToRoute(location);
-    }, 400);
+    }, 300);
   }
 
   attached(){
