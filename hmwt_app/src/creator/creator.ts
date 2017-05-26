@@ -18,12 +18,26 @@ export class Creator {
     this.animator = animator;
   }
 
+  activate(params, routeData){
+    if (params.id != null) {
+      this.index = -1;
+      this.cards = JSON.parse(window.localStorage.getItem(params.id+".cards"));
+      this.name = params.id;
+    } else {
+      this.eventAggregator.subscribeOnce('modal-closed', payload => {
+        console.log(this.name);
+        (<HTMLElement>document.querySelector('.creator-definition')).focus();
+      });
+    }
+  }
+
   attached(){
-    this.enterAnimations();
-    this.eventAggregator.subscribeOnce('modal-closed', payload => {
-      console.log(this.name);
+    if (this.index == -1){
+      (<HTMLElement>document.querySelector('modal-form')).style.display = 'none';
       (<HTMLElement>document.querySelector('.creator-definition')).focus();
-    });
+      this.back();
+    }
+    this.enterAnimations();
   }
 
   enterAnimations(){
@@ -35,7 +49,6 @@ export class Creator {
   }
 
   next(){
-    console.log(this.name);
     if (this.definition == ""){
       (<HTMLElement>document.querySelector(".creator-definition")).focus();
       return;
@@ -66,11 +79,12 @@ export class Creator {
   }
 
   back(){
-    if (this.index != 0){
+    if (this.index > 0){
       this.definition = this.cards[this.index-1].definitions[0];
       this.answer = this.cards[this.index-1].answers[0];
       this.index -= 1;
     } else{
+      this.index = 0;
       if (this.cards.length > 0){
         this.definition = this.cards[this.index].definitions[0];
         this.answer = this.cards[this.index].answers[0];

@@ -42,7 +42,13 @@ export class Menu {
   navigateTo(location:string){
     this.exitAnimations();
     setTimeout(() => {
-      this.router.navigateToRoute(location);
+      if (location == "Menu"){
+        this.router.navigateBack();
+      } else if (this.currentSet.name == ''){
+          this.router.navigateToRoute(location);
+      } else {
+          this.router.navigateToRoute(location, {id:this.currentSet.name});
+      }
     }, 300);
   }
 
@@ -77,6 +83,7 @@ export class Menu {
   }
 
   edit(){
+    this.navigateTo('Creator');
     return;
   }
 
@@ -96,6 +103,7 @@ export class Menu {
     if (keys === null || keys == ""){
       this.storage.setItem("keys", JSON.stringify([]))
     }
+    this.currentSet = {name: "", number:0};
     this.navigateTo('Creator');
   }
 }
