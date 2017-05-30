@@ -3,7 +3,7 @@ export class App {
   router: Router;
 
   configureRouter(config: RouterConfiguration, router: Router) {
-    config.title = 'hmwt';
+    config.title = 'VoCards';
     config.map([
       { route: ['','/'],   moduleId: 'menu/menu', title: 'Menu', name: 'Menu'},
       { route: 'tester/:id', moduleId: 'tester/tester', name: 'Tester'},
