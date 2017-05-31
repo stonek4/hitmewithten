@@ -49,7 +49,10 @@ export class Menu {
   }
 
   serve(number:any){
-    if (this.name !== ""){
+    if (this.cards == null){
+      window.alert("You have no selected card set, go to 'Manage Cards' to create/select one!");
+      return;
+    } else { 
       if (number > 0){
         var info = this.cards
         .sort(function() { return 0.5 - Math.random() })
