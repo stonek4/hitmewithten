@@ -3,11 +3,11 @@
   background: -webkit-linear-gradient(top, $color1, $color2); /* Chrome10+, Safari5.1+ */
   background: -moz-linear-gradient(top, $color1, $color2);    /* FF3.6+ */
   background: linear-gradient(to top, $color1, $color2);      /* W3C */
-  text-shadow: -2px 2px $color2;
+  /*text-shadow: -2px 2px $color2;*/
 }
 
 .general-btn{
-  color: #ffffff;
+  color: #4a4c51;
   border: none;
   border-radius: 15px;
   font-size: 5vh;
@@ -15,6 +15,6 @@
   align-items: center;
   justify-content: center;
   box-shadow: 2px 2px 1px lightgrey;
-  @include gradient(#8492ff, #5a63ad);
+  @include gradient(#ffffff, #dee8f9);
   box-sizing: border-box;
 }
