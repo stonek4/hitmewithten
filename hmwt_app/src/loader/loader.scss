@@ -9,12 +9,12 @@
   background-color: white;
   height: 85vh;
   overflow-y: auto;
+  box-shadow: 2px 2px 1px lightgrey;
 }
 
 .list-group{
   height: 10vh;
   margin:0;
-
 }
 
 .badge{
@@ -36,5 +36,5 @@
   bottom: 2vh;
   left: 1vw;
   width: 98vw;
-  height: 15vh;
+  height: 10vh;
 }

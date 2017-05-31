@@ -1,35 +1,47 @@
 import {inject} from 'aurelia-framework';
 import {Router} from 'aurelia-router';
+import {CssAnimator} from 'aurelia-animator-css';
+import {EventAggregator} from 'aurelia-event-aggregator';
 
-interface Card{
-  text: string;
-  definitions: string[];
+interface CardSet{
+  name: string;
+  number: number;
 }
 
-@inject(Router)
+@inject(Router, CssAnimator, EventAggregator)
 export class Menu {
 
-  constructor(private router: Router){}
+  sets: CardSet[] = [];
+  storage = window.localStorage;
+  action: string;
+  currentSet: CardSet;
 
-  cards : Card[] = [];
-  card_name: string = "";
-
-  serve(number:any){
-    if (this.card_name !== ""){
-      var info = this.getRandomSubarray(this.cards, number);
-      this.router.routes.find(x => x.name === "Test").settings = info;
-      this.router.navigateToRoute('Test', { id:this.card_name});
-    }
+  constructor(private router: Router, private animator: CssAnimator, private eventAggregator: EventAggregator){
   }
 
-  getRandomSubarray(arr:any, size:any) {
-    var shuffled = arr.slice(0), i = arr.length, min = i - size, temp, index;
-    while (i-- > min) {
-        index = Math.floor((i + 1) * Math.random());
-        temp = shuffled[index];
-        shuffled[index] = shuffled[i];
-        shuffled[i] = temp;
-    }
-    return shuffled.slice(min);
+  enterAnimations(){
+    this.animator.animate(document.querySelector('.list-group'), 'slideInLeft');
+    this.animator.animate(document.querySelector('.loader-create'), 'flipInX');
+  }
+
+  exitAnimations(){
+    this.animator.animate(document.querySelector('.list-group'), 'slideOutLeft');
+    this.animator.animate(document.querySelector('.loader-create'), 'flipOutX');
+  }
+
+  navigateTo(location:string){
+    this.exitAnimations();
+    setTimeout(() => {
+      if (location == "Menu"){
+        this.router.navigateBack();
+      } else if (this.currentSet.name == ''){
+          this.router.navigateToRoute(location);
+      } else {
+          this.router.navigateToRoute(location, {id:this.currentSet.name});
+      }
+    }, 300);
+  }
+
+  attached(){
   }
 }
