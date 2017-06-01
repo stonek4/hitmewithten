@@ -5,21 +5,21 @@
     "id": "web",
     "displayName": "Web",
     "output": "scripts",
-    "index": "index.html"
+    "index": "index.html",
+    "baseDir": "."
   },
   "transpiler": {
     "id": "typescript",
     "displayName": "TypeScript",
     "fileExtension": ".ts",
     "dtsSource": [
-      "./typings/**/*.d.ts",
       "./custom_typings/**/*.d.ts"
     ],
     "source": "src/**/*.ts"
   },
   "markupProcessor": {
-    "id": "none",
-    "displayName": "None",
+    "id": "maximum",
+    "displayName": "Maximum Minification",
     "fileExtension": ".html",
     "source": "src/**/*.html"
   },
@@ -40,11 +40,11 @@
   },
   "paths": {
     "root": "src",
-    "resources": "src/resources",
-    "elements": "src/resources/elements",
-    "attributes": "src/resources/attributes",
-    "valueConverters": "src/resources/value-converters",
-    "bindingBehaviors": "src/resources/binding-behaviors"
+    "resources": "resources",
+    "elements": "resources/elements",
+    "attributes": "resources/attributes",
+    "valueConverters": "resources/value-converters",
+    "bindingBehaviors": "resources/binding-behaviors"
   },
   "dist": {
     "output": "www",
@@ -65,7 +65,8 @@
         "id": "web",
         "displayName": "Web",
         "output": "scripts",
-        "index": "index.html"
+        "index": "index.html",
+        "baseDir": "."
       }
     ],
     "loader": {
@@ -99,7 +100,8 @@
         "name": "vendor-bundle.js",
         "prepend": [
           "node_modules/bluebird/js/browser/bluebird.core.js",
-          "scripts/require.js"
+          "node_modules/aurelia-cli/lib/resources/scripts/configure-bluebird.js",
+          "node_modules/requirejs/require.js"
         ],
         "dependencies": [
           "aurelia-binding",
@@ -123,6 +125,7 @@
           "aurelia-task-queue",
           "aurelia-templating",
           "aurelia-templating-binding",
+          "text",
           "jquery",
           {
             "name": "aurelia-animator-css",
@@ -138,10 +141,6 @@
             "resources": [
               "css/bootstrap.css"
             ]
-          },
-          {
-            "name": "text",
-            "path": "../scripts/text"
           },
           {
             "name": "aurelia-templating-resources",

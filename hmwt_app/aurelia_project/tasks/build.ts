@@ -2,8 +2,9 @@ import * as gulp from 'gulp';
 import transpile from './transpile';
 import processMarkup from './process-markup';
 import processCSS from './process-css';
+import copyFiles from './copy-files';
+import dist from './dist';
 import {build} from 'aurelia-cli';
-import dist from './dist'
 import * as project from '../aurelia.json';
 
 export default gulp.series(
@@ -11,7 +12,8 @@ export default gulp.series(
   gulp.parallel(
     transpile,
     processMarkup,
-    processCSS
+    processCSS,
+    copyFiles
   ),
   writeBundles,
   dist
