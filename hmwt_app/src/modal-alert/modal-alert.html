@@ -1,0 +1,13 @@
+<template>
+  <require from="modal/modal"></require>
+  <require from="./modal-alert.css"></require>
+  <modal>
+    <div slot="modal-content">
+      <div click.trigger="close()" class = "modal-alert-text">
+        <span class="modal-alert-text-icon glyphicon glyphicon-remove"></span>
+        <slot name="modal-alert-content">
+        </slot>
+      </div>
+    </div>
+  </modal>
+</template>

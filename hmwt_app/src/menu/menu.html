@@ -1,5 +1,11 @@
 <template>
   <require from="./menu.css"></require>
+  <require from="../modal-alert/modal-alert"></require>
+  <modal-alert>
+    <div slot="modal-alert-content">
+      You have no selected card set, go to 'Manage Cards' to create/select one!
+    </div>
+  </modal-alert>
   <div class="menu-space"></div>
   <div class="menu">
     <div class="menu-btn-cont">

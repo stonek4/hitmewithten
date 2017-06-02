@@ -1,11 +1,10 @@
-import {inject} from 'aurelia-framework';
+import {bindable, bindingMode, inject} from 'aurelia-framework';
 import {Router} from 'aurelia-router';
 import {Card} from '../card'
 import {CssAnimator} from 'aurelia-animator-css';
 
 @inject(Router, CssAnimator)
 export class Menu {
-
   cards : Card[] = [];
   name: string = "";
   storage: Storage = window.localStorage;
@@ -19,6 +18,7 @@ export class Menu {
   }
 
   attached(){
+    (<HTMLElement>document.querySelector('modal-alert')).style.display = 'none';
     this.enterAnimations();
   }
 
@@ -49,10 +49,11 @@ export class Menu {
   }
 
   serve(number:any){
+    console.log(this.cards);
     if (this.cards == null){
-      window.alert("You have no selected card set, go to 'Manage Cards' to create/select one!");
+      (<HTMLElement>document.querySelector('modal-alert')).style.display = 'block';
       return;
-    } else { 
+    } else {
       if (number > 0){
         var info = this.cards
         .sort(function() { return 0.5 - Math.random() })
