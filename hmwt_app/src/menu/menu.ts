@@ -5,7 +5,7 @@ import {CssAnimator} from 'aurelia-animator-css';
 
 @inject(Router, CssAnimator)
 export class Menu {
-  cards : Card[] = [];
+  cards : Card[] = null;
   name: string = "";
   storage: Storage = window.localStorage;
 
@@ -49,8 +49,7 @@ export class Menu {
   }
 
   serve(number:any){
-    console.log(this.cards);
-    if (this.cards == null){
+    if (this.cards == null || 0 > this.cards.length){
       (<HTMLElement>document.querySelector('modal-alert')).style.display = 'block';
       return;
     } else {
