@@ -19,9 +19,11 @@ export class Menu {
   closeSub: any;
 
   constructor(private router: Router, private animator: CssAnimator, private eventAggregator: EventAggregator){
-
     this.animator = animator;
+    this.loadData();
+  }
 
+  loadData(){
     let keys = JSON.parse(this.storage.getItem('keys'));
     if (keys != null){
       for(let i = 0; i < keys.length; i++){
@@ -92,7 +94,7 @@ export class Menu {
   }
 
   load(){
-    this.storage.setItem('current', this.currentSet.name+".cards");
+    this.storage.setItem('current', this.currentSet.name);
     this.navigateTo('Menu');
   }
 
@@ -126,7 +128,8 @@ export class Menu {
     var keys = JSON.parse(this.storage.getItem('keys'));
     keys.splice(keys.indexOf(this.currentSet.name), 1);
     this.storage.setItem("keys", JSON.stringify(keys));
-    window.location.reload();
+    this.sets = [];
+    this.loadData();
     if (this.currentSet.name = this.storage.getItem('current')){
       this.storage.setItem('current', null);
     }

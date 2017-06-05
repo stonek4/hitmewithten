@@ -33,7 +33,7 @@ export class Creator {
 
   attached(){
     if (this.index == -1){
-      (<HTMLElement>document.querySelector('modal-form')).style.display = 'none';
+      (<HTMLElement>document.querySelector('.modal')).style.display = 'none';
       (<HTMLElement>document.querySelector('.creator-definition')).focus();
       this.back();
     }

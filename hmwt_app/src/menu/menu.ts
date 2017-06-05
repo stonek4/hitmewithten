@@ -18,7 +18,7 @@ export class Menu {
   }
 
   attached(){
-    (<HTMLElement>document.querySelector('modal-alert')).style.display = 'none';
+    (<HTMLElement>document.querySelector('.modal')).style.display = 'none';
     this.enterAnimations();
   }
 
@@ -50,7 +50,7 @@ export class Menu {
 
   serve(number:any){
     if (this.cards == null || 0 > this.cards.length){
-      (<HTMLElement>document.querySelector('modal-alert')).style.display = 'block';
+      (<HTMLElement>document.querySelector('.modal')).style.display = 'block';
       return;
     } else {
       if (number > 0){
