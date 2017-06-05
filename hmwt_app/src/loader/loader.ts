@@ -32,11 +32,15 @@ export class Menu {
   enterAnimations(){
     this.animator.animate(document.querySelector('.list-group'), 'slideInLeft');
     this.animator.animate(document.querySelector('.loader-create'), 'flipInX');
+    this.animator.animate(document.querySelector('.loader-upload'), 'flipInX');
+    this.animator.animate(document.querySelector('.loader-back'), 'flipInX');
   }
 
   exitAnimations(){
     this.animator.animate(document.querySelector('.list-group'), 'slideOutLeft');
     this.animator.animate(document.querySelector('.loader-create'), 'flipOutX');
+    this.animator.animate(document.querySelector('.loader-upload'), 'flipOutX');
+    this.animator.animate(document.querySelector('.loader-back'), 'flipOutX');
   }
 
   navigateTo(location:string){
@@ -80,6 +84,10 @@ export class Menu {
   load(){
     this.storage.setItem('current', this.currentSet.name);
     this.navigateTo('Menu');
+  }
+
+  back(){
+    this.router.navigateBack();
   }
 
   edit(){

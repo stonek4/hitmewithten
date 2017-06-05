@@ -34,7 +34,25 @@
   @extend .general-btn;
   position: fixed;
   bottom: 2vh;
+  left: 20vw;
+  width: 60vw;
+  height: 10vh;
+}
+
+.loader-back{
+  @extend .general-btn;
+  position: fixed;
+  bottom: 2vh;
   left: 1vw;
-  width: 98vw;
+  width: 18vw;
+  height: 10vh;
+}
+
+.loader-upload{
+  @extend .general-btn;
+  position: fixed;
+  bottom: 2vh;
+  right: 1vw;
+  width: 18vw;
   height: 10vh;
 }
