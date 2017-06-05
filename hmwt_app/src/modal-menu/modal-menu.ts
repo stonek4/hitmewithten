@@ -33,4 +33,9 @@ export class ModalMenu extends Modal{
     this.action = "edit";
     this.closeForm();
   }
+
+  export(){
+    this.action = "export";
+    this.closeForm();
+  }
 }

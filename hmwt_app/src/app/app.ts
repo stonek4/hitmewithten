@@ -3,7 +3,7 @@ export class App {
   router: Router;
 
   configureRouter(config: RouterConfiguration, router: Router) {
-    config.title = 'VocabCards';
+    config.title = 'Vocab Cards';
     config.map([
       { route: ['','/'],   moduleId: 'menu/menu', title: 'Menu', name: 'Menu'},
       { route: 'tester/:id', moduleId: 'tester/tester', name: 'Tester'},

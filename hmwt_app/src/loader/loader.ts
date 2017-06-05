@@ -15,6 +15,8 @@ export class Menu {
   storage = window.localStorage;
   action: string;
   currentSet: CardSet;
+  actionSub: any;
+  closeSub: any;
 
   constructor(private router: Router, private animator: CssAnimator, private eventAggregator: EventAggregator){
 
@@ -56,18 +58,19 @@ export class Menu {
     }, 300);
   }
 
-  attached(){
-    (<HTMLElement>document.querySelector('modal-menu')).style.display = 'none';
-    this.enterAnimations();
+  detached(){
+    this.actionSub.dispose();
+    this.closeSub.dispose();
   }
 
-  showModal(aset: CardSet){
-    this.currentSet = aset;
-    this.eventAggregator.subscribeOnce('modal-action', (action) => {
+  attached(){
+    (<HTMLElement>document.querySelector('.modal')).style.display = 'none';
+    this.enterAnimations();
+
+    this.actionSub = this.eventAggregator.subscribe('modal-action', (action) => {
       this.action = action;
     });
-    this.eventAggregator.subscribeOnce('modal-closed', () => {
-      console.log(this.action)
+    this.closeSub = this.eventAggregator.subscribe('modal-closed', () => {
       if (this.action == "load"){
         this.load();
       }
@@ -77,13 +80,36 @@ export class Menu {
       else if (this.action == "delete"){
         this.delete();
       }
+      else if (this.action == "export"){
+        this.export();
+      }
     });
-    (<HTMLElement>document.querySelector('modal-menu')).style.display = 'block';
+  }
+
+  showModal(aset: CardSet){
+    this.currentSet = aset;
+    (<HTMLElement>document.querySelector('.modal')).style.display = 'block';
   }
 
   load(){
-    this.storage.setItem('current', this.currentSet.name);
+    this.storage.setItem('current', this.currentSet.name+".cards");
     this.navigateTo('Menu');
+  }
+
+  upload(){
+
+  }
+
+  export(){
+    var exportData = this.storage.getItem(this.currentSet.name+".cards");
+    var element = document.createElement('a');
+    element.setAttribute('href', 'data:charset=utf-8,'
+      + encodeURIComponent(exportData));
+    element.setAttribute('download', this.currentSet.name+".cards");
+    element.style.display = 'none';
+    document.body.appendChild(element);
+    element.click();
+    document.body.removeChild(element);
   }
 
   back(){
@@ -96,7 +122,7 @@ export class Menu {
   }
 
   delete(){
-    this.storage.removeItem(this.currentSet.name);
+    this.storage.removeItem(this.currentSet.name+".cards");
     var keys = JSON.parse(this.storage.getItem('keys'));
     keys.splice(keys.indexOf(this.currentSet.name), 1);
     this.storage.setItem("keys", JSON.stringify(keys));
