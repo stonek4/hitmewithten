@@ -99,7 +99,26 @@ export class Menu {
   }
 
   upload(){
+    let loader = document.getElementById('loader-file')
+    loader.click();
+    loader.addEventListener('change', this.import, false);
+  }
 
+  import(event){
+    console.log("parsing the file");
+    let reader = new FileReader;
+    let files = event.target.files;
+    let f: any;
+    for (let i = 0; i < files.length; i++){
+      let f = files[i];
+      reader.readAsText(f);
+      let title = f.name;
+      reader.onload = () => {
+        let cards = reader.result;
+        console.log(title);
+        console.log(cards);
+      }
+    }
   }
 
   export(){
