@@ -45,7 +45,7 @@ export class Creator {
   }
 
   exitAnimations(){
-    this.animator.animate(document.querySelector('.list-group'), 'slideOutLeft');
+    this.animator.animate(document.querySelector('.creator'), 'slideOutLeft');
   }
 
   next(){

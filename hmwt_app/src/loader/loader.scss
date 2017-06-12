@@ -15,6 +15,7 @@
 .list-group{
   height: 10vh;
   margin:0;
+  transform: translateZ(0);
 }
 
 .badge{
@@ -37,6 +38,7 @@
   left: 20vw;
   width: 60vw;
   height: 10vh;
+  transform: translateZ(0);
 }
 
 .loader-back{
@@ -46,6 +48,7 @@
   left: 1vw;
   width: 18vw;
   height: 10vh;
+  transform: translateZ(0);
 }
 
 .loader-upload{
@@ -55,6 +58,7 @@
   right: 1vw;
   width: 18vw;
   height: 10vh;
+  transform: translateZ(0);
 }
 
 #loader-file{
