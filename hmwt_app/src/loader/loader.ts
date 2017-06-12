@@ -101,22 +101,33 @@ export class Menu {
   upload(){
     let loader = document.getElementById('loader-file')
     loader.click();
-    loader.addEventListener('change', this.import, false);
+    loader.addEventListener('change', (event) => {this.import(event)}, false);
   }
 
   import(event){
     console.log("parsing the file");
+    var storage = window.localStorage;
     let reader = new FileReader;
     let files = event.target.files;
     let f: any;
     for (let i = 0; i < files.length; i++){
       let f = files[i];
       reader.readAsText(f);
-      let title = f.name;
-      reader.onload = () => {
-        let cards = reader.result;
-        console.log(title);
-        console.log(cards);
+      if (f.name.indexOf(".cards") !== -1){
+        let title = f.name.slice(0, -6);
+        reader.onload = () => {
+          if (title !== ""){
+            let cards = reader.result;
+            storage.setItem(title + ".cards", cards);
+            var keys = JSON.parse(storage.getItem('keys'));
+            if (keys.indexOf(title) === -1) {
+              keys.push(title);
+            }
+            storage.setItem('keys', JSON.stringify(keys));
+          }
+          this.sets = [];
+          this.loadData();
+        }
       }
     }
   }
