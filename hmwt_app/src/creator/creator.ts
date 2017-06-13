@@ -58,7 +58,7 @@ export class Creator {
       return;
     }
     let card: Card = {definitions: [this.definition], answers: [this.answer]};
-    if (this.cards.length < this.index + 1){
+    if (this.cards.length < this.index + 1) {
       this.cards.push(card);
       this.definition = "";
       this.answer = "";
