@@ -2,7 +2,7 @@
   <require from="./about.css"></require>
   <div class="about">
     <div class="about-text-container">
-      <h2>Vocab Cards v0.0.30</h2>
+      <h2>Vocab Cards v0.0.31</h2>
       <p>This app is meant to help users with spelling and memorization practice.  Currently Vocab Cards is in Alpha
          stages, therefore it is not reliable and there are no guarantees that data will be retained.  <s>Eventually
          there will be an export feature that will allow card data to be saved to a file</s> <s>(There is now!!, but no import yet)</s> [imports and exports both working now but haven't been thoroughly tested, use at your own risk!].  Please report any bugs found to
@@ -13,9 +13,14 @@
          app, so enjoy it! </p>
 
       <p> The following is a list of recent changes: </p>
+      <p> 6/14/2017 ~ v0.0.31 - Added back button and animations to about page </p>
       <p> 6/13/2017 ~ v0.0.30 - Added some minor optimization and schema </p>
       <p> 6/12/2017 ~ v0.0.28 - Imports now work on the loader page </p>
-      <p> 6/5/2017 ~ v0.0.27 - Exports now work on the loader page </p>
     </div>
+    <button class="about-back" click.delegate="back()" type="button">
+      <center>
+        <span class="btn-icon glyphicon glyphicon-arrow-left"></span>
+      </center>
+    </button>
   </div>
 </template>

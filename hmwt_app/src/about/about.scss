@@ -1,12 +1,25 @@
+@import '../animate';
+@import '../general';
+
 .about{
   width: 100%;
   height: 100%;
+  transform: translateZ(0);
 }
 
 .about-text-container{
   padding: 20px;
   position: absolute;
   width: 100%;
-  height: 100%;
+  height: 85vh;
   overflow-y: scroll;
+}
+
+.about-back{
+  @extend .general-btn;
+  position: fixed;
+  bottom: 2vh;
+  left: 1vw;
+  width: 18vw;
+  height: 10vh;
 }

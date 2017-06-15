@@ -20,28 +20,21 @@ export class Menu {
   }
 
   enterAnimations(){
-    this.animator.animate(document.querySelector('.list-group'), 'slideInLeft');
-    this.animator.animate(document.querySelector('.loader-create'), 'flipInX');
+    this.animator.animate(document.querySelector('.about-text-container'), 'slideInRight');
+    this.animator.animate(document.querySelector('.about-back'), 'flipInX');
   }
 
   exitAnimations(){
-    this.animator.animate(document.querySelector('.list-group'), 'slideOutLeft');
-    this.animator.animate(document.querySelector('.loader-create'), 'flipOutX');
-  }
-
-  navigateTo(location:string){
-    this.exitAnimations();
-    setTimeout(() => {
-      if (location == "Menu"){
-        this.router.navigateBack();
-      } else if (this.currentSet.name == ''){
-          this.router.navigateToRoute(location);
-      } else {
-          this.router.navigateToRoute(location, {id:this.currentSet.name});
-      }
-    }, 300);
+    this.animator.animate(document.querySelector('.about-text-container'), 'slidOutRight');
+    this.animator.animate(document.querySelector('.about-back'), 'flipOutX');
   }
 
   attached(){
+    this.enterAnimations();
+  }
+
+  back(){
+    this.exitAnimations();
+    this.router.navigateBack();
   }
 }

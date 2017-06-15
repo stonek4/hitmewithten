@@ -14,7 +14,6 @@ export class ModalMenu extends Modal{
   closeForm(){
     this.eventAggregator.publish('modal-action', this.action);
     if (this.action != ""){
-      console.log(this.action)
         this.close();
     }
   }

@@ -8,6 +8,7 @@ export class Menu {
   cards : Card[] = null;
   name: string = "";
   storage: Storage = window.localStorage;
+  modalText: string = "";
 
   constructor(private router: Router, private animator: CssAnimator){
     this.name = this.storage.getItem("current");
@@ -50,6 +51,7 @@ export class Menu {
 
   serve(number:any){
     if (this.cards == null || 0 > this.cards.length){
+      this.modalText = " You have no selected card set, go to 'Manage Cards' to create/select one!";
       (<HTMLElement>document.querySelector('.modal')).style.display = 'block';
       return;
     } else {
@@ -71,10 +73,13 @@ export class Menu {
   }
 
   settings(){
-    var keys = this.storage.getItem("settings");
-    if (keys === null || keys == ""){
-      this.storage.setItem("settings", JSON.stringify([]));
-    }
+    this.modalText = " Currently there are no settings available to change.";
+    (<HTMLElement>document.querySelector('.modal')).style.display = 'block';
+    return;
+    //var keys = this.storage.getItem("settings");
+    //if (keys === null || keys == ""){
+    //  this.storage.setItem("settings", JSON.stringify([]));
+    //}
   }
 
   about(){
