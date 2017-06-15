@@ -1,5 +1,6 @@
-import {Aurelia} from 'aurelia-framework'
+import {Aurelia, LogManager} from 'aurelia-framework';
 import environment from './environment';
+import {ConsoleLogger} from './console-logger';
 
 //Configure Bluebird Promises.
 //Note: You may want to use environment-specific configuration.
@@ -9,6 +10,8 @@ import environment from './environment';
   }
 });
 
+LogManager.addAppender(new ConsoleLogger());
+
 export function configure(aurelia: Aurelia) {
   aurelia.use
     .standardConfiguration()
@@ -17,7 +20,9 @@ export function configure(aurelia: Aurelia) {
   aurelia.use.plugin('aurelia-animator-css');
 
   if (environment.debug) {
-    aurelia.use.developmentLogging();
+    LogManager.setLevel(LogManager.logLevel.debug);
+  } else {
+    LogManager.setLevel(LogManager.logLevel.error);
   }
 
   if (environment.testing) {
