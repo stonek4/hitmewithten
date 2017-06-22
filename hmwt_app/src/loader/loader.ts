@@ -173,7 +173,7 @@ export class Menu {
         }
       }
     }
-    
+
   }
 
   export(){
@@ -194,7 +194,7 @@ export class Menu {
   back(){
 
     logger.debug("navigating back");
-    this.router.navigateBack();
+    this.navigateTo('Menu');
 
   }
 
