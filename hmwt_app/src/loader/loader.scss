@@ -15,6 +15,7 @@
 .list-group{
   height: 10vh;
   margin:0;
+  will-change: transform;
   transform: translateZ(0);
 }
 
@@ -38,6 +39,7 @@
   left: 20vw;
   width: 60vw;
   height: 10vh;
+  will-change: transform;
   transform: translateZ(0);
 }
 
@@ -48,6 +50,7 @@
   left: 1vw;
   width: 18vw;
   height: 10vh;
+  will-change: transform;
   transform: translateZ(0);
 }
 
@@ -58,6 +61,7 @@
   right: 1vw;
   width: 18vw;
   height: 10vh;
+  will-change: transform;
   transform: translateZ(0);
 }
 

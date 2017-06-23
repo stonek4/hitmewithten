@@ -16,9 +16,10 @@ $btns: 5;
 }
 
 .menu-btn-cont{
+  will-change: transform;
+  transform: translateZ(0);
   display: inline-block;
   margin-bottom: 1vh;
-  transform: translateZ(0);
 }
 
 .menu-btn{

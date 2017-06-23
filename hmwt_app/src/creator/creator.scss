@@ -11,6 +11,7 @@
   -webkit-box-shadow: 0px 0px 3px 1px lightgrey;
    -moz-box-shadow: 0px 0px 3px 1px lightgrey;
         box-shadow: 0px 0px 3px 1px lightgrey;
+  will-change: transform;
   transform: translateZ(0);
 }
 

@@ -21,7 +21,7 @@ correct{
   -webkit-box-shadow: 0px 0px 3px 1px lightgrey;
    -moz-box-shadow: 0px 0px 3px 1px lightgrey;
         box-shadow: 0px 0px 3px 1px lightgrey;
-  transform: translateZ(0);
+  will-change: transform;
 }
 
 .tester-definition{
@@ -36,6 +36,8 @@ correct{
   color:blue;
   font-size: 15vh;
   position:relative;
+  will-change: transform;
+  transform: translateZ(0);
 }
 
 .tester-answer{
@@ -75,6 +77,8 @@ correct{
   left: 25%;
   height: 10vh;
   text-align: center;
+  will-change: transform;
+  transform: translateZ(0);
 }
 
 .tester-btn{
