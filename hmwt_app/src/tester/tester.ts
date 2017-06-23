@@ -93,6 +93,7 @@ export class Tester {
         } else {
             if (edit[i] === "d") {
               marked += "<em>-</em>";
+              actual = '-' + actual;
             } else if (edit[i] === "i") {
               inputted = inputted.slice(0, i) + actual[i] + inputted.slice(i);
               marked += "<em>"+inputted[i]+"</em>";
@@ -232,7 +233,6 @@ export class Tester {
         edit.unshift('n');
       }
       prev_coord = coord;
-      console.log(coord);
       coord = paths[coord[0]][coord[1]];
     }
     return edit;
