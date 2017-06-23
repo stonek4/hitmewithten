@@ -1,8 +1,9 @@
-import {inject} from 'aurelia-framework';
+import {inject, LogManager} from 'aurelia-framework';
 import {Router} from 'aurelia-router';
 import {CssAnimator} from 'aurelia-animator-css';
 import {Card} from '../card';
 
+let logger = LogManager.getLogger('tester');
 
 @inject(Router, CssAnimator)
 export class Tester {
@@ -19,45 +20,69 @@ export class Tester {
   progressValue: string = "0";
 
   constructor(private router: Router, private animator: CssAnimator){
+
+    logger.debug('constructing the tester class');
     this.animator = animator;
+
   }
 
   activate(params, routeData){
+
+    logger.debug('activating the tester class');
     this.cards = routeData.settings;
     if (this.cards === null || typeof this.cards.length === 'undefined'){
+      logger.debug('cards were detected on the route, adding them');
       this.cards = JSON.parse(window.localStorage.getItem(params.id+".cards"));
     }
     if (this.cards === null || typeof this.cards.length === 'undefined'){
+      logger.warn('no cards detected, bailing out!')
       this.done();
     }
     this.definition = this.cards[this.index].definitions[0];
   }
 
   enterAnimations(){
+
+    logger.debug('performing entrance animations')
     this.animator.animate(document.querySelector('.tester'), 'slideInRight');
     (<HTMLElement>document.querySelector(this.input_element)).focus();
+
   }
 
   exitAnimations(){
+
+    logger.debug('performing exit animations');
     this.animator.animate(document.querySelector('.tester'), 'slideOutRight');
+
   }
 
   attached(){
+
+    logger.debug('attaching the tester');
     this.enterAnimations();
+
   }
 
   submit(){
+
+    logger.debug('answer was submitted');
     if (this.answer === this.cards[this.index].answers[0]){
+      logger.debug('answer is correct');
       this.definition = "<correct>"+this.cards[this.index].answers[0]+"</correct>";
       setTimeout(() => {
         this.next();
       }, 200);
     } else {
-
+      logger.debug('answer is incorrect');
       var actual = this.cards[this.index].answers[0]
       var marked = "";
       var edit = this.calcDist(this.answer, actual);
+
+      logger.debug('edits made are:')
+      logger.debug(edit);
+
       if (edit.length === 1){
+        logger.debug('edit length is one, assuming insert');
         edit[0] = "i";
       }
 
@@ -72,13 +97,17 @@ export class Tester {
           }
         }
 
+      logger.debug('displaying marked definition');
       this.definition = marked;
       this.animator.animate(document.querySelector(this.definition_element), 'shake');
     }
     (<HTMLElement>document.querySelector(this.input_element)).focus();
+
   }
 
   next() {
+
+    logger.debug('attempting to move to the next card');
     this.animator.animate(document.querySelector(this.definition_element), 'slide');
     setTimeout(() => {
       (<HTMLElement>document.querySelector(this.definition_element)).style.opacity = "0";
@@ -92,12 +121,15 @@ export class Tester {
         },50);
       }
       else {
+        logger.debug('there are no cards left in the list, exiting');
         setTimeout(() => {this.done()}, 500);
       }
     },500);
   }
 
   back() {
+
+    logger.debug('attempting to move back to the previous card')
     if (this.index != 0){
       this.index -= 1;
       this.animator.animate(document.querySelector(this.definition_element), 'slideBack');
@@ -112,18 +144,24 @@ export class Tester {
       (<HTMLElement>document.querySelector(this.input_element)).focus();
     }
     else{
+      logger.debug('there are no previous cards in the set, exiting')
       this.done();
     }
   }
 
   updateProgress(){
+
+    logger.debug('updating the progress bar');
     let progress = (this.index / this.cards.length) * 100;
     this.progressStyle = "width:" + progress.toString() + "%";
     this.progressValue = progress.toString();
     return;
+
   }
 
   calcDist(aword, bword){
+
+    logger.debug('calculating the distance between ' + aword + ' and ' + bword)
     var dist = new Array(aword.length+1);
     var paths = new Array(aword.length+1);
     var edits = new Array(aword.length+1);
@@ -168,10 +206,14 @@ export class Tester {
       }
     }
 
+    logger.debug('finished calculating the distances of all possible paths')
+
     var path = new Array(Math.max(aword.length, bword.length))
     var edit = new Array(Math.max(aword.length, bword.length))
     var prev_coord = [aword.length, bword.length]
     var coord = [aword.length, bword.length]
+
+    logger.debug('finding the shortest path');
 
     for (i = path.length-1; i > -1; i--){
       path[i] = dist[coord[0]][coord[1]];
@@ -198,9 +240,12 @@ export class Tester {
   }
 
   done() {
+
+    logger.debug('exiting the tester');
     this.exitAnimations();
     setTimeout( () => {
       this.router.navigateToRoute('Menu');
     }, 300);
+
   }
 }
