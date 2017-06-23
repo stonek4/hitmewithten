@@ -75,10 +75,11 @@ export class Tester {
     } else {
       logger.debug('answer is incorrect');
       var actual = this.cards[this.index].answers[0]
+      var inputted = this.answer;
       var marked = "";
-      var edit = this.calcDist(this.answer, actual);
+      var edit = this.calcDist(inputted, actual);
 
-      logger.debug('edits made are:')
+      logger.debug('edits made are: (none, substitute, insert, delete)')
       logger.debug(edit);
 
       if (edit.length === 1){
@@ -88,12 +89,17 @@ export class Tester {
 
       for (var i = 0; i < edit.length; i++){
         if (edit[i] === "n"){
-          marked += actual[i];
+          marked += inputted[i];
         } else {
-          if (edit[i] === "d"){
-            actual = actual.slice(0, i) + "-" + actual.slice(i);
-          }
-          marked += "<em>"+actual[i]+"</em>"
+            if (edit[i] === "d") {
+              marked += "<em>-</em>";
+            } else if (edit[i] === "i") {
+              inputted = inputted.slice(0, i) + actual[i] + inputted.slice(i);
+              marked += "<em>"+inputted[i]+"</em>";
+            } else if (edit[i] === "s") {
+              inputted = inputted.substr(0, i) + actual[i] + inputted.substr(i+1, inputted.length);
+              marked += "<em>"+inputted[i]+"</em>";
+            }
           }
         }
 
@@ -208,32 +214,25 @@ export class Tester {
 
     logger.debug('finished calculating the distances of all possible paths')
 
-    var path = new Array(Math.max(aword.length, bword.length))
-    var edit = new Array(Math.max(aword.length, bword.length))
-    var prev_coord = [aword.length, bword.length]
-    var coord = [aword.length, bword.length]
-
     logger.debug('finding the shortest path');
 
-    for (i = path.length-1; i > -1; i--){
-      path[i] = dist[coord[0]][coord[1]];
-      if (i != path.length-1){
-        if ( path[i+1] != path[i] ){
-          edit[i+1] = edits[prev_coord[0]][prev_coord[1]];
-        } else {
-          edit[i+1] = "n";
-        }
-        if (i == 0 && path[i] == 1){
-          edit[i] = edits[coord[0]][coord[1]];
-        } else {
-          edit[i] = "n";
-        }
-      }
-      else{
-        edit[i] = "n"
-      }
+    var path = new Array()
+    var edit = new Array()
+    var coord = [aword.length, bword.length]
 
+    path.unshift(dist[coord[0]][coord[1]]);
+    let prev_coord = coord;
+    coord = paths[coord[0]][coord[1]];
+
+    while (coord[0] != -1 && coord[1] != -1){
+      path.unshift(dist[coord[0]][coord[1]]);
+      if ( path[1] != path[0] ){
+        edit.unshift(edits[prev_coord[0]][prev_coord[1]]);
+      } else {
+        edit.unshift('n');
+      }
       prev_coord = coord;
+      console.log(coord);
       coord = paths[coord[0]][coord[1]];
     }
     return edit;
