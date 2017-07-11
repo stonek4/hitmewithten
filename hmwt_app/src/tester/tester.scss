@@ -26,18 +26,34 @@ correct{
 
 .tester-definition{
   width:100vw;
-  height:35vh;
+  height:30vh;
+  margin-top: 5vh;
   text-align: center;
   position:absolute;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .tester-text{
-  margin-top:10vh;
   color:blue;
-  font-size: 15vh;
+  font-size: 10vmin;
   position:relative;
+  width: 100%;
+  height: 100%;
   will-change: transform;
-  transform: translateZ(0);
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -moz-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-align: center;
+  -webkit-flex-justify: center;
+  -ms-flex-align: center;
+  -ms-flex-justify: center;
+  -webkit-align-items: center;
+  -webkit-justify-content: center;
+  align-items: center;
+  justify-content: center;
 }
 
 .tester-answer{
@@ -94,13 +110,13 @@ correct{
 
 @media (orientation: portrait){
   .tester{
-    height:50vh;
+    height:60vh;
   }
-  .tester-text{
-    margin-top: 5vh;
+  .tester-definition {
+    height: 40vh;
   }
   .tester-space {
-    height: 25vh;
+    height: 15vh;
   }
 }
 
@@ -108,8 +124,8 @@ correct{
   .tester{
     height:80vh;
   }
-  .tester-text{
-    margin-top: 25vh;
+  .tester-definition {
+    height: 60vh;
   }
   .tester-space {
     height: 10vh;
