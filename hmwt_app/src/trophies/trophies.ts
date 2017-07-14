@@ -1,7 +1,7 @@
 import {LogManager} from 'aurelia-framework';
 import {Trophy} from '../trophy';
 
-let logger = LogManager.getLogger('notification');
+let logger = LogManager.getLogger('trophies');
 
 export class Trophies {
 
