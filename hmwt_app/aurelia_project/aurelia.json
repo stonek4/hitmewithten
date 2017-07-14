@@ -140,6 +140,12 @@
             ]
           },
           {
+            "name": "bootstrap-notify",
+            "path": "../node_modules/bootstrap-notify",
+            "main": "bootstrap-notify.min",
+            "exports": "$"
+          },
+          {
             "name": "text",
             "path": "../scripts/text"
           },

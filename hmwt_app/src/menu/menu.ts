@@ -2,8 +2,11 @@ import {bindable, bindingMode, inject, LogManager} from 'aurelia-framework';
 import {Router} from 'aurelia-router';
 import {Card} from '../card'
 import {CssAnimator} from 'aurelia-animator-css';
+import {Notification} from '../notification/notification';
+import 'bootstrap-notify';
 
 let logger = LogManager.getLogger('menu');
+let notifier = new Notification();
 
 @inject(Router, CssAnimator)
 export class Menu {
@@ -123,8 +126,7 @@ export class Menu {
   }
 
   about(){
-
-    this.navigateTo('About');
-
+    notifier.display("About");
+    //this.navigateTo('About');
   }
 }

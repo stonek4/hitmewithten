@@ -1,4 +1,4 @@
-export interface Card{
+export interface Card {
   definitions: string[];
   answers: string[];
 }
