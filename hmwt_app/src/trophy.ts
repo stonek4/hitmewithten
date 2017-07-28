@@ -1,6 +1,8 @@
 export abstract class Trophy {
   public name: string;
-  protected displayText: string = "New Trophy: ";
+  public type: string;
+  public displayTitle: string = "New Trophy Unlocked!";
+  public displayText: string;
   abstract update(any?): void;
   abstract isObtained(): boolean;
   abstract isNewlyObtained(): boolean;

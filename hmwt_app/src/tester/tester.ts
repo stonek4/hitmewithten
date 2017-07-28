@@ -2,10 +2,11 @@ import {inject, LogManager} from 'aurelia-framework';
 import {Router} from 'aurelia-router';
 import {CssAnimator} from 'aurelia-animator-css';
 import {Card} from '../card';
+import {Trophies} from '../trophies/trophies';
 
 let logger = LogManager.getLogger('tester');
 
-@inject(Router, CssAnimator)
+@inject(Router, CssAnimator, Trophies)
 export class Tester {
 
   definition: string;
@@ -19,11 +20,11 @@ export class Tester {
   progressStyle: string = "width:0%";
   progressValue: string = "0";
 
-  constructor(private router: Router, private animator: CssAnimator){
+  constructor(private router: Router, private animator: CssAnimator, private trophies: Trophies){
 
     logger.debug('constructing the tester class');
     this.animator = animator;
-
+    this.trophies = trophies;
   }
 
   activate(params, routeData){
@@ -119,6 +120,7 @@ export class Tester {
     setTimeout(() => {
       (<HTMLElement>document.querySelector(this.definition_element)).style.opacity = "0";
       this.index += 1;
+      this.updateTrophies();
       this.updateProgress();
       if (this.index < this.cards.length) {
         setTimeout(() => {
@@ -156,14 +158,17 @@ export class Tester {
     }
   }
 
-  updateProgress(){
+  updateTrophies() {
+      this.trophies.updateCardsTestedTrophies(1);
+      this.trophies.displayNewTrophies();
+  }
 
+  updateProgress() {
     logger.debug('updating the progress bar');
     let progress = (this.index / this.cards.length) * 100;
     this.progressStyle = "width:" + progress.toString() + "%";
     this.progressValue = progress.toString();
     return;
-
   }
 
   calcDist(aword, bword){

@@ -35,7 +35,7 @@ correct{
 }
 
 .tester-text{
-  color:blue;
+  color:black;
   font-size: 10vmin;
   position:relative;
   width: 100%;
@@ -83,7 +83,11 @@ correct{
   position: absolute;
   top: 0;
   height: 5vh;
-  background-color: blue;
+  background-color: #e0e2e5;
+}
+
+.progress-bar-black {
+    background-color: black !important;
 }
 
 .tester-input{

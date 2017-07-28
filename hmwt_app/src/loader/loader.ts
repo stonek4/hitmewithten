@@ -21,17 +21,16 @@ export class Menu {
   closeSub: any;
 
   constructor(private router: Router, private animator: CssAnimator, private eventAggregator: EventAggregator){
-
     logger.debug("constructing the logger class");
     this.animator = animator;
     this.loadData();
-
   }
 
   loadData(){
-
     logger.debug("loading the card list to display");
+
     let keys = JSON.parse(this.storage.getItem('keys'));
+
     if (keys != null){
       for(let i = 0; i < keys.length; i++){
         let nums = JSON.parse(this.storage.getItem(keys[i]+".cards")).length;
@@ -61,9 +60,10 @@ export class Menu {
   }
 
   navigateTo(location:string){
-
     logger.debug("navigating to " + location);
+
     this.exitAnimations();
+
     setTimeout(() => {
       if (location == "Menu"){
         this.router.navigateBack();
@@ -73,19 +73,15 @@ export class Menu {
           this.router.navigateToRoute(location, {id:this.currentSet.name});
       }
     }, 300);
-
   }
 
   detached(){
-
     logger.debug("detaching the loader");
     this.actionSub.dispose();
     this.closeSub.dispose();
-
   }
 
   attached(){
-
     logger.debug("attaching the loader");
     (<HTMLElement>document.querySelector('.modal')).style.display = 'none';
     this.enterAnimations();
@@ -112,32 +108,25 @@ export class Menu {
   }
 
   showModal(aset: CardSet){
-
     logger.debug("showing the modal menu");
     this.currentSet = aset;
     (<HTMLElement>document.querySelector('.modal')).style.display = 'block';
-
   }
 
   load(){
-
     logger.debug("changing the current card set to " + this.currentSet.name);
     this.storage.setItem('current', this.currentSet.name);
     this.navigateTo('Menu');
-
   }
 
   upload(){
-
     logger.debug("prompting the user for a file");
     let loader = document.getElementById('loader-file')
     loader.click();
     loader.addEventListener('change', (event) => {this.import(event)}, false);
-
   }
 
   import(event){
-
     logger.debug("parsing the files that the user uploaded");
     var storage = window.localStorage;
     let reader = new FileReader;
@@ -173,11 +162,9 @@ export class Menu {
         }
       }
     }
-
   }
 
   export(){
-
     logger.debug("exporting the card set " + this.currentSet.name);
     var exportData = this.storage.getItem(this.currentSet.name+".cards");
     var element = document.createElement('a');
@@ -188,25 +175,19 @@ export class Menu {
     document.body.appendChild(element);
     element.click();
     document.body.removeChild(element);
-
   }
 
   back(){
-
     logger.debug("navigating back");
     this.navigateTo('Menu');
-
   }
 
   edit(){
-
     this.navigateTo('Creator');
     return;
-
   }
 
   delete(){
-
     logger.debug("removing the card set " + this.currentSet.name);
     this.storage.removeItem(this.currentSet.name+".cards");
     var keys = JSON.parse(this.storage.getItem('keys'));
@@ -217,11 +198,9 @@ export class Menu {
     if (this.currentSet.name = this.storage.getItem('current')){
       this.storage.setItem('current', null);
     }
-
   }
 
   create(){
-
     logger.debug("user requested to create a new card set");
     var keys = this.storage.getItem("keys");
     if (keys === null || keys == ""){
@@ -229,6 +208,5 @@ export class Menu {
     }
     this.currentSet = {name: "", number:0};
     this.navigateTo('Creator');
-
   }
 }
