@@ -1,5 +1,5 @@
 import {LogManager} from 'aurelia-framework';
-import {Trophy} from '../trophy';
+import {Trophy, CardsTestedTrophy, CardsFailedTrophy, CardsPassedTrophy} from '../trophy';
 import {Notification} from '../notification/notification';
 import 'bootstrap-notify';
 
@@ -25,7 +25,6 @@ export class Trophies {
         }
         logger.debug('creating a brand new set of trophies');
         this.trophies = new Array<Trophy>();
-        this.trophies.push(new CardsTestedTrophy(5));
         this.trophies.push(new CardsTestedTrophy(10));
         this.trophies.push(new CardsTestedTrophy(50));
         this.trophies.push(new CardsTestedTrophy(100));
@@ -35,6 +34,23 @@ export class Trophies {
         this.trophies.push(new CardsTestedTrophy(10000));
         this.trophies.push(new CardsTestedTrophy(50000));
         this.trophies.push(new CardsTestedTrophy(100000));
+
+        this.trophies.push(new CardsPassedTrophy(50));
+        this.trophies.push(new CardsPassedTrophy(100));
+        this.trophies.push(new CardsPassedTrophy(500));
+        this.trophies.push(new CardsPassedTrophy(1000));
+        this.trophies.push(new CardsPassedTrophy(5000));
+        this.trophies.push(new CardsPassedTrophy(10000));
+        this.trophies.push(new CardsPassedTrophy(50000));
+        this.trophies.push(new CardsPassedTrophy(100000));
+
+        this.trophies.push(new CardsFailedTrophy(10));
+        this.trophies.push(new CardsFailedTrophy(50));
+        this.trophies.push(new CardsFailedTrophy(100));
+        this.trophies.push(new CardsFailedTrophy(500));
+        this.trophies.push(new CardsFailedTrophy(1000));
+        this.trophies.push(new CardsFailedTrophy(5000));
+        this.trophies.push(new CardsFailedTrophy(10000));
         this.save();
     }
 
@@ -55,6 +71,18 @@ export class Trophies {
         logger.debug('loading individual trophy data');
         for (let i = 0; i < trophyData.length; i++) {
             switch(trophyData[i].type) {
+                case 'CardsPassedTrophy': {
+                    let trophy = new CardsPassedTrophy();
+                    trophy.load(trophyData[i]);
+                    this.trophies.push(trophy);
+                    break;
+                }
+                case 'CardsFailedTrophy': {
+                    let trophy = new CardsFailedTrophy();
+                    trophy.load(trophyData[i]);
+                    this.trophies.push(trophy);
+                    break;
+                }
                 case 'CardsTestedTrophy': {
                     let trophy = new CardsTestedTrophy();
                     trophy.load(trophyData[i]);
@@ -66,16 +94,40 @@ export class Trophies {
         logger.debug('trophies were loaded from local storage successfully');
     }
 
+    private updateTrophyType(amount: number, type: string) {
+        for (let i = 0; i < this.trophies.length; i++) {
+            if (this.trophies[i].type === type) {
+                if (!this.trophies[i].isObtained()) {
+                    this.trophies[i].update(amount);
+                }
+            }
+        }
+    }
+
     public updateCardsTestedTrophies(amount: number) {
         if (!this.initialized) {
             this.initializeTrophies();
         }
         logger.debug('updating the cards tested trophies');
-        for (let i = 0; i < this.trophies.length; i++) {
-            if (!this.trophies[i].isObtained()) {
-                this.trophies[i].update(amount);
-            }
+        this.updateTrophyType(amount, 'CardsTestedTrophy');
+        this.save();
+    }
+
+    public updateCardsFailedTrophies(amount: number) {
+        if (!this.initialized) {
+            this.initializeTrophies();
         }
+        logger.debug('updating the cards failed trophies');
+        this.updateTrophyType(amount, 'CardsFailedTrophy');
+        this.save();
+    }
+
+    public updateCardsPassedTrophies(amount: number) {
+        if (!this.initialized) {
+            this.initializeTrophies();
+        }
+        logger.debug('updating the cards passed trophies');
+        this.updateTrophyType(amount, 'CardsPassedTrophy');
         this.save();
     }
 
@@ -90,44 +142,5 @@ export class Trophies {
                 this.save();
             }
         }
-    }
-}
-
-class CardsTestedTrophy extends Trophy {
-    private cards: number = 0;
-    private goal: number;
-    private newObtained: boolean = true;
-
-    constructor(goal?: number) {
-        super();
-        this.type = 'CardsTestedTrophy';
-        if (goal !== undefined) {
-            this.goal = goal;
-        }
-        this.displayText = `Used ${this.goal} cards.`;
-    }
-
-    load(data) {
-        this.cards = data.cards;
-        this.goal = data.goal;
-        this.newObtained = data.newObtained;
-        this.displayText = data.displayText;
-        this.type = data.type;
-    }
-
-    update(amount: number) {
-        this.cards += amount;
-    }
-
-    isNewlyObtained() {
-        if ((this.cards >= this.goal) && this.newObtained) {
-            this.newObtained = false;
-            return true;
-        }
-        return false;
-    }
-
-    isObtained() {
-        return this.cards >= this.goal;
     }
 }

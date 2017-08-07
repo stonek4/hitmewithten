@@ -27,7 +27,7 @@ export class Tester {
     this.trophies = trophies;
   }
 
-  activate(params, routeData){
+  activate(params, routeData) {
 
     logger.debug('activating the tester class');
     this.cards = routeData.settings;
@@ -69,12 +69,14 @@ export class Tester {
     logger.debug('answer was submitted');
     if (this.answer === this.cards[this.index].answers[0]){
       logger.debug('answer is correct');
+      this.trophies.updateCardsPassedTrophies(1);
       this.definition = "<correct>"+this.cards[this.index].answers[0]+"</correct>";
       setTimeout(() => {
         this.next();
       }, 200);
     } else {
       logger.debug('answer is incorrect');
+      this.trophies.updateCardsFailedTrophies(1);
       var actual = this.cards[this.index].answers[0]
       var inputted = this.answer;
       var marked = "";
@@ -120,7 +122,8 @@ export class Tester {
     setTimeout(() => {
       (<HTMLElement>document.querySelector(this.definition_element)).style.opacity = "0";
       this.index += 1;
-      this.updateTrophies();
+      this.trophies.updateCardsTestedTrophies(1);
+      this.trophies.displayNewTrophies();
       this.updateProgress();
       if (this.index < this.cards.length) {
         setTimeout(() => {
@@ -156,11 +159,6 @@ export class Tester {
       logger.debug('there are no previous cards in the set, exiting')
       this.done();
     }
-  }
-
-  updateTrophies() {
-      this.trophies.updateCardsTestedTrophies(1);
-      this.trophies.displayNewTrophies();
   }
 
   updateProgress() {
