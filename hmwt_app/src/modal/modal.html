@@ -1,6 +1,6 @@
 <template>
   <require from="./modal.css"></require>
-  <div class ="modal">
+  <div class ="modal" click.delegate="close()">
     <slot name="modal-content">
     </slot>
   </div>

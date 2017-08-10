@@ -98,7 +98,8 @@ export class Menu {
   }
 
   settings(){
-    this.modalText = " Currently there are no settings available to change.";
+    this.modalText = `Currently there are no settings available to change.
+    If you have an idea for a setting, please email info@vocabcards.com`;
     (<HTMLElement>document.querySelector('.modal')).style.display = 'block';
     return;
     //var keys = this.storage.getItem("settings");
