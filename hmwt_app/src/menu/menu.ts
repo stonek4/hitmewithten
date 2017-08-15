@@ -15,7 +15,6 @@ export class Menu {
 
   constructor(private router: Router, private animator: CssAnimator, private trophies: Trophies){
     logger.debug("constructing the menu class");
-
     this.name = this.storage.getItem("current");
     this.animator = animator;
     this.trophies = trophies;

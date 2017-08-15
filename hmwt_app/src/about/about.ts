@@ -43,7 +43,7 @@ export class Menu {
     logger.debug('navigating back');
     this.exitAnimations();
     setTimeout(() => {
-      this.router.navigateBack();
+        this.router.history.navigateBack();
     }, 300);
 
   }

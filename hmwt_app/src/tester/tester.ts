@@ -246,7 +246,7 @@ export class Tester {
     logger.debug('exiting the tester');
     this.exitAnimations();
     setTimeout( () => {
-      this.router.navigateToRoute('Menu');
+        this.router.history.navigateBack();
     }, 300);
 
   }

@@ -65,14 +65,14 @@ export class Menu {
     this.exitAnimations();
 
     setTimeout(() => {
-      if (location == "Menu"){
-        this.router.navigateBack();
+      if (location === 'Menu') {
+          this.router.history.navigateBack();
       } else if (this.currentSet.name == ''){
           this.router.navigateToRoute(location);
       } else {
           this.router.navigateToRoute(location, {id:this.currentSet.name});
       }
-    }, 300);
+  }, 300);
   }
 
   detached(){
@@ -116,7 +116,7 @@ export class Menu {
   load(){
     logger.debug("changing the current card set to " + this.currentSet.name);
     this.storage.setItem('current', this.currentSet.name);
-    this.navigateTo('Menu');
+    this.back();
   }
 
   upload(){

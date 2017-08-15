@@ -159,7 +159,8 @@ export class Creator {
     this.exitAnimations();
     setTimeout(() => {
       logger.debug("navigating back");
-      this.router.navigateBack();
+      this.router.history.navigateBack();
+      this.router.history.navigateBack();
     }, 300);
   }
 }
