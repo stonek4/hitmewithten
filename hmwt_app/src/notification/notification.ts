@@ -1,5 +1,5 @@
 import {LogManager} from 'aurelia-framework';
-import 'bootstrap-notify';
+import * as $ from 'bootstrap-notify';
 
 let logger = LogManager.getLogger('notification');
 

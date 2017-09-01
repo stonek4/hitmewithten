@@ -84,7 +84,7 @@
       ]
     },
     "options": {
-      "minify": "",
+      "minify": "prod",
       "sourcemaps": "dev & prod"
     },
     "bundles": [
@@ -124,6 +124,7 @@
           "aurelia-templating",
           "aurelia-templating-binding",
           "jquery",
+          "text",
           {
             "name": "aurelia-animator-css",
             "path": "../node_modules/aurelia-animator-css/dist/amd",
@@ -132,7 +133,7 @@
           {
             "name": "bootstrap",
             "path": "../node_modules/bootstrap/dist",
-            "main": "js/bootstrap.min",
+            "main": "js/bootstrap",
             "deps": ["jquery"],
             "exports": "$",
             "resources": [
@@ -142,12 +143,8 @@
           {
             "name": "bootstrap-notify",
             "path": "../node_modules/bootstrap-notify",
-            "main": "bootstrap-notify.min",
+            "main": "bootstrap-notify",
             "exports": "$"
-          },
-          {
-            "name": "text",
-            "path": "../scripts/text"
           },
           {
             "name": "aurelia-templating-resources",
