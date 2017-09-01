@@ -1,6 +1,7 @@
 import {LogManager} from 'aurelia-framework';
 import {Trophy, CardsTestedTrophy, CardsFailedTrophy, CardsPassedTrophy} from '../trophy';
 import {Notification} from '../notification/notification';
+import * as $ from 'jquery';
 import 'bootstrap-notify';
 
 let notifier = new Notification();

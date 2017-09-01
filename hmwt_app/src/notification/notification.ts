@@ -1,5 +1,6 @@
 import {LogManager} from 'aurelia-framework';
-import * as $ from 'bootstrap-notify';
+import * as $ from 'jquery';
+import 'bootstrap-notify';
 
 let logger = LogManager.getLogger('notification');
 
@@ -10,7 +11,7 @@ export class Notification {
 
   display(text: string, title: string) {
       logger.debug("displaying a notification");
-      (<any>$).notify({
+      $.notify({
           title: title,
           message: text,
           icon: 'glyphicon glyphicon-gift'
