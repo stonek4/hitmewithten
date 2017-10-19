@@ -1,9 +1,14 @@
+//tslint:disable:max-classes-per-file
 export abstract class Trophy {
+  /** The name of the trophy */
   public name: string;
+  /** The type of the trophy */
   public type: string;
+  /** The display title upon achieving the trophy */
   public displayTitle: string = "New Trophy Unlocked!";
+  /** The display text upon achieving the trophy */
   public displayText: string;
-  abstract update(any?): void;
+  abstract updateTrophy(data?: any): void;
   abstract isObtained(): boolean;
   abstract isNewlyObtained(): boolean;
 }
@@ -13,7 +18,7 @@ export class CardsTestedTrophy extends Trophy {
     protected goal: number;
     protected newObtained: boolean = true;
 
-    constructor(goal?: number) {
+    public constructor(goal?: number) {
         super();
         this.type = 'CardsTestedTrophy';
         if (goal !== undefined) {
@@ -22,7 +27,7 @@ export class CardsTestedTrophy extends Trophy {
         this.displayText = `Used ${this.goal} cards.`;
     }
 
-    load(data) {
+    public load(data) {
         this.cards = data.cards;
         this.goal = data.goal;
         this.newObtained = data.newObtained;
@@ -30,11 +35,11 @@ export class CardsTestedTrophy extends Trophy {
         this.type = data.type;
     }
 
-    update(amount: number) {
+    public updateTrophy(amount: number) {
         this.cards += amount;
     }
 
-    isNewlyObtained() {
+    public isNewlyObtained() {
         if ((this.cards >= this.goal) && this.newObtained) {
             this.newObtained = false;
             return true;
@@ -42,7 +47,7 @@ export class CardsTestedTrophy extends Trophy {
         return false;
     }
 
-    isObtained() {
+    public isObtained() {
         return this.cards >= this.goal;
     }
 }
@@ -52,7 +57,7 @@ export class CardsFailedTrophy extends CardsTestedTrophy {
     protected goal: number;
     protected newObtained: boolean = true;
 
-    constructor(goal?: number) {
+    public constructor(goal?: number) {
         super(goal);
         this.type = 'CardsFailedTrophy';
         if (goal !== undefined) {
@@ -67,7 +72,7 @@ export class CardsPassedTrophy extends CardsTestedTrophy {
     protected goal: number;
     protected newObtained: boolean = true;
 
-    constructor(goal?: number) {
+    public constructor(goal?: number) {
         super(goal);
         this.type = 'CardsPassedTrophy';
         if (goal !== undefined) {

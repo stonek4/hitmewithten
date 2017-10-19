@@ -1,6 +1,7 @@
 import * as gulp from 'gulp';
 import transpile from './transpile';
 import processMarkup from './process-markup';
+import lint from './lint';
 import processCSS from './process-css';
 import {build} from 'aurelia-cli';
 import dist from './dist'
@@ -13,6 +14,7 @@ export default gulp.series(
     processMarkup,
     processCSS
   ),
+  lint,
   writeBundles,
   dist
 );

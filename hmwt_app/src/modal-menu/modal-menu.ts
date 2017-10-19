@@ -1,39 +1,39 @@
-import {bindable, bindingMode, inject} from 'aurelia-framework';
-import {EventAggregator} from 'aurelia-event-aggregator';
-import {Modal} from '../modal/modal'
+import { bindable, bindingMode, inject } from 'aurelia-framework';
+import { EventAggregator } from 'aurelia-event-aggregator';
+import { Modal } from '../modal/modal';
 
 @inject(EventAggregator)
-export class ModalMenu extends Modal{
+export class ModalMenu extends Modal {
 
   // FIXME: Why doesn't this work???
   @bindable ({defaultBindingMode: bindingMode.twoWay}) action: string = "";
 
-  attached(){
+  public attached() {
   }
 
-  closeForm(){
+  public closeForm() {
     this.eventAggregator.publish('modal-action', this.action);
-    if (this.action != ""){
+    if (this.action !== "") {
         this.close();
     }
   }
 
-  load(){
+  public load() {
     this.action = "load";
     this.closeForm();
   }
 
-  delete(){
+  public delete() {
     this.action = "delete";
     this.closeForm();
   }
 
-  edit(){
+  public edit() {
     this.action = "edit";
     this.closeForm();
   }
 
-  export(){
+  public export() {
     this.action = "export";
     this.closeForm();
   }

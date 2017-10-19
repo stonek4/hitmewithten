@@ -1,16 +1,19 @@
-import {LogManager} from 'aurelia-framework';
-import {Trophy, CardsTestedTrophy, CardsFailedTrophy, CardsPassedTrophy} from '../trophy';
-import {Notification} from '../notification/notification';
+import { LogManager } from 'aurelia-framework';
+import { Trophy, CardsTestedTrophy, CardsFailedTrophy, CardsPassedTrophy } from '../trophy';
+import { Notification } from '../notification/notification';
+// tslint:disable-next-line:no-import-side-effect
 import 'bootstrap-notify';
 
-let notifier = new Notification();
+const notifier = new Notification();
 
-let logger = LogManager.getLogger('trophies');
+const logger = LogManager.getLogger('trophies');
 
 export class Trophies {
+    /** The set of all trophies */
     private trophies: Trophy[];
-
+    /** Whether the trophies have been initialized */
     private initialized: boolean = false;
+    /** The localstorage */
     private storage = window.localStorage;
 
     public initializeTrophies() {
@@ -20,7 +23,7 @@ export class Trophies {
         logger.debug('initializing the trophies');
         this.initialized = true;
         this.load();
-        if (this.trophies !== undefined){
+        if (this.trophies !== undefined) {
             return;
         }
         logger.debug('creating a brand new set of trophies');
@@ -62,31 +65,34 @@ export class Trophies {
     private load() {
         logger.debug('loading the trophies from storage');
         const trophyString = this.storage.getItem('trophies');
+        // tslint:disable-next-line:no-null-keyword
         if (trophyString === null) {
             logger.debug('no trophies were found in storage');
             return;
         }
-        let trophyData = JSON.parse(trophyString);
+        const trophyData = JSON.parse(trophyString);
         this.trophies = new Array<Trophy>();
         logger.debug('loading individual trophy data');
         for (let i = 0; i < trophyData.length; i++) {
-            switch(trophyData[i].type) {
+            switch (trophyData[i].type) {
                 case 'CardsPassedTrophy': {
-                    let trophy = new CardsPassedTrophy();
+                    const trophy = new CardsPassedTrophy();
                     trophy.load(trophyData[i]);
                     this.trophies.push(trophy);
                     break;
                 }
                 case 'CardsFailedTrophy': {
-                    let trophy = new CardsFailedTrophy();
+                    const trophy = new CardsFailedTrophy();
                     trophy.load(trophyData[i]);
                     this.trophies.push(trophy);
                     break;
                 }
                 case 'CardsTestedTrophy': {
-                    let trophy = new CardsTestedTrophy();
+                    const trophy = new CardsTestedTrophy();
                     trophy.load(trophyData[i]);
                     this.trophies.push(trophy);
+                    break;
+                } default: {
                     break;
                 }
             }
@@ -98,7 +104,7 @@ export class Trophies {
         for (let i = 0; i < this.trophies.length; i++) {
             if (this.trophies[i].type === type) {
                 if (!this.trophies[i].isObtained()) {
-                    this.trophies[i].update(amount);
+                    this.trophies[i].updateTrophy(amount);
                 }
             }
         }

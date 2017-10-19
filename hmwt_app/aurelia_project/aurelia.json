@@ -123,6 +123,7 @@
           "aurelia-task-queue",
           "aurelia-templating",
           "aurelia-templating-binding",
+          "text",
           "jquery",
           {
             "name": "aurelia-animator-css",
@@ -144,10 +145,6 @@
             "path": "../node_modules/bootstrap-notify",
             "main": "bootstrap-notify.min",
             "exports": "$"
-          },
-          {
-            "name": "text",
-            "path": "../scripts/text"
           },
           {
             "name": "aurelia-templating-resources",

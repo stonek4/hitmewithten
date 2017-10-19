@@ -1,11 +1,15 @@
-import {inject} from 'aurelia-framework';
-import {EventAggregator} from 'aurelia-event-aggregator';
+import { inject } from 'aurelia-framework';
+import { EventAggregator } from 'aurelia-event-aggregator';
 
 @inject(EventAggregator)
 export class Modal {
-  constructor(public eventAggregator: EventAggregator){ }
+  protected eventAggregator: EventAggregator;
 
-  close(){
+  constructor(eventAggregator: EventAggregator) {
+      this.eventAggregator = eventAggregator;
+  }
+
+  protected close() {
     (<HTMLElement>document.querySelector('.modal')).style.display = "none";
     this.eventAggregator.publish("modal-closed", {});
   }

@@ -1,6 +1,6 @@
-import {Aurelia, LogManager} from 'aurelia-framework';
+import { Aurelia, LogManager } from 'aurelia-framework';
 import environment from './environment';
-import {ConsoleLogger} from './console-logger';
+import { ConsoleLogger } from './console-logger';
 
 //Configure Bluebird Promises.
 //Note: You may want to use environment-specific configuration.
@@ -31,7 +31,7 @@ export function configure(aurelia: Aurelia) {
 
   aurelia.start().then(() => {
       setTimeout(() => {
-          aurelia.setRoot('app/app')
+          aurelia.setRoot('app/app');
       });
   });
 }

@@ -1,14 +1,11 @@
-import {bindable, bindingMode, inject} from 'aurelia-framework';
-import {EventAggregator} from 'aurelia-event-aggregator';
-import {Modal} from '../modal/modal'
+import { Modal } from '../modal/modal';
 
-@inject(EventAggregator)
-export class ModalAlert extends Modal{
+export class ModalAlert extends Modal {
 
-  attached(){
+  public attached() {
   }
 
-  closeForm(){
+  public closeForm() {
     this.close();
   }
 }
