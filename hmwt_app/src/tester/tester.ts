@@ -103,10 +103,18 @@ export class Tester {
               actual = '-' + actual;
             } else if (edit[i] === "i") {
               inputted = inputted.slice(0, i) + actual[i] + inputted.slice(i);
-              marked += "<em>" + inputted[i] + "</em>";
+              if (inputted[i] === " ") {
+                marked += "<em>_</em>";
+              } else {
+                marked += "<em>" + inputted[i] + "</em>";
+              }
             } else if (edit[i] === "s") {
               inputted = inputted.substr(0, i) + actual[i] + inputted.substr(i + 1, inputted.length);
-              marked += "<em>" + inputted[i] + "</em>";
+              if (inputted[i] === " ") {
+                marked += "<em>_</em>";
+              } else {
+                marked += "<em>" + inputted[i] + "</em>";
+              }
             }
           }
         }

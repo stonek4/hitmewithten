@@ -35,8 +35,7 @@ export class Creator {
   public activate(params, routeData) {
 
     logger.debug("creator route activated");
-    // tslint:disable-next-line:no-null-keyword
-    if (params.id !== null) {
+    if (params.id !== undefined) {
       logger.debug("cards were attached to the route");
       this.index = -1;
       this.cards = JSON.parse(window.localStorage.getItem(<string>params.id + ".cards"));
