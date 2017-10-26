@@ -3,10 +3,11 @@ import { Router } from 'aurelia-router';
 import { Card } from '../card';
 import { CssAnimator } from 'aurelia-animator-css';
 import { Trophies } from '../trophies/trophies';
+import { Globals } from '../globals';
 
 const logger = LogManager.getLogger('menu');
 
-@inject(Router, CssAnimator, Trophies)
+@inject(Router, CssAnimator, Trophies, Globals)
 export class Menu {
 
   /** List of cards */
@@ -19,16 +20,18 @@ export class Menu {
   /** The modal text */
   modalText: string = "";
 
-  private router;
-  private animator;
-  private trophies;
+  private router: Router;
+  private animator: CssAnimator;
+  private trophies: Trophies;
+  private globals: Globals;
 
-  public constructor(router: Router, animator: CssAnimator, trophies: Trophies) {
+  public constructor(router: Router, animator: CssAnimator, trophies: Trophies, globals: Globals) {
     logger.debug("constructing the menu class");
     this.name = this.storage.getItem("current");
     this.animator = animator;
     this.trophies = trophies;
     this.router = router;
+    this.globals = globals;
 
     this.trophies.initializeTrophies();
     // tslint:disable-next-line:no-null-keyword
@@ -43,38 +46,23 @@ export class Menu {
   public attached() {
     logger.debug("attaching the menu");
     (<HTMLElement>document.querySelector('.modal')).style.display = 'none';
-    this.enterAnimations();
-  }
-
-  private enterAnimations() {
     logger.debug("performing entrance animations");
-    const elements = document.getElementsByClassName('menu-btn-cont');
-    for (let i = 0; i < elements.length; i++) {
-      this.animator.animate(elements[i], 'flipInX');
-    }
-  }
-
-  private exitAnimations() {
-    logger.debug("performing exit animations");
-    const elements = document.getElementsByClassName('menu-btn-cont');
-    for (let i = 0; i < elements.length; i++) {
-      this.animator.animate(elements[i], 'flipOutX');
-    }
+    return this.globals.performEntranceAnimations('menu-btn-cont', 'flipInX');
   }
 
   private navigateTo(location: string) {
     logger.debug("navigating to " + location);
 
-    this.exitAnimations();
-
-    setTimeout( () => {
-      if (location === "Tester") {
-        this.router.navigateToRoute(location, { id: this.name });
-      }
-      else {
+    this.globals.performExitAnimations('menu-btn-cont', 'flipOutX').then(() => {
+        if (location === "Tester") {
+          this.router.navigateToRoute(location, { id: this.name });
+        }
+        else {
+          this.router.navigateToRoute(location);
+        }
+    }).catch(() => {
         this.router.navigateToRoute(location);
-      }
-    }, 300);
+    });
   }
 
   public serve(num: number) {

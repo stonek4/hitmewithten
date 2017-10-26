@@ -2,6 +2,7 @@ import { inject, LogManager } from 'aurelia-framework';
 import { Router } from 'aurelia-router';
 import { CssAnimator } from 'aurelia-animator-css';
 import { EventAggregator } from 'aurelia-event-aggregator';
+import { Globals } from '../globals';
 
 interface CardSet {
   name: string;
@@ -10,7 +11,7 @@ interface CardSet {
 
 const logger = LogManager.getLogger("loader");
 
-@inject(Router, CssAnimator, EventAggregator)
+@inject(Router, CssAnimator, EventAggregator, Globals)
 export class Menu {
 
   /** The sets of cards */
@@ -26,15 +27,17 @@ export class Menu {
   /** The subscription to the close event */
   closeSub: any;
 
-  private router;
-  private animator;
-  private eventAggregator;
+  private router: Router;
+  private animator: CssAnimator;
+  private eventAggregator: EventAggregator;
+  private globals: Globals;
 
-  public constructor(router: Router, animator: CssAnimator, eventAggregator: EventAggregator) {
+  public constructor(router: Router, animator: CssAnimator, eventAggregator: EventAggregator, globals: Globals) {
     logger.debug("constructing the logger class");
     this.animator = animator;
     this.router = router;
     this.eventAggregator = eventAggregator;
+    this.globals = globals;
     this.loadData();
   }
 
@@ -51,36 +54,25 @@ export class Menu {
     }
   }
 
-  private enterAnimations() {
-    logger.debug("performing entrance animations");
-    this.animator.animate(document.querySelector('.list-group'), 'slideInLeft');
-    this.animator.animate(document.querySelector('.loader-create'), 'flipInX');
-    this.animator.animate(document.querySelector('.loader-upload'), 'flipInX');
-    this.animator.animate(document.querySelector('.loader-back'), 'flipInX');
-  }
-
-  private exitAnimations() {
-    logger.debug("performing exit animations");
-    this.animator.animate(document.querySelector('.list-group'), 'slideOutLeft');
-    this.animator.animate(document.querySelector('.loader-create'), 'flipOutX');
-    this.animator.animate(document.querySelector('.loader-upload'), 'flipOutX');
-    this.animator.animate(document.querySelector('.loader-back'), 'flipOutX');
-  }
-
   private navigateTo(location: string) {
     logger.debug("navigating to " + location);
 
-    this.exitAnimations();
+    const promises = new Array<Promise<any>>();
+    promises.push(this.globals.performExitAnimations('list-group', 'slideOutLeft'));
+    promises.push(this.globals.performExitAnimations('list-flip', 'flipOutX'));
 
-    setTimeout(() => {
-      if (location === 'Menu') {
-          this.router.history.navigateBack();
-      } else if (this.currentSet.name === '') {
-          this.router.navigateToRoute(location);
-      } else {
-          this.router.navigateToRoute(location, { id: this.currentSet.name });
-      }
-    }, 300);
+    Promise.all(promises).then(() => {
+        if (location === 'Menu') {
+            this.router.history.navigateBack();
+        } else if (this.currentSet.name === '') {
+            this.router.navigateToRoute(location);
+        } else {
+            this.router.navigateToRoute(location, { id: this.currentSet.name });
+        }
+    }).catch(() => {
+        logger.error('An error occurred while navigating away');
+        this.router.navigateToRoute('Menu');
+    });
   }
 
   public detached() {
@@ -92,7 +84,6 @@ export class Menu {
   public attached() {
     logger.debug("attaching the loader");
     (<HTMLElement>document.querySelector('.modal')).style.display = 'none';
-    this.enterAnimations();
 
     this.actionSub = this.eventAggregator.subscribe('modal-action', (action) => {
       logger.debug("the action was changed to " + <string>action);
@@ -113,6 +104,11 @@ export class Menu {
         this.export();
       }
     });
+
+    const promises = new Array<Promise<any>>();
+    promises.push(this.globals.performEntranceAnimations('list-group', 'slideInLeft'));
+    promises.push(this.globals.performEntranceAnimations('loader-flip', 'flipInX'));
+    return Promise.all(promises);
   }
 
   public showModal(aset: CardSet) {

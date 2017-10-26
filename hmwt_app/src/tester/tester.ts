@@ -3,10 +3,11 @@ import { Router } from 'aurelia-router';
 import { CssAnimator } from 'aurelia-animator-css';
 import { Card } from '../card';
 import { Trophies } from '../trophies/trophies';
+import { Globals } from '../globals';
 
 const logger = LogManager.getLogger('tester');
 
-@inject(Router, CssAnimator, Trophies)
+@inject(Router, CssAnimator, Trophies, Globals)
 export class Tester {
   /** The definition */
   public definition: string;
@@ -25,15 +26,17 @@ export class Tester {
   /** The value of the progress bar */
   public progressValue: string = "0";
 
-  private router;
-  private animator;
-  private trophies;
+  private router: Router;
+  private animator: CssAnimator;
+  private trophies: Trophies;
+  private globals: Globals;
 
-  public constructor(router: Router, animator: CssAnimator, trophies: Trophies) {
+  public constructor(router: Router, animator: CssAnimator, trophies: Trophies, globals: Globals) {
     logger.debug('constructing the tester class');
     this.animator = animator;
     this.trophies = trophies;
     this.router = router;
+    this.globals = globals;
   }
 
   public activate(params, routeData) {
@@ -53,20 +56,11 @@ export class Tester {
     this.definition = this.cards[this.index].definitions[0];
   }
 
-  private enterAnimations() {
-    logger.debug('performing entrance animations');
-    this.animator.animate(document.querySelector('.tester'), 'slideInRight');
-    (<HTMLElement>document.querySelector(this.input_element)).focus();
-  }
-
-  private exitAnimations() {
-    logger.debug('performing exit animations');
-    this.animator.animate(document.querySelector('.tester'), 'slideOutRight');
-  }
-
   public attached() {
     logger.debug('attaching the tester');
-    this.enterAnimations();
+    logger.debug('performing entrance animations');
+    (<HTMLElement>document.querySelector(this.input_element)).focus();
+    return this.globals.performEntranceAnimations('tester', 'slideInRight');
   }
 
   public submit() {
@@ -128,25 +122,20 @@ export class Tester {
 
   public next() {
     logger.debug('attempting to move to the next card');
-    this.animator.animate(document.querySelector(this.definition_element), 'slide');
-    setTimeout(() => {
-      (<HTMLElement>document.querySelector(this.definition_element)).style.opacity = "0";
-      this.index += 1;
-      this.trophies.updateCardsTestedTrophies(1);
-      this.trophies.displayNewTrophies();
-      this.updateProgress();
-      if (this.index < this.cards.length) {
-        setTimeout(() => {
-          (<HTMLElement>document.querySelector(this.definition_element)).style.opacity = "1";
-          this.definition = this.cards[this.index].definitions[0];
-          this.answer = "";
-        }, 50);
+    this.index += 1;
+    this.trophies.updateCardsTestedTrophies(1);
+    this.trophies.displayNewTrophies();
+    this.updateProgress();
+    return this.globals.performExitAnimations('tester-text', 'slideOutLeft').then(() => {
+        if (this.index < this.cards.length) {
+            this.definition = this.cards[this.index].definitions[0];
+            this.answer = "";
+            return this.globals.performEntranceAnimations('tester-text', 'slideInRight');
+      } else {
+          logger.debug('reached last card in the list');
+          this.done();
       }
-      else {
-        logger.debug('there are no cards left in the list, exiting');
-        setTimeout(() => { this.done(); }, 500);
-      }
-    }, 500);
+    });
   }
 
   public back() {
@@ -251,9 +240,12 @@ export class Tester {
 
   public done() {
     logger.debug('exiting the tester');
-    this.exitAnimations();
-    setTimeout( () => {
+    logger.debug('performing exit animations');
+    this.globals.performExitAnimations('tester', 'slideOutRight').then(() => {
         this.router.history.navigateBack();
-    }, 300);
+    }).catch(() => {
+        logger.error('An error occurred while navigating away');
+        this.router.navigateToRoute('Menu');
+    });
   }
 }

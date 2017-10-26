@@ -3,10 +3,11 @@ import { Router } from 'aurelia-router';
 import { EventAggregator } from 'aurelia-event-aggregator';
 import { Card } from '../card';
 import { CssAnimator } from 'aurelia-animator-css';
+import { Globals } from '../globals';
 
 const logger = LogManager.getLogger("creator");
 
-@inject(Router, EventAggregator, CssAnimator)
+@inject(Router, EventAggregator, CssAnimator, Globals)
 export class Creator {
 
   /** The set of all cards */
@@ -20,16 +21,18 @@ export class Creator {
   /** The name of the current card */
   private name: string;
 
-  private router;
-  private eventAggregator;
-  private animator;
+  private router: Router;
+  private eventAggregator: EventAggregator;
+  private animator: CssAnimator;
+  private globals: Globals;
 
-  public constructor(router: Router, eventAggregator: EventAggregator, animator: CssAnimator) {
+  public constructor(router: Router, eventAggregator: EventAggregator, animator: CssAnimator, globals: Globals) {
     logger.debug("constructing the creator class");
     this.index = 0;
     this.animator = animator;
     this.eventAggregator = eventAggregator;
     this.router = router;
+    this.globals = globals;
   }
 
   public activate(params, routeData) {
@@ -56,17 +59,8 @@ export class Creator {
       (<HTMLElement>document.querySelector('.creator-definition')).focus();
       this.back();
     }
-    this.enterAnimations();
-  }
-
-  private enterAnimations() {
     logger.debug("displaying the entrance animations");
-    this.animator.animate(document.querySelector('.creator'), 'slideInLeft');
-  }
-
-  private exitAnimations() {
-    logger.debug("displaying the exit animations");
-    this.animator.animate(document.querySelector('.creator'), 'slideOutLeft');
+    this.globals.performEntranceAnimations('creator', 'slideInLeft');
   }
 
   public next() {
@@ -153,11 +147,14 @@ export class Creator {
     }
     storage.setItem('keys', JSON.stringify(keys));
     storage.setItem('current', this.name);
-    this.exitAnimations();
-    setTimeout(() => {
-      logger.debug("navigating back");
-      this.router.history.navigateBack();
-      this.router.history.navigateBack();
-    }, 300);
+    logger.debug("displaying the exit animations");
+    this.globals.performExitAnimations('creator', 'slideOutLeft').then(() => {
+        logger.debug("navigating back");
+        this.router.history.navigateBack();
+        this.router.history.navigateBack();
+    }).catch(() => {
+        logger.error('An error occurred while navigating away');
+        this.router.navigateToRoute('Menu');
+    })
   }
 }

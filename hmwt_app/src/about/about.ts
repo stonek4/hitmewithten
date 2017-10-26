@@ -2,45 +2,45 @@ import { inject, LogManager } from 'aurelia-framework';
 import { Router } from 'aurelia-router';
 import { CssAnimator } from 'aurelia-animator-css';
 import { EventAggregator } from 'aurelia-event-aggregator';
+import { Globals } from '../globals';
 
 const logger = LogManager.getLogger('about');
 
-@inject(Router, CssAnimator, EventAggregator)
+@inject(Router, CssAnimator, EventAggregator, Globals)
 export class Menu {
 
-  private router;
-  private animator;
-  private eventAggregator;
+  private router: Router;
+  private animator: CssAnimator;
+  private eventAggregator: EventAggregator;
+  private globals: Globals;
 
-  constructor(router: Router, animator: CssAnimator, eventAggregator: EventAggregator) {
+  constructor(router: Router, animator: CssAnimator, eventAggregator: EventAggregator, globals: Globals) {
     this.router = router;
     this.animator = animator;
     this.eventAggregator = eventAggregator;
+    this.globals = globals;
     logger.debug('constructing the about class');
   }
 
-  private enterAnimations() {
-    logger.debug('performing entrance animations');
-    this.animator.animate(document.querySelector('.about-text-container'), 'slideInRight');
-    this.animator.animate(document.querySelector('.about-back'), 'flipInX');
-  }
-
-  private exitAnimations() {
-    logger.debug('performing exit animations');
-    this.animator.animate(document.querySelector('.about-text-container'), 'slidOutRight');
-    this.animator.animate(document.querySelector('.about-back'), 'flipOutX');
-  }
-
   public attached() {
-    logger.debug('attaching the about');
-    this.enterAnimations();
+    logger.debug('performing entrance animations');
+    const promises = new Array<Promise<any>>();
+    promises.push(this.globals.performEntranceAnimations('about-text-container', 'slideInRight'));
+    promises.push(this.globals.performEntranceAnimations('about-back', 'fliptInX'));
+    return Promise.all(promises);
   }
 
   public back() {
     logger.debug('navigating back');
-    this.exitAnimations();
-    setTimeout(() => {
+    logger.debug('performing exit animations');
+    const promises = new Array<Promise<any>>();
+    promises.push(this.globals.performExitAnimations('about-text-container', 'slideOutRight'));
+    promises.push(this.globals.performExitAnimations('about-back', 'flipOutX'));
+    Promise.all(promises).then(() => {
         this.router.history.navigateBack();
-    }, 300);
+    }).catch(() => {
+        logger.error('An error occurred while navigating away');
+        this.router.navigateToRoute('Menu');
+    });
   }
 }
