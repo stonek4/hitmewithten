@@ -1,13 +1,12 @@
 import { inject, LogManager } from 'aurelia-framework';
 import { Router } from 'aurelia-router';
 import { Card } from '../card';
-import { CssAnimator } from 'aurelia-animator-css';
 import { Trophies } from '../trophies/trophies';
 import { Globals } from '../globals';
 
 const logger = LogManager.getLogger('menu');
 
-@inject(Router, CssAnimator, Trophies, Globals)
+@inject(Router, Trophies, Globals)
 export class Menu {
 
   /** List of cards */
@@ -21,14 +20,12 @@ export class Menu {
   modalText: string = "";
 
   private router: Router;
-  private animator: CssAnimator;
   private trophies: Trophies;
   private globals: Globals;
 
-  public constructor(router: Router, animator: CssAnimator, trophies: Trophies, globals: Globals) {
+  public constructor(router: Router, trophies: Trophies, globals: Globals) {
     logger.debug("constructing the menu class");
     this.name = this.storage.getItem("current");
-    this.animator = animator;
     this.trophies = trophies;
     this.router = router;
     this.globals = globals;

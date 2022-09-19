@@ -5,6 +5,7 @@ import * as project from '../aurelia.json';
 import {build} from 'aurelia-cli';
 
 export default function processCSS() {
+  const sass = require('gulp-sass')(require('sass'));
   return gulp.src(project.cssProcessor.source)
     .pipe(sourcemaps.init())
     .pipe(sass().on('error', sass.logError))

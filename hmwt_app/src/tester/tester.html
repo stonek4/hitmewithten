@@ -1,6 +1,7 @@
 <template>
   <require from="./tester.css"></require>
-  <div class="tester-space"></div>
+  <div class="tester-space">
+  </div>
   <div class="tester">
     <div class="tester-progress">
       <div class="progress-bar progress-bar-black progress-bar-striped" role="progressbar" aria-valuenow.bind="progressValue"
@@ -8,6 +9,9 @@
       </div>
     </div>
     <div class="tester-definition">
+      <button type="button" class="tester-btn tester-flip" click.delegate = "flip()">
+        <span class="btn-icon glyphicon glyphicon-refresh"></span>
+      </button>
       <div class="tester-text" innerhtml.bind="definition"></div>
     </div>
     <form class = "tester-answer" submit.delegate="submit()">

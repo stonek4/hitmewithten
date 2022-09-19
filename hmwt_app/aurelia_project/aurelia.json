@@ -162,6 +162,16 @@
             "path": "../node_modules/aurelia-testing/dist/amd",
             "main": "aurelia-testing",
             "env": "dev"
+          },
+          {
+            "name": "firebase/app",
+            "path": "../node_modules/firebase/app/dist",
+            "main": "index.cjs.js"
+          },
+          {
+            "name": "firebase/analytics",
+            "path": "../node_modules/firebase/analytics/dist",
+            "main": "index.cjs.js"
           }
         ]
       }

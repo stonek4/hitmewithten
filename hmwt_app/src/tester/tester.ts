@@ -25,6 +25,8 @@ export class Tester {
   public progressStyle: string = "width:0%";
   /** The value of the progress bar */
   public progressValue: string = "0";
+  /** Whether the cards should be flipped or not */
+  public flipped: boolean = false;
 
   private router: Router;
   private animator: CssAnimator;
@@ -53,7 +55,23 @@ export class Tester {
       logger.warn('no cards detected, bailing out!');
       this.done();
     }
-    this.definition = this.cards[this.index].definitions[0];
+    this.setDefinition();
+  }
+
+  public setDefinition() {
+    if (!this.flipped) {
+      this.definition = this.cards[this.index].definitions[0];
+    } else {
+      this.definition = this.cards[this.index].answers[0];
+    }
+  }
+
+  public getSolution() {
+    if (!this.flipped) {
+      return this.cards[this.index].answers[0];
+    } else {
+      return this.cards[this.index].definitions[0];
+    }
   }
 
   public attached() {
@@ -65,23 +83,25 @@ export class Tester {
 
   public submit() {
     logger.debug('answer was submitted');
-    if (this.answer === this.cards[this.index].answers[0]) {
+    let actual = this.getSolution();
+    let inputted = this.answer;
+    if (inputted.toLocaleLowerCase() === actual.toLowerCase()) {
       logger.debug('answer is correct');
       this.trophies.updateCardsPassedTrophies(1);
-      this.definition = "<correct>" + this.cards[this.index].answers[0] + "</correct>";
+      this.definition = "<correct>" + this.getSolution() + "</correct>";
       setTimeout(() => {
-        this.next();
+        this.next().catch((reason) => {
+          console.error(reason);
+        });
       }, 200);
     } else {
       logger.debug('answer is incorrect');
       this.trophies.updateCardsFailedTrophies(1);
-      let actual = this.cards[this.index].answers[0];
-      let inputted = this.answer;
       let marked = "";
-      const edit = this.calcDist(inputted, actual);
+      const edit = this.calcDist(inputted.toLowerCase(), actual.toLowerCase());
 
       logger.debug('edits made are: (none, substitute, insert, delete)');
-      logger.debug(edit);
+      logger.debug(edit.toString());
 
       if (edit.length === 1) {
         logger.debug('edit length is one, assuming insert');
@@ -90,7 +110,7 @@ export class Tester {
 
       for (let i = 0; i < edit.length; i++) {
         if (edit[i] === "n") {
-          marked += inputted[i];
+          marked += actual[i];
         } else {
             if (edit[i] === "d") {
               marked += "<em>-</em>";
@@ -98,14 +118,14 @@ export class Tester {
             } else if (edit[i] === "i") {
               inputted = inputted.slice(0, i) + actual[i] + inputted.slice(i);
               if (inputted[i] === " ") {
-                marked += "<em>_</em>";
+                marked += "<em>&nbsp;_&nbsp;</em>";
               } else {
                 marked += "<em>" + inputted[i] + "</em>";
               }
             } else if (edit[i] === "s") {
               inputted = inputted.substr(0, i) + actual[i] + inputted.substr(i + 1, inputted.length);
               if (inputted[i] === " ") {
-                marked += "<em>_</em>";
+                marked += "<em>&nbsp;_&nbsp;</em>";
               } else {
                 marked += "<em>" + inputted[i] + "</em>";
               }
@@ -115,9 +135,18 @@ export class Tester {
 
       logger.debug('displaying marked definition');
       this.definition = marked;
-      this.animator.animate(document.querySelector(this.definition_element), 'shake');
+      this.animator.animate(document.querySelector(this.definition_element), 'shake')
+      .catch((reason) => {
+        console.error(reason);
+      });
     }
     (<HTMLElement>document.querySelector(this.input_element)).focus();
+  }
+
+  public flip() {
+    logger.debug('flipping cards over');
+    this.flipped = !this.flipped;
+    this.setDefinition();
   }
 
   public next() {
@@ -128,7 +157,7 @@ export class Tester {
     this.updateProgress();
     return this.globals.performExitAnimations('tester-text', 'slideOutLeft').then(() => {
         if (this.index < this.cards.length) {
-            this.definition = this.cards[this.index].definitions[0];
+            this.setDefinition();
             this.answer = "";
             return this.globals.performEntranceAnimations('tester-text', 'slideInRight');
       } else {
@@ -142,12 +171,15 @@ export class Tester {
     logger.debug('attempting to move back to the previous card');
     if (this.index !== 0) {
       this.index -= 1;
-      this.animator.animate(document.querySelector(this.definition_element), 'slideBack');
+      this.animator.animate(document.querySelector(this.definition_element), 'slideBack')
+      .catch((reason) => {
+        console.error(reason);
+      });
       setTimeout(() => {
         (<HTMLElement>document.querySelector(this.definition_element)).style.opacity = "0";
         setTimeout(() => {
           (<HTMLElement>document.querySelector(this.definition_element)).style.opacity = "1";
-          this.definition = this.cards[this.index].definitions[0];
+          this.setDefinition();
           this.answer = "";
         }, 50);
       }, 500);

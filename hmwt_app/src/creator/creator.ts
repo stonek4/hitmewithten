@@ -2,12 +2,11 @@ import { inject, LogManager } from 'aurelia-framework';
 import { Router } from 'aurelia-router';
 import { EventAggregator } from 'aurelia-event-aggregator';
 import { Card } from '../card';
-import { CssAnimator } from 'aurelia-animator-css';
 import { Globals } from '../globals';
 
 const logger = LogManager.getLogger("creator");
 
-@inject(Router, EventAggregator, CssAnimator, Globals)
+@inject(Router, EventAggregator, Globals)
 export class Creator {
 
   /** The set of all cards */
@@ -23,13 +22,11 @@ export class Creator {
 
   private router: Router;
   private eventAggregator: EventAggregator;
-  private animator: CssAnimator;
   private globals: Globals;
 
-  public constructor(router: Router, eventAggregator: EventAggregator, animator: CssAnimator, globals: Globals) {
+  public constructor(router: Router, eventAggregator: EventAggregator, globals: Globals) {
     logger.debug("constructing the creator class");
     this.index = 0;
-    this.animator = animator;
     this.eventAggregator = eventAggregator;
     this.router = router;
     this.globals = globals;
@@ -60,7 +57,10 @@ export class Creator {
       this.back();
     }
     logger.debug("displaying the entrance animations");
-    this.globals.performEntranceAnimations('creator', 'slideInLeft');
+    this.globals.performEntranceAnimations('creator', 'slideInLeft')
+    .catch((reason) => {
+      console.error(reason);
+    });
   }
 
   public next() {
@@ -155,6 +155,6 @@ export class Creator {
     }).catch(() => {
         logger.error('An error occurred while navigating away');
         this.router.navigateToRoute('Menu');
-    })
+    });
   }
 }

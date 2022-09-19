@@ -41,7 +41,7 @@ $btns: 5;
 
 @media (orientation: portrait){
   .menu-btn-cont{
-    height: 100% / $btns;
+    height: calc(100% / $btns);
     width: 100%;
   }
 
@@ -52,7 +52,7 @@ $btns: 5;
 
 @media (orientation: landscape){
   .menu-btn-cont{
-    height: 100% / ceil($btns/2);
+    height: calc(100% / ceil(calc($btns/2)));
     width: 45%;
   }
 

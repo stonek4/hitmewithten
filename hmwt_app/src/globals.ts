@@ -18,7 +18,7 @@ export class Globals {
     private animationEntranceHandler = function(e) {
         (<HTMLElement>e.target).style.visibility = 'visible';
         e.target.removeEventListener('animationend', this.animationEndHandler);
-    }
+    };
 
     public performEntranceAnimations(elementClass: string, animation: string): Promise<any> {
         const promises = new Array<Promise<any>>();

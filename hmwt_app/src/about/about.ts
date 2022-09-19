@@ -1,23 +1,17 @@
 import { inject, LogManager } from 'aurelia-framework';
 import { Router } from 'aurelia-router';
-import { CssAnimator } from 'aurelia-animator-css';
-import { EventAggregator } from 'aurelia-event-aggregator';
 import { Globals } from '../globals';
 
 const logger = LogManager.getLogger('about');
 
-@inject(Router, CssAnimator, EventAggregator, Globals)
+@inject(Router, Globals)
 export class Menu {
 
   private router: Router;
-  private animator: CssAnimator;
-  private eventAggregator: EventAggregator;
   private globals: Globals;
 
-  constructor(router: Router, animator: CssAnimator, eventAggregator: EventAggregator, globals: Globals) {
+  constructor(router: Router, globals: Globals) {
     this.router = router;
-    this.animator = animator;
-    this.eventAggregator = eventAggregator;
     this.globals = globals;
     logger.debug('constructing the about class');
   }

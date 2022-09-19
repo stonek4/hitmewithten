@@ -1,6 +1,5 @@
 import { inject, LogManager } from 'aurelia-framework';
 import { Router } from 'aurelia-router';
-import { CssAnimator } from 'aurelia-animator-css';
 import { EventAggregator } from 'aurelia-event-aggregator';
 import { Globals } from '../globals';
 
@@ -11,7 +10,7 @@ interface CardSet {
 
 const logger = LogManager.getLogger("loader");
 
-@inject(Router, CssAnimator, EventAggregator, Globals)
+@inject(Router, EventAggregator, Globals)
 export class Menu {
 
   /** The sets of cards */
@@ -28,13 +27,11 @@ export class Menu {
   closeSub: any;
 
   private router: Router;
-  private animator: CssAnimator;
   private eventAggregator: EventAggregator;
   private globals: Globals;
 
-  public constructor(router: Router, animator: CssAnimator, eventAggregator: EventAggregator, globals: Globals) {
+  public constructor(router: Router, eventAggregator: EventAggregator, globals: Globals) {
     logger.debug("constructing the logger class");
-    this.animator = animator;
     this.router = router;
     this.eventAggregator = eventAggregator;
     this.globals = globals;
@@ -51,6 +48,8 @@ export class Menu {
         const nums = JSON.parse(this.storage.getItem(<string>keys[i] + ".cards")).length;
         this.sets.push({ name: keys[i], number: nums });
       }
+    } else {
+      this.storage.setItem('keys', JSON.stringify([]));
     }
   }
 
@@ -152,11 +151,12 @@ export class Menu {
 
           logger.debug("card set is saving");
           if (title !== "") {
-            const cards = reader.result;
+            const cards = reader.result.toString();
             storage.setItem(title + ".cards", cards);
             const keys = JSON.parse(storage.getItem('keys'));
             if (keys.indexOf(title) === -1) {
               keys.push(title);
+              storage.setItem('current', title);
             }
             storage.setItem('keys', JSON.stringify(keys));
             logger.debug("card set has been saved");
