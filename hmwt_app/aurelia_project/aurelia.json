@@ -49,6 +49,7 @@
   "dist": {
     "output": "www",
     "sources": [
+        "favicon.ico",
         "./scripts/**/*",
         "./index.html",
         "./img/*",
