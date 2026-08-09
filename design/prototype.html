@@ -1,0 +1,1435 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vocab Cards — Design Prototype</title>
+<style>
+/* ============================================================================
+   DESIGN TOKENS  —  mirrors design/design-tokens.md §13 exactly.
+   This prototype is THROWAWAY demonstration HTML for a React Native app.
+   It is not the implementation. Its job is to be the visual truth of the spec.
+   ========================================================================= */
+:root, [data-theme="light"] {
+  --primary:#305DA8; --on-primary:#FFFFFF;
+  --primary-container:#D8E2FF; --on-primary-container:#001A41;
+  --secondary:#565E71; --secondary-container:#DBE2F9; --on-secondary-container:#131B2C;
+  --tertiary:#715574; --tertiary-container:#FBD7FC; --on-tertiary-container:#29132D;
+  --error:#BA1A1A; --on-error:#FFFFFF; --error-container:#FFDAD6; --on-error-container:#410002;
+  --surface:#FAF9FD; --on-surface:#1B1B1F;
+  --surface-variant:#E1E2EC; --on-surface-variant:#44474F;
+  --outline:#74777F; --outline-variant:#C4C6D0;
+  --sc-lowest:#FFFFFF; --sc-low:#F5F3F7; --sc:#EFEDF1; --sc-high:#E9E7EC; --sc-highest:#E3E2E6;
+  --inverse-surface:#303033; --inverse-on-surface:#F2F0F4;
+  --scrim:rgba(0,0,0,.32);
+  /* ---- The Page: THE NOTECARD (design-tokens.md §3.1 / §9) ---- */
+  --paper:#FCF8EE; --paper-shade:#EFE8D8; --paper-edge:#CFC7B4;
+  --paper-rule:#BFCBDD;          /* writing rules      1.55:1 — text sits ON these */
+  --paper-rule-strong:#D19C94;   /* header rule  2dp   2.23:1 — warm, differentiated */
+  --paper-margin:#DFB3AC;        /* vertical margin    1.77:1 */
+  --ink:#1B1B1F; --ink-variant:#4A4A52;
+  --desk:#E9E7EC;
+  --page-shadow:0 2px 6px rgba(0,0,0,.10), 0 1px 1px rgba(0,0,0,.06);
+  /* ---- The diff ---- */
+  --diff-correct:#146B3A; --diff-correct-container:#C8EBD5;
+  --diff-wrong:#B3261E;   --diff-wrong-container:#FBE4E1;
+  --diff-missing:#6A3CA6; --diff-missing-container:#EFE6FB;
+  --diff-void:#BFCBDD;
+  --wordmark-filter:none;
+}
+[data-theme="dark"] {
+  --primary:#ADC6FF; --on-primary:#002E68;
+  --primary-container:#0D448E; --on-primary-container:#D8E2FF;
+  --secondary:#BFC6DC; --secondary-container:#3F4759; --on-secondary-container:#DBE2F9;
+  --tertiary:#DEBCDF; --tertiary-container:#583E5B; --on-tertiary-container:#FBD7FC;
+  --error:#FFB4AB; --on-error:#690005; --error-container:#93000A; --on-error-container:#FFDAD6;
+  --surface:#121316; --on-surface:#E3E2E6;
+  --surface-variant:#44474F; --on-surface-variant:#C4C6D0;
+  --outline:#8E9099; --outline-variant:#44474F;
+  --sc-lowest:#0D0E11; --sc-low:#1B1B1F; --sc:#1F1F23; --sc-high:#292A2D; --sc-highest:#343538;
+  --inverse-surface:#E3E2E6; --inverse-on-surface:#303033;
+  --scrim:rgba(0,0,0,.6);
+  /* The notecard in dark: a TONED SLATE CARD, not an inverted texture.
+     The card stays LIGHTER than the desk; rule polarity flips (rules lighter
+     than the card) while rule contrast stays sub-threshold. */
+  --paper:#23262C; --paper-shade:#1C1F24; --paper-edge:#3B414D;
+  --paper-rule:#3C434F;          /* writing rules  1.52:1 — lighter than the card */
+  --paper-rule-strong:#6A4340;   /* header rule    1.80:1 — warm */
+  --paper-margin:#5E3C3A;        /* margin rule    1.58:1 */
+  --ink:#E8E4DC; --ink-variant:#B4AFA6;
+  --desk:#121316;
+  --page-shadow:none;                       /* shadows do not exist in dark mode */
+  --diff-correct:#7CD99E; --diff-correct-container:#0F4527;
+  --diff-wrong:#FFB4AB;   --diff-wrong-container:#4B2B29;
+  --diff-missing:#D9BCFF; --diff-missing-container:#3B2E55;
+  --diff-void:#3C434F;
+  --wordmark-filter:invert(92%) sepia(6%) saturate(200%) hue-rotate(350deg); /* stand-in for the dark wordmark export */
+}
+/* spacing / shape / motion */
+:root{
+  --s1:4px; --s2:8px; --s3:12px; --s4:16px; --s5:20px; --s6:24px; --s8:32px; --s10:40px; --s12:48px;
+  --r-xs:4px; --r-s:8px; --r-m:12px; --r-l:16px; --r-xl:28px; --r-full:9999px;
+  --rule-pitch:40px;                        /* = resolved line-height of type.card-answer */
+  --e-standard:cubic-bezier(.2,0,0,1);
+  --e-decel:cubic-bezier(.05,.7,.1,1);
+}
+
+/* ============================================================================ */
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0}
+/* ── FONTS ────────────────────────────────────────────────────────────────
+   This prototype is 100% self-contained: it loads NOTHING from the network,
+   which matters doubly for an offline-first product. It therefore uses SYSTEM
+   stacks rather than webfonts.
+     PRODUCTION ships Inter (chrome) + JetBrains Mono (anything spelled) via
+     @expo-google-fonts — see design-tokens.md §5. The stacks below are the
+     prototype's fallback, NOT the design decision.
+   The monospace stack preserves the intent that matters most: every family in
+   it disambiguates l / I / 1 and 0 / O, which in a spelling app is a
+   correctness property, not a preference.                                  */
+:root{
+  --font-ui:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --font-mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,"DejaVu Sans Mono",monospace;
+}
+body{
+  font-family:var(--font-ui);
+  background:#2a2b30; color:#e6e6e8; padding:24px 16px 64px; min-height:100vh;
+}
+.stage{max-width:1180px;margin:0 auto}
+.stage h1{font-size:20px;font-weight:700;margin:0 0 4px}
+.stage p.sub{margin:0 0 20px;font-size:13px;opacity:.7;line-height:1.5;max-width:74ch}
+.stage a{color:#adc6ff}
+.controls{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:20px}
+.controls button{
+  font:inherit;font-size:12px;font-weight:600;padding:8px 12px;border-radius:999px;
+  border:1px solid #4a4b52;background:#37383e;color:#e6e6e8;cursor:pointer;min-height:36px;
+}
+.controls button:hover{background:#42434a}
+.controls button.on{background:#adc6ff;color:#002e68;border-color:#adc6ff}
+.controls .sep{width:1px;height:24px;background:#4a4b52;margin:0 4px}
+
+/* ---- phone frame ---- */
+.phones{display:flex;gap:28px;flex-wrap:wrap;align-items:flex-start}
+.phone{
+  width:390px;height:800px;border-radius:38px;padding:10px;background:#0b0b0d;
+  box-shadow:0 18px 50px rgba(0,0,0,.5);flex:0 0 auto;position:relative;
+}
+.phone .notch{position:absolute;top:16px;left:50%;transform:translateX(-50%);width:110px;height:22px;border-radius:999px;background:#0b0b0d;z-index:40}
+.viewport{
+  width:100%;height:100%;border-radius:29px;overflow:hidden;position:relative;
+  background:var(--surface);color:var(--on-surface);
+}
+.screen{position:absolute;inset:0;display:none;flex-direction:column;overflow:hidden}
+.screen.active{display:flex}
+.body{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch}
+.body::-webkit-scrollbar{width:0}
+
+/* ---- chrome: app bar ---- */
+.appbar{
+  display:flex;align-items:center;gap:var(--s2);padding:44px var(--s2) var(--s3);
+  background:var(--sc-low);min-height:96px;flex:0 0 auto;
+}
+.appbar.large{padding-top:52px;padding-bottom:var(--s4)}
+.appbar .title{font-size:22px;font-weight:700;flex:1;letter-spacing:0}
+.appbar .title.small{font-size:20px}
+.iconbtn{
+  width:48px;height:48px;border-radius:var(--r-full);border:0;background:transparent;
+  color:var(--on-surface-variant);display:grid;place-items:center;cursor:pointer;flex:0 0 auto;
+  font-size:20px;transition:background .1s var(--e-standard);
+}
+.iconbtn:hover{background:color-mix(in srgb,var(--on-surface) 8%,transparent)}
+.iconbtn:focus-visible{outline:2px solid var(--primary);outline-offset:2px}
+.iconbtn.primary{color:var(--primary)}
+
+/* ---- chrome: type ---- */
+.h-small{font-size:24px;line-height:32px;font-weight:400;margin:0}
+.t-large{font-size:22px;line-height:28px;font-weight:700;margin:0}
+.t-med{font-size:16px;line-height:24px;font-weight:600;margin:0}
+.t-small{font-size:14px;line-height:20px;font-weight:600;margin:0;letter-spacing:.1px}
+.b-large{font-size:16px;line-height:24px;margin:0;letter-spacing:.5px}
+.b-med{font-size:14px;line-height:20px;margin:0;letter-spacing:.25px}
+.b-small{font-size:12px;line-height:16px;margin:0;letter-spacing:.4px}
+.l-med{font-size:12px;line-height:16px;font-weight:500;letter-spacing:.5px}
+.muted{color:var(--on-surface-variant)}
+.section-label{
+  font-size:14px;font-weight:600;letter-spacing:.1px;color:var(--on-surface-variant);
+  padding:var(--s6) var(--s4) var(--s2);display:flex;align-items:center;justify-content:space-between;
+}
+
+/* ---- chrome: buttons ---- */
+.btn{
+  font:inherit;font-size:14px;font-weight:600;letter-spacing:.1px;border:0;cursor:pointer;
+  border-radius:var(--r-full);min-height:48px;padding:0 var(--s6);
+  display:inline-flex;align-items:center;justify-content:center;gap:var(--s2);
+  transition:filter .1s var(--e-standard),background .1s var(--e-standard);
+}
+.btn:focus-visible{outline:2px solid var(--primary);outline-offset:2px}
+.btn:active{filter:brightness(.94)}
+.btn.filled{background:var(--primary);color:var(--on-primary)}
+.btn.tonal{background:var(--secondary-container);color:var(--on-secondary-container)}
+.btn.outlined{background:transparent;color:var(--primary);box-shadow:inset 0 0 0 1px var(--outline)}
+.btn.text{background:transparent;color:var(--primary);padding:0 var(--s3);min-height:40px}
+.btn.danger{background:transparent;color:var(--error)}
+.btn.full{width:100%}
+.chip{
+  display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 10px;border-radius:var(--r-s);
+  background:var(--primary-container);color:var(--on-primary-container);font-size:12px;font-weight:600;
+}
+.chip.neutral{background:var(--sc-highest);color:var(--on-surface-variant)}
+
+/* ---- chrome: list rows ---- */
+.row{
+  display:flex;align-items:center;gap:var(--s3);padding:var(--s3) var(--s4);min-height:64px;
+  cursor:pointer;background:transparent;border:0;width:100%;text-align:left;color:inherit;font:inherit;
+}
+.row:hover{background:color-mix(in srgb,var(--on-surface) 6%,transparent)}
+.row:focus-visible{outline:2px solid var(--primary);outline-offset:-2px}
+.row .lead{width:24px;text-align:center;font-size:18px;color:var(--on-surface-variant);flex:0 0 auto}
+.row .lead.cur{color:var(--primary)}
+.row .txt{flex:1;min-width:0}
+.row .txt .p{font-size:16px;font-weight:600;line-height:24px}
+.row .txt .s{font-size:12px;line-height:16px;color:var(--on-surface-variant);margin-top:2px}
+.divider{height:1px;background:var(--outline-variant);margin-left:var(--s4)}
+.divider.full{margin-left:0}
+
+/* ============================================================================
+   THE NOTECARD  —  design-tokens.md §9.
+   A ruled 3x5 index card: unruled header zone, warm 2dp header rule, writing
+   rules, vertical margin rule, card-stock thickness, deck sliver.
+   EVERY LINE OF CARD TEXT HAS ITS BASELINE EXACTLY ON A WRITING RULE.
+   Procedural: no raster, no grain, no tiling.
+   ========================================================================= */
+.page{
+  --rule-pitch:40px;                  /* = resolved line-height of card text  */
+  --grid-fs:28px;                     /* = paper.grid-font-size               */
+  /* baselineOffset(F,L) = L/2 + 0.362*F   <- holds for Inter AND JetBrains Mono */
+  --grid-baseline:calc(var(--rule-pitch)/2 + 0.362*var(--grid-fs));
+  --margin-inset:40px;                /* paper.margin-inset  */
+  --margin-gutter:12px;               /* paper.margin-gutter */
+  position:relative;z-index:0;margin:var(--s4);
+  background-color:var(--paper);color:var(--ink);
+  border:1px solid var(--paper-edge);border-radius:var(--r-l);
+  box-shadow:var(--page-shadow);overflow:hidden;
+  /* the vertical margin rule runs the FULL height of the card */
+  background-image:linear-gradient(var(--paper-margin),var(--paper-margin));
+  background-size:1px 100%;background-position:var(--margin-inset) 0;background-repeat:no-repeat;
+}
+.page.compact{--rule-pitch:24px;--grid-fs:16px;
+  --grid-baseline:calc(var(--rule-pitch)/2 + 0.362*var(--grid-fs));
+  --margin-inset:20px;--margin-gutter:8px}
+.page.nomargin{background-image:none}
+/* the deck behind it — "a card from a stack" */
+.page.stacked::after{
+  content:"";position:absolute;right:-5px;bottom:-5px;top:10px;left:16px;z-index:-1;
+  background:var(--paper-shade);border:1px solid var(--paper-edge);border-radius:var(--r-l);
+}
+/* HEADER ZONE — 1 rule pitch tall, UNRULED blank card stock */
+.nc-head{
+  height:var(--rule-pitch);display:flex;align-items:center;justify-content:space-between;
+  padding-left:calc(var(--margin-inset) + var(--margin-gutter));padding-right:var(--s5);
+  border-bottom:2px solid var(--paper-rule-strong);      /* THE HEADER RULE */
+}
+/* BODY — ruled. background-position-y = grid origin, so rules ARE baselines. */
+.nc-body{
+  position:relative;padding:0 var(--s5) 0 calc(var(--margin-inset) + var(--margin-gutter));
+  background-image:repeating-linear-gradient(to bottom,
+    var(--paper-rule) 0 1px, transparent 1px var(--rule-pitch));
+  background-position:0 var(--grid-baseline);background-repeat:repeat;
+}
+.page.unruled .nc-body{background-image:none}
+/* card-stock thickness along the bottom inside edge */
+.nc-thick{height:3px;background:var(--paper-shade)}
+/* every body text run: line-height = pitch, nudged so ITS baseline lands too */
+.gridline{
+  line-height:var(--rule-pitch);
+  padding-top:calc(0.362*(var(--grid-fs) - var(--fs)));
+  margin-bottom:calc(-0.362*(var(--grid-fs) - var(--fs)));
+  font-size:var(--fs);
+}
+.paper-label{
+  --fs:12px;font-weight:500;letter-spacing:.5px;text-transform:uppercase;color:var(--ink-variant);
+}
+.nc-head .paper-label{line-height:normal;padding:0;margin:0}
+.card-prompt{--fs:28px;color:var(--ink);margin:0}
+.card-prompt.small{--fs:22px}
+
+/* ---- AnswerLine: NO underline of its own. It sits on a writing rule, and
+        THAT rule thickens/recolours to show state. ---- */
+.answerline{position:relative}
+.answerline input{
+  --fs:28px;
+  font-family:var(--font-mono);font-weight:500;
+  letter-spacing:.5px;color:var(--ink);background:transparent;border:0;outline:0;width:100%;
+  margin:0;display:block;caret-color:var(--primary);box-sizing:content-box;
+  font-size:var(--fs);line-height:var(--rule-pitch);
+  /* height:auto so the content box == the line box; an <input> with an explicit
+     height centres its text inside it and would drift off the baseline grid. */
+  height:auto;
+  padding:calc(0.362*(var(--grid-fs) - var(--fs))) 0 0;
+  /* A browser <input> does not put its baseline where an equivalent text run
+     does, and the offset depends on the font actually in use. So it is
+     MEASURED once at runtime (calibrateAnswerLine) and applied with `top`,
+     which shifts the painted box WITHOUT changing the layout advance — the
+     input still occupies exactly one rule band.
+     This is an artefact of the HTML <input> element ONLY. React Native's
+     TextInput lays out as text and needs no such correction; see
+     design-tokens.md §9.2. */
+  position:relative;
+  top:var(--answer-fix,0px);
+}
+.answerline input::selection{background:color-mix(in srgb,var(--primary) 35%,transparent)}
+/* the state overlay sits exactly on the writing rule beneath the text */
+.answerline::after{
+  content:"";position:absolute;left:0;right:0;top:var(--grid-baseline);
+  height:2px;background:var(--primary);opacity:0;
+  transition:opacity .1s var(--e-standard);pointer-events:none;
+}
+.answerline:focus-within::after{opacity:1}
+.answerline.err::after{background:var(--diff-wrong);opacity:1}
+/* hint field in the editor is proportional, not mono */
+.answerline.ui input{font-family:var(--font-ui);--fs:24px;font-weight:400}
+
+/* ============================================================================
+   THE DIFF STRIP  —  spec.md §3.2.  One column per DiffSegment.
+   Every status carries at least two NON-COLOUR signals.
+   ========================================================================= */
+/* FIVE kinds. Each carries 2-4 NON-COLOUR signals. All marks are real
+   proofreader's marks. The strip is laid out COLUMN-MAJOR: one <div class="col">
+   per DiffSegment, holding the attempt cell above the correct cell. That is
+   what makes the two rows share one column grid exactly, and what makes a long
+   answer wrap in whole PAIRS (attempt stays above its own letters) instead of
+   the two rows wrapping independently. Both cells' baselines land on adjacent
+   writing rules; marks are drawn 3px BELOW the rule so they never collide. */
+.diffstrip{--mark-offset:3px;--col-w:calc(1.05*var(--grid-fs))}
+.diffgrid{display:flex;flex-wrap:wrap;align-items:flex-start;font-family:var(--font-mono)}
+/* Labels sit ABOVE the grid, each on its own writing rule, so the columns get
+   the card's full width — on a phone every column of the diff is precious. */
+.difflabel{--fs:12px;line-height:var(--rule-pitch);height:var(--rule-pitch);display:block;
+  padding-top:calc(0.362*(var(--grid-fs) - var(--fs)));
+  margin-bottom:calc(-0.362*(var(--grid-fs) - var(--fs)));
+  font-weight:500;letter-spacing:.5px;text-transform:uppercase;color:var(--ink-variant)}
+.col{display:flex;flex-direction:column;flex:0 0 auto;position:relative}
+.cell{
+  position:relative;display:block;text-align:center;box-sizing:content-box;
+  font-size:var(--fs);line-height:var(--rule-pitch);height:var(--rule-pitch);
+  padding-top:calc(0.362*(var(--grid-fs) - var(--fs)));
+  margin-bottom:calc(-0.362*(var(--grid-fs) - var(--fs)));
+  width:var(--col-w);border-radius:var(--r-xs);
+}
+.cell.attempt{--fs:20px;font-weight:400}
+.cell.correct{--fs:28px;font-weight:500}
+.diffstrip.compact .cell.correct{--fs:16px}
+.diffstrip.compact .cell.attempt{--fs:12px}
+.cell.ok{color:var(--ink)}
+/* a washed cell REDRAWS the writing rule so the card's ruling stays continuous */
+.cell.washed::before{
+  content:"";position:absolute;left:0;right:0;top:var(--grid-baseline);
+  height:1px;background:var(--paper-rule);
+}
+.cell.washed.mv{background:var(--diff-missing-container)}
+.cell.washed.mr{background:var(--diff-wrong-container)}
+/* wrong : red + BOLD + SOLID mark (correct row) / strike-through (attempt) */
+.cell.wrong{color:var(--diff-wrong);font-weight:700}
+.cell.correct.wrong::after{
+  content:"";position:absolute;left:6%;right:6%;
+  top:calc(var(--grid-baseline) + var(--mark-offset));height:2px;background:var(--diff-wrong);
+}
+.cell.attempt.wrong{text-decoration:line-through;text-decoration-thickness:2px;font-weight:400}
+/* missing : violet + BOLD + DASHED mark + wash + insertion caret above */
+.cell.missing{color:var(--diff-missing);font-weight:700}
+.cell.correct.missing::after{
+  content:"";position:absolute;left:6%;right:6%;
+  top:calc(var(--grid-baseline) + var(--mark-offset));height:2px;
+  background:repeating-linear-gradient(to right,var(--diff-missing) 0 3px,transparent 3px 6px);
+}
+.cell.attempt.caret{color:var(--diff-missing);font-weight:700}
+/* extra : the correct row has NO LETTER — a void mark — plus a struck attempt */
+.cell.void{color:var(--diff-void)}
+.cell.correct.void::after{
+  content:"";position:absolute;left:20%;right:20%;
+  top:calc(var(--grid-baseline) + var(--mark-offset));height:2px;
+  background:repeating-linear-gradient(to right,var(--diff-wrong) 0 2px,transparent 2px 4px);
+}
+.cell.attempt.extra{color:var(--diff-wrong);text-decoration:line-through;text-decoration-thickness:2px}
+/* TRANSPOSED : the only mark that SPANS TWO COLUMNS, the only curve, and the
+   only status that marks a character WITHOUT striking it. Grouped by pairId. */
+.cell.transposed{color:var(--diff-wrong);font-weight:700}
+.cell.attempt.transposed{font-weight:400;text-decoration:none}
+.cell.pairstart{overflow:visible}
+.ribbon{position:absolute;pointer-events:none;overflow:visible;left:0;z-index:2}
+.ribbon path{fill:none;stroke:var(--diff-wrong);stroke-width:2;stroke-linecap:round}
+.diff-sep{display:none}
+.confirm{
+  display:flex;align-items:center;gap:var(--s2);margin-top:var(--s3);padding:var(--s2) var(--s3);
+  border-radius:var(--r-s);background:var(--diff-correct-container);color:var(--diff-correct);
+  font-weight:700;font-size:16px;
+}
+.confirm .word{font-family:var(--font-mono);font-size:24px;letter-spacing:.5px}
+@keyframes nudge{0%,100%{transform:translateX(0)}25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+.nudge{animation:nudge 150ms var(--e-standard)}
+@media (prefers-reduced-motion:reduce){ .nudge{animation:none} }
+
+/* ---- session bar ---- */
+.sessionbar{display:flex;align-items:center;gap:var(--s2);padding:44px var(--s2) var(--s3);background:var(--sc-low);flex:0 0 auto}
+.progwrap{flex:1;display:flex;align-items:center;gap:var(--s2)}
+.prog{flex:1;height:4px;border-radius:999px;background:var(--sc-highest);overflow:hidden}
+.prog i{display:block;height:100%;background:var(--primary);border-radius:999px;transition:width .25s var(--e-decel)}
+.progtxt{font-size:12px;font-weight:600;color:var(--on-surface-variant);min-width:38px;text-align:right}
+.sessionfoot{display:flex;align-items:center;justify-content:space-between;padding:var(--s4) var(--s5) var(--s8);flex:0 0 auto}
+.fab{
+  width:56px;height:56px;border-radius:var(--r-l);border:0;cursor:pointer;
+  background:var(--primary);color:var(--on-primary);font-size:24px;display:grid;place-items:center;
+  box-shadow:0 4px 8px 3px rgba(0,0,0,.10);
+}
+.fab.small{width:48px;height:48px;font-size:20px}
+.fab.tonal{background:var(--primary-container);color:var(--on-primary-container)}
+.fab:disabled{opacity:.38;cursor:default;box-shadow:none}
+
+/* ---- misc ---- */
+.stats{display:flex;background:var(--sc);border-radius:var(--r-m);margin:0 var(--s4);overflow:hidden}
+.stats div{flex:1;padding:var(--s3) var(--s2);text-align:center;border-right:1px solid var(--outline-variant)}
+.stats div:last-child{border-right:0}
+.stats .n{font-size:22px;font-weight:700;line-height:28px}
+.stats .k{font-size:12px;color:var(--on-surface-variant);margin-top:2px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:var(--s3);padding:0 var(--s4)}
+.tile{border-radius:var(--r-m);padding:var(--s3);min-height:96px;background:var(--sc);display:flex;flex-direction:column;gap:4px}
+.tile.unlocked{background:var(--tertiary-container);color:var(--on-tertiary-container)}
+.tile .ic{font-size:22px}
+.tile.locked .ic{opacity:.38}
+.tile .nm{font-size:14px;font-weight:600}
+.tile .mt{font-size:12px;opacity:.85}
+.miniprog{height:4px;border-radius:999px;background:var(--sc-highest);margin-top:auto;overflow:hidden}
+.miniprog i{display:block;height:100%;background:var(--primary)}
+.banner{
+  display:flex;gap:var(--s3);align-items:flex-start;padding:var(--s3) var(--s4);
+  background:var(--error-container);color:var(--on-error-container);
+}
+.seg{display:flex;background:transparent;border-radius:var(--r-full);box-shadow:inset 0 0 0 1px var(--outline);overflow:hidden;margin:var(--s2) var(--s4) 0}
+.seg button{
+  flex:1;font:inherit;font-size:13px;font-weight:600;min-height:44px;border:0;cursor:pointer;
+  background:transparent;color:var(--on-surface);border-right:1px solid var(--outline);
+}
+.seg button:last-child{border-right:0}
+.seg button.on{background:var(--secondary-container);color:var(--on-secondary-container)}
+.switch{width:52px;height:32px;border-radius:999px;background:var(--surface-variant);position:relative;border:0;cursor:pointer;flex:0 0 auto}
+.switch i{position:absolute;top:4px;left:4px;width:24px;height:24px;border-radius:999px;background:var(--outline);transition:.15s var(--e-standard)}
+.switch.on{background:var(--primary)}
+.switch.on i{left:24px;background:var(--on-primary)}
+.empty{padding:var(--s8) var(--s6);text-align:center;display:flex;flex-direction:column;align-items:center;gap:var(--s3)}
+.empty .circle{width:72px;height:72px;border-radius:999px;background:var(--secondary-container);color:var(--on-secondary-container);display:grid;place-items:center;font-size:30px}
+.snackbar{
+  position:absolute;left:var(--s4);right:var(--s4);bottom:var(--s6);z-index:30;
+  background:var(--inverse-surface);color:var(--inverse-on-surface);border-radius:var(--r-xs);
+  padding:var(--s3) var(--s4);display:none;align-items:center;gap:var(--s4);font-size:14px;
+  box-shadow:0 4px 8px 3px rgba(0,0,0,.2);
+}
+.snackbar.show{display:flex}
+.snackbar button{background:none;border:0;color:var(--primary);font:inherit;font-weight:700;cursor:pointer}
+.sheet-scrim{position:absolute;inset:0;background:var(--scrim);z-index:20;display:none}
+.sheet-scrim.show{display:block}
+.sheet{
+  position:absolute;left:0;right:0;bottom:0;z-index:21;background:var(--sc);
+  border-radius:var(--r-xl) var(--r-xl) 0 0;transform:translateY(101%);
+  transition:transform .35s var(--e-decel);padding-bottom:var(--s6);
+}
+.sheet.show{transform:translateY(0)}
+.sheet .handle{width:32px;height:4px;border-radius:999px;background:var(--outline-variant);margin:var(--s3) auto var(--s2)}
+.dialog-scrim{position:absolute;inset:0;background:var(--scrim);z-index:24;display:none;place-items:center;padding:var(--s6)}
+.dialog-scrim.show{display:grid}
+.dialog{background:var(--sc-high);border-radius:var(--r-xl);padding:var(--s6);width:100%;max-width:320px}
+.dialog h3{margin:0 0 var(--s3);font-size:22px;font-weight:400}
+.dialog .acts{display:flex;justify-content:flex-end;gap:var(--s2);margin-top:var(--s5)}
+.wordmark{height:30px;filter:var(--wordmark-filter)}
+.trylab{padding:0 var(--s4) var(--s6)}
+.trylab label{display:block;font-size:12px;font-weight:600;color:var(--on-surface-variant);margin:var(--s3) 0 4px;letter-spacing:.5px;text-transform:uppercase}
+.trylab input{
+  width:100%;font-family:var(--font-mono);font-size:16px;padding:10px 12px;
+  border-radius:var(--r-s);border:1px solid var(--outline);background:var(--sc-lowest);color:var(--on-surface);
+}
+[data-theme="dark"] .trylab input{background:var(--sc-low)}
+.legendrow{display:flex;gap:var(--s4);align-items:flex-start;margin-bottom:var(--s4)}
+.legendrow .lt{flex:1;font-size:13px;line-height:19px;color:var(--ink-variant)}
+.note{padding:var(--s3) var(--s4);font-size:12px;line-height:17px;color:var(--on-surface-variant)}
+.pill{display:inline-block;font-size:10px;font-weight:700;letter-spacing:.6px;padding:2px 6px;border-radius:4px;background:var(--sc-highest);color:var(--on-surface-variant);margin-left:6px;vertical-align:middle}
+</style>
+</head>
+<body>
+<div class="stage">
+  <h1>Vocab Cards — clickable design prototype</h1>
+  <p class="sub">
+    Throwaway demonstration HTML for a React Native / Expo app — <strong>not</strong> the implementation.
+    It renders the real tokens from <code>design/design-tokens.md</code> and runs the <strong>real
+    minimum-edit-distance diff algorithm</strong> from <code>documentation/spelling-diff-spec.md §3</code>,
+    so every marked word you see below is genuine output, not a mock-up.
+    Left phone = the flow. Right phone = the marking, up close, with a live "type anything" lab.
+  </p>
+
+  <div class="controls">
+    <button id="themeBtn" onclick="toggleTheme()">🌙 Dark mode</button>
+    <span class="sep"></span>
+    <button onclick="go('home')">Home</button>
+    <button onclick="go('set')">Set detail</button>
+    <button onclick="go('editor')">Editor</button>
+    <button onclick="startSession('all')">Session</button>
+    <button onclick="go('results')">Results</button>
+    <button onclick="go('trophies')">Trophies</button>
+    <button onclick="go('settings')">Settings</button>
+    <button onclick="go('import')">Import</button>
+    <button onclick="go('about')">About</button>
+    <button onclick="go('firstrun')">First run</button>
+    <button onclick="go('insights')">Insights <span class="pill">P1</span></button>
+    <span class="sep"></span>
+    <button onclick="demoWrong()">▶ Demo the wrong-answer moment</button>
+  </div>
+
+<div class="phones">
+<!-- ══════════════════════════════ PHONE 1 : THE FLOW ══════════════════════════════ -->
+<div class="phone"><div class="notch"></div><div class="viewport" id="vp1">
+
+  <!-- ───────────── S16 FIRST RUN ───────────── -->
+  <section class="screen" id="s-firstrun">
+    <div class="body">
+      <div style="padding:64px var(--s6) var(--s4);text-align:center">
+        <img class="wordmark" src="../hmwt_app/img/logo.png" alt="Vocab Cards" style="height:34px">
+      </div>
+      <div style="padding:0 var(--s6)">
+        <h2 class="h-small" style="margin-bottom:var(--s4)">Type the word. See exactly what you got wrong.</h2>
+      </div>
+      <div class="page" id="firstrun-demo"></div>
+      <p class="b-med muted" style="padding:0 var(--s6)">
+        We've added four word lists to get you started. They're yours — edit or delete them freely.
+      </p>
+      <div style="padding:var(--s6)">
+        <button class="btn filled full" onclick="go('home')">Start drilling</button>
+        <button class="btn text full" style="margin-top:var(--s2)" onclick="go('import')">Import my own cards</button>
+      </div>
+      <p class="note" style="text-align:center">No account. Nothing leaves this device.</p>
+    </div>
+  </section>
+
+  <!-- ───────────── S1 HOME / LIBRARY ───────────── -->
+  <section class="screen active" id="s-home">
+    <div class="appbar large">
+      <img class="wordmark" src="../hmwt_app/img/logo.png" alt="Vocab Cards">
+      <span style="flex:1"></span>
+      <button class="iconbtn" title="Trophies" onclick="go('trophies')">🏆</button>
+      <button class="iconbtn" title="More" onclick="toggleMenu()">⋮</button>
+    </div>
+    <div class="body">
+      <div id="homeMenu" style="display:none;margin:0 var(--s4) var(--s2);background:var(--sc-high);border-radius:var(--r-m);overflow:hidden">
+        <button class="row" onclick="go('settings');toggleMenu()"><span class="lead">⚙</span><span class="txt"><span class="p">Settings</span></span></button>
+        <button class="row" onclick="go('import');toggleMenu()"><span class="lead">⬇</span><span class="txt"><span class="p">Import</span></span></button>
+        <button class="row" onclick="go('export');toggleMenu()"><span class="lead">⬆</span><span class="txt"><span class="p">Export</span></span></button>
+        <button class="row" onclick="go('about');toggleMenu()"><span class="lead">ℹ</span><span class="txt"><span class="p">About</span></span></button>
+      </div>
+
+      <!-- DrillCard : the one notecard on this screen -->
+      <div class="page stacked" id="drillCard">
+        <div class="nc-head"><span class="paper-label">Current set</span></div>
+        <div class="nc-body">
+          <div class="gridline" style="--fs:26px;font-weight:700" id="curName">SAT/GRE High-Frequency Words</div>
+          <div class="gridline" style="--fs:14px;color:var(--ink-variant)" id="curCount">6 cards</div>
+          <div style="display:flex;gap:var(--s3);height:var(--rule-pitch);align-items:center">
+            <button class="btn filled" style="flex:1" onclick="startSession('quick')">⚡ 10 Cards</button>
+            <button class="btn tonal"  style="flex:1" onclick="startSession('all')">🎓 All Cards</button>
+          </div>
+          <div style="height:8px"></div>
+        </div>
+        <div class="nc-thick"></div>
+      </div>
+
+      <button class="stats" style="border:0;cursor:pointer;font:inherit;color:inherit;width:calc(100% - 32px)" onclick="go('trophies')">
+        <div><div class="n">1,284</div><div class="k">tested</div></div>
+        <div><div class="n">1,102</div><div class="k">passed</div></div>
+        <div><div class="n">311</div><div class="k">failed</div></div>
+      </button>
+
+      <div class="section-label"><span>YOUR SETS</span><span class="iconbtn" style="width:32px;height:32px;font-size:16px">⇅</span></div>
+
+      <button class="row" onclick="go('set')">
+        <span class="lead cur">🔖</span>
+        <span class="txt"><span class="p">SAT/GRE High-Frequency Words</span><span class="s">6 cards · used 2 days ago</span></span>
+        <span class="chip">Current</span>
+      </button>
+      <div class="divider"></div>
+      <button class="row" onclick="openSheet()">
+        <span class="lead">🗂</span>
+        <span class="txt"><span class="p">Commonly Misspelled Words</span><span class="s">50 cards · used 1 week ago</span></span>
+        <span class="iconbtn" style="width:36px;height:36px;font-size:18px">⋮</span>
+      </button>
+      <div class="divider"></div>
+      <button class="row" onclick="openSheet()">
+        <span class="lead">🗂</span>
+        <span class="txt"><span class="p">Tricky Doubles</span><span class="s">36 cards</span></span>
+        <span class="iconbtn" style="width:36px;height:36px;font-size:18px">⋮</span>
+      </button>
+      <div class="divider"></div>
+      <button class="row" onclick="openSheet()">
+        <span class="lead">🗂</span>
+        <span class="txt"><span class="p">Homophones &amp; Confusables</span><span class="s">44 cards</span></span>
+        <span class="iconbtn" style="width:36px;height:36px;font-size:18px">⋮</span>
+      </button>
+      <div style="height:96px"></div>
+    </div>
+    <button class="fab" style="position:absolute;right:16px;bottom:16px;z-index:10" onclick="openDialog('newset')" title="New set">＋</button>
+
+    <div class="sheet-scrim" id="sheetScrim" onclick="closeSheet()"></div>
+    <div class="sheet" id="sheet">
+      <div class="handle"></div>
+      <div style="padding:0 var(--s4) var(--s2)">
+        <div class="t-med">Commonly Misspelled Words</div>
+        <div class="b-small muted">50 cards</div>
+      </div>
+      <div class="divider full"></div>
+      <button class="row" onclick="closeSheet();snack('Now drilling “Commonly Misspelled Words”')"><span class="lead">✓</span><span class="txt"><span class="p">Use for drilling</span></span></button>
+      <button class="row" onclick="closeSheet();go('editor')"><span class="lead">✎</span><span class="txt"><span class="p">Edit cards</span></span></button>
+      <button class="row" onclick="closeSheet();openDialog('newset')"><span class="lead">⌨</span><span class="txt"><span class="p">Rename</span></span></button>
+      <button class="row" onclick="closeSheet();go('export')"><span class="lead">⬆</span><span class="txt"><span class="p">Export</span></span></button>
+      <button class="row" onclick="closeSheet();openDialog('delete')"><span class="lead" style="color:var(--error)">🗑</span><span class="txt"><span class="p" style="color:var(--error)">Delete</span></span></button>
+    </div>
+
+    <div class="snackbar" id="snack"><span id="snackText"></span><button onclick="hideSnack()">OK</button></div>
+  </section>
+
+  <!-- ───────────── S2 SET DETAIL ───────────── -->
+  <section class="screen" id="s-set">
+    <div class="appbar"><button class="iconbtn" onclick="go('home')">←</button><span class="title small">SAT/GRE High-Frequency Words</span><button class="iconbtn" onclick="openSheet()">⋮</button></div>
+    <div class="body" style="background:var(--desk)">
+      <div class="page stacked">
+        <div class="nc-head"><span class="paper-label">Card set</span></div>
+        <div class="nc-body">
+          <div class="gridline" style="--fs:14px;color:var(--ink-variant)">6 cards · created 12 Jan 2026</div>
+          <div class="gridline" style="--fs:14px;color:var(--ink-variant)">Last drilled 2 days ago</div>
+          <div style="height:var(--rule-pitch);display:flex;align-items:center">
+            <button class="btn filled full" onclick="startSession('all')">Drill this set</button>
+          </div>
+          <div style="height:8px"></div>
+        </div>
+        <div class="nc-thick"></div>
+      </div>
+      <div style="background:var(--surface);min-height:100%;border-radius:var(--r-l) var(--r-l) 0 0;padding-top:var(--s2)">
+        <div class="section-label"><span>CARDS</span><button class="btn text" onclick="go('editor')">Edit cards</button></div>
+        <div id="setPreview"></div>
+        <div class="note">Showing 3 of 6</div>
+        <div class="divider full"></div>
+        <button class="row" onclick="openDialog('newset')"><span class="lead">⌨</span><span class="txt"><span class="p">Rename set</span></span></button>
+        <button class="row" onclick="go('export')"><span class="lead">⬆</span><span class="txt"><span class="p">Export set</span></span></button>
+        <button class="row" onclick="openDialog('delete')"><span class="lead" style="color:var(--error)">🗑</span><span class="txt"><span class="p" style="color:var(--error)">Delete set</span></span></button>
+        <div style="height:40px"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ───────────── S4/S5 EDITOR ───────────── -->
+  <section class="screen" id="s-editor">
+    <div class="appbar"><button class="iconbtn" onclick="go('set')">←</button><span class="title small">Add cards · SAT Words</span><span class="chip neutral" id="cardNo">Card 7</span></div>
+    <div class="body">
+      <div class="page stacked">
+        <div class="nc-head"><span class="paper-label">New card</span><span class="paper-label" id="cardNoHead">7</span></div>
+        <div class="nc-body">
+          <div class="paper-label gridline">Hint</div>
+          <div class="answerline ui"><input id="edHint" placeholder="Extremely hungry" autocomplete="off"></div>
+          <div class="paper-label gridline">Answer</div>
+          <div class="answerline"><input id="edAns" placeholder="ravenous" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" data-gramm="false"></div>
+          <div class="gridline" style="--fs:12px;color:var(--ink-variant)">Autocorrect and spellcheck are off here.</div>
+        </div>
+        <div class="nc-thick"></div>
+      </div>
+      <div style="padding:0 var(--s4)">
+        <button class="btn filled full" onclick="saveCard()">Save &amp; next card</button>
+      </div>
+      <div class="section-label"><span>ALL CARDS</span><span class="b-small muted">drag ⠿ to reorder</span></div>
+      <div id="editorList"></div>
+      <div style="height:32px"></div>
+    </div>
+  </section>
+
+  <!-- ───────────── S7 / S8 SESSION + FEEDBACK ───────────── -->
+  <section class="screen" id="s-session">
+    <div class="sessionbar">
+      <button class="iconbtn" onclick="openDialog('end')" title="End test">✕</button>
+      <span class="progwrap"><span class="prog"><i id="progFill" style="width:0%"></i></span><span class="progtxt" id="progTxt">0/6</span></span>
+      <button class="iconbtn" onclick="flip()" title="Swap hint and answer">⇄</button>
+    </div>
+    <div class="body">
+      <div class="page stacked" id="sessionPage">
+        <!-- HEADER ZONE: unruled blank card stock, above the warm header rule.
+             The one thing on a notecard that does not sit on a rule. -->
+        <div class="nc-head">
+          <span class="paper-label" id="sideLabel">Hint</span>
+          <span class="paper-label" id="cardPos">1 / 6</span>
+        </div>
+        <!-- BODY: ruled. Every line's baseline lands exactly on a writing rule. -->
+        <div class="nc-body">
+          <p class="card-prompt gridline" id="prompt">—</p>
+          <div id="feedback"></div>
+          <div class="answerline" id="answerWrap">
+            <input id="answer" autocomplete="off" autocorrect="off" autocapitalize="off"
+                   spellcheck="false" data-gramm="false" enterkeyhint="go" placeholder="">
+          </div>
+          <div style="height:8px"></div>
+        </div>
+        <div class="nc-thick"></div>
+      </div>
+      <div class="note" id="flipNote" style="display:none">
+        <span class="chip neutral">Flipped</span> Answers are now the prompt.
+      </div>
+      <div style="height:24px"></div>
+    </div>
+    <div class="sessionfoot">
+      <button class="fab small tonal" id="prevBtn" onclick="prevCard()" title="Previous card">◀</button>
+      <button class="fab" onclick="submitAnswer()" title="Submit">▶</button>
+    </div>
+    <div class="snackbar" id="snack2"><span id="snackText2"></span><button onclick="hideSnack()">OK</button></div>
+  </section>
+
+  <!-- ───────────── S9 RESULTS ───────────── -->
+  <section class="screen" id="s-results">
+    <div class="appbar"><span class="title small">&nbsp;</span><button class="btn text" onclick="go('home')">Done</button></div>
+    <div class="body">
+      <div style="text-align:center;padding:var(--s4) var(--s6) var(--s5)">
+        <div style="font-size:45px;line-height:52px;font-weight:400" id="rCards">6</div>
+        <div class="b-med muted">cards completed</div>
+      </div>
+      <div class="stats">
+        <div><div class="n" id="rFirst">4</div><div class="k">first-try passes</div></div>
+        <div><div class="n" id="rWrong">3</div><div class="k">wrong attempts</div></div>
+        <div><div class="n" id="rTime">2:14</div><div class="k">elapsed</div></div>
+      </div>
+      <div class="section-label"><span id="missedHdr">WORDS YOU MISSED</span></div>
+      <div id="missedList"></div>
+      <div style="padding:var(--s4)">
+        <button class="btn filled full" id="practiceBtn" onclick="practiceMissed()">↻ Practice these words</button>
+        <button class="btn outlined full" style="margin-top:var(--s2)" onclick="go('home')">Back to library</button>
+      </div>
+      <div style="height:32px"></div>
+    </div>
+  </section>
+
+  <!-- ───────────── S10 TROPHIES ───────────── -->
+  <section class="screen" id="s-trophies">
+    <div class="appbar"><button class="iconbtn" onclick="go('home')">←</button><span class="title small">Trophies</span><span class="chip neutral">11 of 24</span></div>
+    <div class="body">
+      <div class="stats" style="margin-top:var(--s4)">
+        <div><div class="n">1,284</div><div class="k">tested</div></div>
+        <div><div class="n">1,102</div><div class="k">passed</div></div>
+        <div><div class="n">311</div><div class="k">failed</div></div>
+      </div>
+      <div class="section-label"><span>CARDS TESTED</span><span class="b-small muted">5 / 9</span></div>
+      <div style="padding:0 var(--s4) var(--s2)">
+        <div class="b-small muted" style="margin-bottom:4px">Next: 5,000 tested — 1,284 / 5,000</div>
+        <div class="miniprog"><i style="width:26%"></i></div>
+      </div>
+      <div class="grid2" style="margin-top:var(--s3)">
+        <div class="tile unlocked"><div class="ic">🏆</div><div class="nm">10 cards tested</div><div class="mt">Unlocked 3 Feb 2026</div></div>
+        <div class="tile unlocked"><div class="ic">🏆</div><div class="nm">50 cards tested</div><div class="mt">Unlocked 9 Feb 2026</div></div>
+        <div class="tile locked"><div class="ic">🏆</div><div class="nm">5,000 tested</div><div class="mt">1,284 / 5,000</div><div class="miniprog"><i style="width:26%"></i></div></div>
+        <div class="tile locked"><div class="ic">🏆</div><div class="nm">10,000 tested</div><div class="mt">1,284 / 10,000</div><div class="miniprog"><i style="width:13%"></i></div></div>
+      </div>
+      <div class="section-label"><span>CARDS PASSED</span><span class="b-small muted">4 / 8</span></div>
+      <div class="grid2">
+        <div class="tile unlocked"><div class="ic">🏆</div><div class="nm">1,000 passed</div><div class="mt">Unlocked 2 Aug 2026</div></div>
+        <div class="tile locked"><div class="ic">🏆</div><div class="nm">5,000 passed</div><div class="mt">1,102 / 5,000</div><div class="miniprog"><i style="width:22%"></i></div></div>
+      </div>
+      <p class="note">Progress before 8 August 2026 was carried over from the original Vocab Cards.</p>
+      <div style="height:32px"></div>
+    </div>
+  </section>
+
+  <!-- ───────────── S11 SETTINGS ───────────── -->
+  <section class="screen" id="s-settings">
+    <div class="appbar"><button class="iconbtn" onclick="go('home')">←</button><span class="title small">Settings</span></div>
+    <div class="body">
+      <div class="section-label"><span>DRILLING</span></div>
+      <div style="padding:0 var(--s4)"><div class="t-small">Case sensitivity</div></div>
+      <div class="seg" style="margin-left:var(--s4);margin-right:var(--s4)">
+        <button class="on" onclick="segPick(this)">Ignore case</button><button onclick="segPick(this)">Require exact case</button>
+      </div>
+      <div style="padding:var(--s5) var(--s4) 0"><div class="t-small">Quick test size</div></div>
+      <div class="seg" style="margin-left:var(--s4);margin-right:var(--s4)">
+        <button onclick="segPick(this)">5</button><button class="on" onclick="segPick(this)">10</button><button onclick="segPick(this)">20</button><button onclick="segPick(this)">50</button>
+      </div>
+      <div style="padding:var(--s5) var(--s4) 0"><div class="t-small">Default prompt side</div></div>
+      <div class="seg" style="margin-left:var(--s4);margin-right:var(--s4)">
+        <button class="on" onclick="segPick(this)">Hint first</button><button onclick="segPick(this)">Answer first</button>
+      </div>
+
+      <div class="section-label"><span>APPEARANCE</span></div>
+      <div style="padding:0 var(--s4)"><div class="t-small">Theme</div></div>
+      <div class="seg" style="margin-left:var(--s4);margin-right:var(--s4)" id="themeSeg">
+        <button onclick="setTheme('light',this)">System</button>
+        <button class="on" onclick="setTheme('light',this)">Light</button>
+        <button onclick="setTheme('dark',this)">Dark</button>
+      </div>
+      <div class="row" style="cursor:default;margin-top:var(--s3)"><span class="lead">📳</span><span class="txt"><span class="p">Haptic feedback</span></span><button class="switch on" onclick="this.classList.toggle('on')"><i></i></button></div>
+
+      <div class="section-label"><span>PRIVACY</span></div>
+      <div class="row" style="cursor:default"><span class="lead">📊</span><span class="txt"><span class="p">Anonymous usage analytics</span><span class="s">Never includes anything you type</span></span><button class="switch on" onclick="this.classList.toggle('on')"><i></i></button></div>
+      <button class="row" onclick="snack('Privacy policy')"><span class="lead">🛡</span><span class="txt"><span class="p">Privacy policy</span></span><span class="lead">→</span></button>
+
+      <div class="section-label"><span>YOUR DATA</span></div>
+      <button class="row" onclick="go('import')"><span class="lead">⬇</span><span class="txt"><span class="p">Import cards</span></span><span class="lead">→</span></button>
+      <button class="row" onclick="go('export')"><span class="lead">⬆</span><span class="txt"><span class="p">Export cards</span></span><span class="lead">→</span></button>
+      <button class="row" onclick="snack('Sync is off. Everything stays on this device.')"><span class="lead">☁</span><span class="txt"><span class="p">Sync <span class="pill">P1</span></span><span class="s">Off. Everything stays on this device.</span></span><span class="lead">→</span></button>
+
+      <div class="section-label"><span>ABOUT</span></div>
+      <button class="row" onclick="go('about')"><span class="lead">ℹ</span><span class="txt"><span class="p">About Vocab Cards</span><span class="s">Version 1.0.0</span></span><span class="lead">→</span></button>
+      <div style="height:40px"></div>
+    </div>
+  </section>
+
+  <!-- ───────────── S12 IMPORT ───────────── -->
+  <section class="screen" id="s-import">
+    <div class="appbar"><button class="iconbtn" onclick="go('home')">←</button><span class="title small">Import cards</span></div>
+    <div class="body">
+      <div style="padding:var(--s4)">
+        <button class="btn filled full" onclick="runImport()">⬇ Choose files</button>
+        <p class="b-med muted" style="margin-top:var(--s3)">
+          <code>.cards</code> files from the original Vocab Cards, or <code>.vocabcards</code> files exported
+          from this app. You can pick several — every one is reported.
+        </p>
+        <button class="btn outlined full" style="margin-top:var(--s3)" onclick="snack('Paste flow is P1')">📋 Paste a list instead <span class="pill">P1</span></button>
+      </div>
+      <div id="importResult"></div>
+      <div style="height:40px"></div>
+    </div>
+  </section>
+
+  <!-- ───────────── S13 EXPORT ───────────── -->
+  <section class="screen" id="s-export">
+    <div class="appbar"><button class="iconbtn" onclick="go('home')">←</button><span class="title small">Export cards</span></div>
+    <div class="body">
+      <div class="section-label"><span>FORMAT</span></div>
+      <div class="seg" id="fmtSeg"><button class="on" onclick="pickFormat(this,false)">Vocab Cards (.vocabcards)</button><button onclick="pickFormat(this,true)">Legacy (.cards)</button></div>
+      <p class="note" id="fmtNote">Keeps everything: ids, dates, multiple hints and answers.</p>
+      <div id="legacyWarn" style="display:none" class="banner"><span>⚠</span><div><div class="b-med"><strong>The old format loses data.</strong></div><div class="b-small" style="margin-top:4px">It keeps only the first hint and answer for each card and drops dates. 3 cards would lose an extra answer. Legacy export is one set at a time.</div></div></div>
+      <div class="section-label"><span>SETS</span><button class="btn text">Select all</button></div>
+      <button class="row" onclick="toggleCheck(this)"><span class="lead">☑</span><span class="txt"><span class="p">SAT/GRE High-Frequency Words</span><span class="s">6 cards</span></span></button>
+      <button class="row" onclick="toggleCheck(this)"><span class="lead">☑</span><span class="txt"><span class="p">Commonly Misspelled Words</span><span class="s">50 cards</span></span></button>
+      <button class="row" onclick="toggleCheck(this)"><span class="lead">☐</span><span class="txt"><span class="p">Tricky Doubles</span><span class="s">36 cards</span></span></button>
+      <div style="padding:var(--s4)"><button class="btn filled full" onclick="snack('Exported 2 sets (56 cards)')">Export 2 sets (56 cards)</button></div>
+    </div>
+  </section>
+
+  <!-- ───────────── S14 ABOUT ───────────── -->
+  <section class="screen" id="s-about">
+    <div class="appbar"><button class="iconbtn" onclick="go('home')">←</button><span class="title small">About</span></div>
+    <div class="body">
+      <div style="padding:var(--s6);text-align:center">
+        <img class="wordmark" src="../hmwt_app/img/logo.png" alt="Vocab Cards" style="height:32px">
+        <div class="b-med muted" style="margin-top:var(--s4)">Version 1.0.0</div>
+      </div>
+      <p class="b-large" style="padding:0 var(--s6) var(--s4)">Type the word. See exactly what you got wrong. Try again until it's right.</p>
+      <button class="row" onclick="snack('Changelog renders from a data file')"><span class="lead">📜</span><span class="txt"><span class="p">What's new</span></span><span class="lead">→</span></button>
+      <button class="row" onclick="go('marking')"><span class="lead">❓</span><span class="txt"><span class="p">How marking works <span class="pill">P1</span></span></span><span class="lead">→</span></button>
+      <button class="row" onclick="snack('Privacy policy')"><span class="lead">🛡</span><span class="txt"><span class="p">Privacy policy</span></span><span class="lead">→</span></button>
+      <button class="row" onclick="snack('mailto:')"><span class="lead">✉</span><span class="txt"><span class="p">Contact</span></span><span class="lead">→</span></button>
+      <p class="note">Made by Kevin Stoner. Icons: Pictogrammers MDI (Apache-2.0).</p>
+    </div>
+  </section>
+
+  <!-- ───────────── S18 INSIGHTS (P1) ───────────── -->
+  <section class="screen" id="s-insights">
+    <div class="appbar"><button class="iconbtn" onclick="go('home')">←</button><span class="title small">Insights <span class="pill">P1</span></span></div>
+    <div class="body">
+      <div class="section-label"><span>💡 PATTERNS WE'VE NOTICED</span></div>
+      <div class="page compact" style="margin-top:0">
+        <div class="nc-head"><span class="paper-label">Pattern</span></div>
+        <div class="nc-body">
+          <p class="gridline" style="--fs:16px;color:var(--ink);margin:0">You've left out the second <span style="font-family:var(--font-mono);font-weight:700">r</span> in <span style="font-family:var(--font-mono);font-weight:700">embarrass</span> 4 times.</p>
+          <div style="height:var(--rule-pitch);display:flex;align-items:center"><button class="btn tonal">Drill this</button></div>
+          <div style="height:8px"></div>
+        </div>
+        <div class="nc-thick"></div>
+      </div>
+      <div class="page compact">
+        <div class="nc-head"><span class="paper-label">Pattern</span></div>
+        <div class="nc-body">
+          <p class="gridline" style="--fs:16px;color:var(--ink);margin:0">You often swap <span style="font-family:var(--font-mono);font-weight:700">ei</span> for <span style="font-family:var(--font-mono);font-weight:700">ie</span> — 6 times across 4 words.</p>
+          <div style="height:8px"></div>
+        </div>
+        <div class="nc-thick"></div>
+      </div>
+      <div class="section-label"><span>WORDS THAT KEEP BEATING YOU</span></div>
+      <div id="troubleList"></div>
+      <div style="padding:var(--s4)"><button class="btn filled full">↻ Drill my 10 worst words</button></div>
+      <p class="note">All of this is computed and stored on your device. It is never sent to analytics, in any form.</p>
+    </div>
+  </section>
+
+  <!-- ───────────── DIALOGS ───────────── -->
+  <div class="dialog-scrim" id="dlgScrim" onclick="if(event.target===this)closeDialog()">
+    <div class="dialog" id="dlgNewset" style="display:none">
+      <h3>New set</h3>
+      <input class="trylab" style="width:100%;font-family:var(--font-ui);font-size:16px;padding:12px;border-radius:8px;border:1px solid var(--outline);background:transparent;color:var(--on-surface)" value="SAT Words" onkeyup="checkDup(this.value)">
+      <p class="b-small muted" id="dupHelp" style="margin-top:8px">Any characters are fine.</p>
+      <div id="dupBlock" style="display:none;margin-top:12px;padding:12px;border-radius:8px;background:var(--error-container);color:var(--on-error-container)">
+        <div class="b-med"><strong>“SAT Words” already exists</strong></div>
+        <div class="b-small" style="margin-top:4px">It contains 42 cards. Replacing it permanently deletes them.</div>
+        <div class="b-small" style="margin-top:8px">Suggested name: <strong>SAT Words (2)</strong></div>
+      </div>
+      <div class="acts">
+        <button class="btn text" onclick="closeDialog()">Cancel</button>
+        <button class="btn danger" id="dupReplace" style="display:none" onclick="closeDialog();snack('Replaced — 42 cards deleted')">Replace</button>
+        <button class="btn filled" onclick="closeDialog();go('editor')">Create</button>
+      </div>
+    </div>
+    <div class="dialog" id="dlgDelete" style="display:none">
+      <h3>Delete “Commonly Misspelled Words”?</h3>
+      <p class="b-med muted">This permanently deletes 50 cards. This can't be undone.</p>
+      <div class="acts"><button class="btn text" onclick="closeDialog()">Cancel</button><button class="btn danger" onclick="closeDialog();snack('Set deleted')">Delete</button></div>
+    </div>
+    <div class="dialog" id="dlgEnd" style="display:none">
+      <h3>End this test?</h3>
+      <p class="b-med muted" id="endBody">You've completed 2 of 6 cards. You'll still see your results.</p>
+      <div class="acts"><button class="btn text" onclick="closeDialog()">Keep going</button><button class="btn filled" onclick="closeDialog();endSession(true)">End test</button></div>
+    </div>
+  </div>
+
+</div></div>
+
+<!-- ══════════════════════ PHONE 2 : THE MARKING, UP CLOSE ══════════════════════ -->
+<div class="phone"><div class="notch"></div><div class="viewport">
+  <section class="screen active" id="s-marking">
+    <div class="appbar"><span class="title small">How marking works</span><button class="iconbtn" onclick="go('home')" title="Back to the flow">⌂</button></div>
+    <div class="body" style="background:var(--desk)">
+
+      <div class="page unruled nomargin">
+        <div class="nc-head"><span class="paper-label">Try it — type anything</span></div>
+        <div class="nc-body" style="padding-bottom:12px">
+        <div class="trylab" style="padding:0">
+          <label for="labCorrect">Correct answer</label>
+          <input id="labCorrect" value="ice cream" oninput="renderLab()" autocomplete="off" spellcheck="false">
+          <label for="labTyped">What you typed</label>
+          <input id="labTyped" value="icecream" oninput="renderLab()" autocomplete="off" spellcheck="false">
+        </div>
+        </div>
+        <div class="page" id="labCardWrap" style="margin:var(--s4) 0 0">
+          <div class="nc-head"><span class="paper-label" id="labHint">A cold dessert</span></div>
+          <div class="nc-body"><div id="labOut"></div><div style="height:8px"></div></div>
+          <div class="nc-thick"></div>
+        </div>
+        <div class="note" id="labSay" style="padding:var(--s3) 0 0;color:var(--ink-variant)"></div>
+      </div>
+
+      <div style="padding:0 var(--s4)"><div class="section-label" style="padding-left:0"><span>THE FIVE KINDS</span></div></div>
+      <div class="page unruled nomargin" id="legend"><div class="nc-body" style="padding:12px 16px"></div></div>
+
+      <div style="padding:0 var(--s4)"><div class="section-label" style="padding-left:0"><span>VERIFIED GROUND-TRUTH VECTORS</span></div></div>
+      <div class="page unruled nomargin" id="vectors"><div class="nc-body" style="padding:12px 16px"></div></div>
+
+      <p class="note">
+        Every strip above is produced by the real algorithm from
+        <code>documentation/spelling-diff-spec.md §3</code>, including the load-bearing
+        tie-break order and the <code>script.length === 1 → insert</code> special case.
+      </p>
+      <div style="height:32px"></div>
+    </div>
+  </section>
+</div></div>
+</div><!-- /phones -->
+
+<p class="sub" style="margin-top:24px">
+  <strong>Wired flows:</strong> First run → Home · Home → 10&nbsp;Cards / All&nbsp;Cards → Session → wrong answer →
+  <strong>the diff</strong> → retry → correct → advance → Results → Practice missed → Done ·
+  Home → set row → Set&nbsp;Detail → Editor (add + list) · Set actions sheet · Duplicate-name conflict dialog ·
+  Delete confirm · End-test confirm · Trophies · Settings (theme switch is live) · Import (per-file report) ·
+  Export (legacy lossy warning) · About · Insights&nbsp;(P1) · the marking lab (right phone).<br>
+  <strong>Not wired:</strong> sync, dictation, paste import, session history, search &amp; sort, card reorder.
+</p>
+</div>
+
+<script>
+/* ════════════════════════════════════════════════════════════════════════════
+   THE REAL DIFF ALGORITHM — DAMERAU-LEVENSHTEIN
+   Ported from documentation/spelling-diff-spec.md §3, plus adjacent
+   transposition (Kevin, 2026-08-08) so a swap is ONE edit, not two errors.
+
+   LOAD-BEARING, do not "clean up":
+     · tie-break order  delete -> substitute -> insert -> TRANSPOSE,
+       each winning only on a STRICT improvement (<).
+       Transposition is considered LAST, which is what guarantees that every
+       existing non-swap result is byte-identical to plain Levenshtein.
+       (Verified against all 15 ground-truth vectors: 0 changed.)
+     · script.length === 1 -> 'i'
+     · the mutate-as-you-go alignment in the marking loop
+   NOTE: spelling-diff-spec.md is the normative contract and is being updated;
+   it is authoritative on the tie-break order. Re-verify when it lands.
+   ═══════════════════════════════════════════════════════════════════════════ */
+function calcDist(a, b) {
+  const n = a.length, m = b.length;
+  const dist = [], edits = [], paths = [];
+  for (let i = 0; i <= n; i++) { dist.push(new Array(m+1).fill(0)); edits.push(new Array(m+1).fill('n')); paths.push(new Array(m+1).fill(null)); }
+  for (let i = 0; i <= n; i++) { dist[i][0] = i; edits[i][0] = 'd'; if (i > 0) paths[i][0] = [i-1, 0]; }
+  for (let j = 0; j <= m; j++) { dist[0][j] = j; edits[0][j] = 'i'; if (j > 0) paths[0][j] = [0, j-1]; }
+  for (let i = 1; i <= n; i++) for (let j = 1; j <= m; j++) {
+    const cost = a[i-1] === b[j-1] ? 0 : 1;
+    let best = dist[i-1][j] + 1, op = 'd', prev = [i-1, j];
+    const sub = dist[i-1][j-1] + cost; if (sub < best) { best = sub; op = 's'; prev = [i-1, j-1]; }
+    const ins = dist[i][j-1] + 1;      if (ins < best) { best = ins; op = 'i'; prev = [i, j-1]; }
+    // ---- adjacent transposition, considered LAST, strict improvement only ----
+    if (i > 1 && j > 1 && a[i-1] === b[j-2] && a[i-2] === b[j-1]) {
+      const tr = dist[i-2][j-2] + 1;
+      if (tr < best) { best = tr; op = 't'; prev = [i-2, j-2]; }
+    }
+    dist[i][j] = best; edits[i][j] = op; paths[i][j] = prev;
+  }
+  const script = []; let i = n, j = m;
+  while (i > 0 || j > 0) {
+    const [pi, pj] = paths[i][j];
+    if (edits[i][j] === 't' && pi === i - 2 && pj === j - 2) {
+      // One transposition spans TWO positions of the correct answer, so it
+      // contributes two script entries, unshifted together to stay adjacent.
+      script.unshift('t', 't');
+    } else {
+      script.unshift(dist[pi][pj] === dist[i][j] ? 'n' : edits[i][j]);
+    }
+    i = pi; j = pj;
+  }
+  if (script.length === 1) script[0] = 'i';
+  return script;
+}
+const fold = s => s.toLowerCase();
+
+function computeSpellingDiff(typed, correct) {
+  const script = calcDist(fold(typed), fold(correct));
+  let inp = fold(typed), act = correct;
+  const segs = [];
+  let nextPairId = 0;              // links the two halves of one swap (§2.4)
+  for (let i = 0; i < script.length; i++) {
+    switch (script[i]) {
+      case 'n': segs.push({ status:'ok', char: act[i] }); break;
+      case 'd': { const surplus = inp[i]; act = act.slice(0,i) + '-' + act.slice(i);
+                  segs.push({ status:'extra', char:'', typed: surplus }); break; }
+      case 'i': { const c = act[i]; inp = inp.slice(0,i) + c + inp.slice(i);
+                  segs.push({ status:'missing', char: c }); break; }
+      case 's': { const c = act[i], wrong = inp[i]; inp = inp.slice(0,i) + c + inp.slice(i+1);
+                  segs.push({ status:'wrong', char: c, typed: wrong }); break; }
+      case 't': {
+        // Adjacent transposition. calcDist always emits 't' as a PAIR of
+        // consecutive entries, so this arm handles BOTH positions.
+        // Capture both typed characters BEFORE mutating `inp` — reading
+        // inp[i+1] after the swap returns the already-corrected character and
+        // silently gives both segments the same `typed`.
+        const first  = inp[i];      // typed at i     (= act[i+1])
+        const second = inp[i+1];    // typed at i + 1 (= act[i])
+        inp = inp.slice(0,i) + second + first + inp.slice(i+2);
+        const id = nextPairId++;
+        segs.push({ status:'transposed', char: act[i],   typed: first,  pairId: id });
+        segs.push({ status:'transposed', char: act[i+1], typed: second, pairId: id });
+        i++;                        // consume the paired second 't'
+        break; }
+    }
+  }
+  return segs;
+}
+const isCorrect = (typed, correct) => fold(typed.trim()) === fold(correct);
+
+/* ── Rendering the strip.  COLUMN-MAJOR: one .col per DiffSegment holding the
+      attempt cell above the correct cell, so the two rows share one column
+      grid exactly and a long answer wraps in whole PAIRS. Both baselines land
+      on adjacent writing rules. FIVE kinds, each with 2-4 non-colour signals.
+      Swaps are grouped by pairId — NEVER by adjacency.                   ── */
+function renderDiff(segments, opts) {
+  const o = Object.assign({ showAttempt:true, compact:false }, opts||{});
+  const esc = t => (t||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const seen = new Set();
+  const cols = segments.map(s => {
+    let top = '', bot = '', ribbon = '', extraCls = '';
+    if (s.status === 'ok') {
+      const ch = s.char === ' ' ? '&nbsp;' : esc(s.char);
+      top = `<span class="cell attempt ok">${ch}</span>`;
+      bot = `<span class="cell correct ok">${ch}</span>`;
+    } else if (s.status === 'wrong') {
+      top = `<span class="cell attempt wrong">${esc(s.typed === ' ' ? '#' : s.typed)}</span>`;
+      bot = `<span class="cell correct wrong">${esc(s.char === ' ' ? '#' : s.char)}</span>`;
+    } else if (s.status === 'missing') {
+      // ∧ = the proofreader's caret (insert here).  # = insert a space.
+      top = `<span class="cell attempt caret washed mv">∧</span>`;
+      bot = `<span class="cell correct missing washed mv">${esc(s.char === ' ' ? '#' : s.char)}</span>`;
+    } else if (s.status === 'transposed') {
+      // group by pairId, never by adjacency (spelling-diff-spec.md §2.4)
+      const firstOfPair = !seen.has(s.pairId);
+      seen.add(s.pairId);
+      // one ribbon per ROW of the pair, each anchored to its own cell so it
+      // straddles that row's own baseline
+      const ribA = firstOfPair ? ribbonSVG(o.compact, 'attempt') : '';
+      const ribC = firstOfPair ? ribbonSVG(o.compact, 'correct') : '';
+      const pc = firstOfPair ? ' pairstart' : '';
+      top = `<span class="cell attempt transposed washed mr${pc}">${esc(s.typed)}${ribA}</span>`;
+      bot = `<span class="cell correct transposed washed mr${pc}">${esc(s.char)}${ribC}</span>`;
+    } else { // extra — the ONLY status where the correct row has no letter
+      top = `<span class="cell attempt extra washed mr">${esc(s.typed === ' ' ? '#' : s.typed)}</span>`;
+      bot = `<span class="cell correct void washed mr">·</span>`;
+    }
+    return `<div class="col">${o.showAttempt ? top : ''}${bot}</div>`;
+  }).join('');
+  const label = o.showAttempt && !o.compact
+    ? `<span class="difflabel">You typed <span style="opacity:.6">/ correct</span></span>` : '';
+  return `<div class="diffstrip${o.compact?' compact':''}">${label}<div class="diffgrid">${cols}</div></div>`;
+}
+
+/* The transpose ribbon — the proofreader's transpose mark, drawn ONCE PER ROW
+   of a swapped pair and spanning that row's two columns as a single stroke.
+
+   Geometry is chosen so it never runs PARALLEL to a writing rule and never
+   obscures the letters: it passes ABOVE the first character, crosses the
+   letter band only in the narrow join BETWEEN the two cells, and finishes
+   BELOW the second character in the same band the other marks use. It
+   therefore meets a rule at one point, steeply, at 2dp in a saturated colour
+   against a 1dp rule at ~1.55:1. */
+function ribbonSVG(compact, row) {
+  const fs = compact ? (row === 'attempt' ? 12 : 16) : (row === 'attempt' ? 20 : 28);
+  const w  = compact ? 16.8 : 29.4;          // one column width = 1.05 x grid-fs
+  const up = Math.round(fs * 1.15);          // SVG top, clear ABOVE cap height
+  const yT = 2;                              // stays above the first letter
+  const yM = up - Math.round(fs * 0.36);     // crosses only at the cell join
+  const yB = up + Math.round(fs * 0.22);     // ends below the second letter
+  const h  = yB + 4;
+  // control points hold the curve flat near each end, so it only descends
+  // through the letter band in the narrow gap between the two cells
+  return `<svg class="ribbon" width="${w*2}" height="${h}" viewBox="0 0 ${w*2} ${h}"
+     style="top:calc(var(--grid-baseline) - ${up}px)" aria-hidden="true">
+     <path d="M0,${yT} C${(w*0.7).toFixed(1)},${yT} ${(w*0.5).toFixed(1)},${yM} ${w},${yM}
+              C${(w*1.5).toFixed(1)},${yM} ${(w*1.3).toFixed(1)},${yB} ${w*2},${yB}"/>
+   </svg>`;
+}
+
+/* ── The screen-reader announcement, composed from the same segments.
+      Letter by letter, "space" spoken, grouped by kind, capped at 3.
+      A transposed PAIR is announced once, as one error.               ── */
+function announce(segments) {
+  const spelled = segments.filter(s => s.status !== 'extra')
+    .map(s => s.char === ' ' ? 'space' : s.char).join('-').replace(/-space-/g,', space, ');
+  const errs = [];
+  let i = 0;
+  while (i < segments.length) {
+    const s = segments[i];
+    const before = segments.slice(0, i).filter(x => x.status !== 'extra').map(x => x.char).join('').trim();
+    if (s.status === 'transposed') {
+      // ONE error per pair, found by pairId (never by adjacency).
+      const other = segments.find((x, k) => k !== i && x.status === 'transposed' && x.pairId === s.pairId);
+      errs.push(`You swapped the ${s.typed} and the ${other ? other.typed : ''}.`.replace(' the .', '.'));
+      i += 2; continue;
+    }
+    if (s.status === 'missing' && s.char === ' ') errs.push(`You left out a space${before ? ` after “${before}”` : ''}.`);
+    else if (s.status === 'missing') errs.push(`You left out the letter ${s.char}.`);
+    else if (s.status === 'wrong')   errs.push(`You typed ${s.typed} instead of ${s.char}.`);
+    else if (s.status === 'extra')   errs.push(s.typed === ' ' ? 'You typed an extra space.' : `You typed an extra ${s.typed}.`);
+    i += 1;
+  }
+  const shown = errs.slice(0,3).join(' ');
+  const more = errs.length > 3 ? ` And ${errs.length-3} more.` : '';
+  return `Incorrect. Correct spelling: ${spelled}. ${shown}${more}`;
+}
+
+/* ════════════════════════ DEMO DATA ════════════════════════ */
+const CARDS = [
+  { hint:'Extremely hungry',                 answer:'ravenous' },
+  { hint:'A cold dessert',                   answer:'ice cream' },
+  { hint:'To make something worse',          answer:'exacerbate' },
+  { hint:'To feel awkward or self-conscious',answer:'embarrass' },
+  { hint:'Required; essential',              answer:'necessary' },
+  { hint:'Happening at the same time',       answer:'simultaneous' },
+];
+
+/* ════════════════════════ NAVIGATION ════════════════════════ */
+function go(id) {
+  document.querySelectorAll('#vp1 .screen').forEach(s => s.classList.remove('active'));
+  const el = document.getElementById('s-' + id);
+  if (el) el.classList.add('active');
+  hideSnack(); closeSheet(); closeDialog();
+  document.querySelectorAll('#vp1 .body').forEach(b => b.scrollTop = 0);
+}
+function toggleTheme() {
+  const dark = document.documentElement.dataset.theme === 'dark';
+  setTheme(dark ? 'light' : 'dark');
+}
+function setTheme(t, btn) {
+  document.documentElement.dataset.theme = t;
+  document.getElementById('themeBtn').textContent = t === 'dark' ? '☀ Light mode' : '🌙 Dark mode';
+  document.getElementById('themeBtn').classList.toggle('on', t === 'dark');
+  if (btn) segPick(btn);
+  else {
+    const seg = document.getElementById('themeSeg');
+    if (seg) { [...seg.children].forEach(b => b.classList.remove('on')); seg.children[t==='dark'?2:1].classList.add('on'); }
+  }
+}
+function toggleMenu(){ const m=document.getElementById('homeMenu'); m.style.display = m.style.display==='none'?'block':'none'; }
+function segPick(b){ [...b.parentElement.children].forEach(x=>x.classList.remove('on')); b.classList.add('on'); }
+function toggleCheck(r){ const l=r.querySelector('.lead'); l.textContent = l.textContent==='☑'?'☐':'☑'; }
+function openSheet(){ document.getElementById('sheetScrim').classList.add('show'); document.getElementById('sheet').classList.add('show'); }
+function closeSheet(){ const a=document.getElementById('sheetScrim'),b=document.getElementById('sheet'); if(a){a.classList.remove('show');b.classList.remove('show');} }
+function openDialog(k){
+  document.getElementById('dlgScrim').classList.add('show');
+  ['newset','delete','end'].forEach(n => document.getElementById('dlg'+n[0].toUpperCase()+n.slice(1)).style.display = n===k?'block':'none');
+  if (k==='end') document.getElementById('endBody').textContent =
+    `You've completed ${S.passedCount} of ${S.cards.length} cards. You'll still see your results.`;
+}
+function closeDialog(){ const s=document.getElementById('dlgScrim'); if(s) s.classList.remove('show'); }
+function checkDup(v){
+  const dup = v.trim().toLowerCase() === 'sat words';
+  document.getElementById('dupBlock').style.display = dup?'block':'none';
+  document.getElementById('dupReplace').style.display = dup?'inline-flex':'none';
+  document.getElementById('dupHelp').style.display = dup?'none':'block';
+}
+let snackTimer;
+function snack(t){
+  const scr = document.querySelector('#vp1 .screen.active');
+  const bar = scr.querySelector('.snackbar') || document.getElementById('snack');
+  bar.querySelector('span').textContent = t; bar.classList.add('show');
+  clearTimeout(snackTimer); snackTimer = setTimeout(hideSnack, 4000);
+}
+function hideSnack(){ document.querySelectorAll('.snackbar').forEach(b=>b.classList.remove('show')); }
+
+/* ════════════════════════ THE SESSION ════════════════════════ */
+const S = { cards:[], idx:0, flipped:false, passedCount:0, wrong:0, first:0, states:[], t0:0 };
+
+function startSession(mode, subset) {
+  const pool = subset || CARDS;
+  S.cards = pool.slice(); S.idx = 0; S.flipped = false;
+  S.passedCount = 0; S.wrong = 0; S.first = 0; S.t0 = Date.now();
+  S.states = S.cards.map(c => ({ card:c, attempts:0, firstDiff:null }));
+  document.getElementById('flipNote').style.display = 'none';
+  go('session'); renderCard();
+}
+const promptOf = c => S.flipped ? c.answer : c.hint;
+const answerOf = c => S.flipped ? c.hint   : c.answer;
+
+function renderCard() {
+  const c = S.cards[S.idx];
+  document.getElementById('sideLabel').textContent = S.flipped ? 'Answer' : 'Hint';
+  document.getElementById('cardPos').textContent = `${S.idx + 1} / ${S.cards.length}`;
+  const p = document.getElementById('prompt');
+  p.textContent = promptOf(c);
+  p.className = 'card-prompt gridline' + (promptOf(c).length > 40 ? ' small' : '');
+  document.getElementById('feedback').innerHTML = '';
+  document.getElementById('answerWrap').classList.remove('err');
+  const inp = document.getElementById('answer'); inp.value = ''; inp.disabled = false;
+  document.getElementById('prevBtn').disabled = S.idx === 0;
+  updateProgress();
+  setTimeout(() => inp.focus(), 40);   // focused with the keyboard up, every card
+}
+function updateProgress() {
+  const pct = (S.passedCount / S.cards.length) * 100;
+  document.getElementById('progFill').style.width = pct + '%';
+  document.getElementById('progTxt').textContent = `${S.passedCount}/${S.cards.length}`;
+}
+function submitAnswer() {
+  const inp = document.getElementById('answer');
+  const typed = inp.value;
+  const correct = answerOf(S.cards[S.idx]);
+  const fb = document.getElementById('feedback');
+  const st = S.states[S.idx];
+
+  if (isCorrect(typed, correct)) {
+    // Confirmed with an ICON + the WORD + colour — never colour alone.
+    fb.innerHTML = `<div class="confirm gridline" style="--fs:16px">✓ <span>Correct</span> <span class="word">${correct}</span></div>`;
+    inp.value = correct; inp.disabled = true;
+    S.passedCount++; if (st.attempts === 0) S.first++;
+    updateProgress();
+    setTimeout(() => { S.idx++; S.idx < S.cards.length ? renderCard() : endSession(false); }, 700);
+  } else {
+    const diff = computeSpellingDiff(typed.trim(), correct);
+    if (!st.firstDiff) st.firstDiff = diff;
+    st.attempts++; S.wrong++;
+    fb.innerHTML = renderDiff(diff, { showAttempt:true }) +
+      `<div style="margin-top:var(--s2)"><button class="btn text" style="padding-left:0" onclick="go('marking')">What do these marks mean?</button></div>` +
+      `<div aria-live="polite" class="sr" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">${announce(diff)}</div>`;
+    document.getElementById('answerWrap').classList.add('err');
+    const strip = fb.querySelector('.diffstrip');
+    strip.classList.add('nudge'); setTimeout(() => strip.classList.remove('nudge'), 200);
+    // keep the text AND select it — retry is one keystroke
+    inp.focus(); inp.setSelectionRange(0, inp.value.length);
+    // progress deliberately does NOT move
+  }
+}
+function prevCard(){ if (S.idx > 0) { S.idx--; renderCard(); } }   // no-op on the first card
+function flip(){ S.flipped = !S.flipped; document.getElementById('flipNote').style.display = S.flipped?'block':'none'; renderCard(); }
+
+function endSession(early) {
+  const missed = S.states.filter(s => s.attempts > 0);
+  document.getElementById('rCards').textContent = early ? S.passedCount : S.cards.length;
+  document.getElementById('rFirst').textContent = S.first;
+  document.getElementById('rWrong').textContent = S.wrong;
+  const secs = Math.max(1, Math.round((Date.now() - S.t0)/1000));
+  document.getElementById('rTime').textContent = `${Math.floor(secs/60)}:${String(secs%60).padStart(2,'0')}`;
+  const list = document.getElementById('missedList');
+  document.getElementById('missedHdr').textContent = `WORDS YOU MISSED (${missed.length})`;
+  if (!missed.length) {
+    list.innerHTML = `<div class="page compact nomargin unruled" style="background:var(--diff-correct-container);border-color:var(--diff-correct-container)">
+      <div class="nc-body" style="padding:16px"><div style="color:var(--diff-correct);font-weight:700;font-size:16px">✓ Every card on the first try</div></div></div>`;
+    document.getElementById('practiceBtn').style.display = 'none';
+  } else {
+    list.innerHTML = missed.map(s => `<div class="page compact" style="margin-top:0;margin-bottom:var(--s3)">
+      <div class="nc-body">
+        <div class="gridline" style="--fs:16px;font-family:var(--font-mono);font-weight:500;color:var(--ink)">${answerOf(s.card)}</div>
+        ${renderDiff(s.firstDiff, { showAttempt:false, compact:true })}
+        <div class="gridline" style="--fs:12px;color:var(--ink-variant)">${announce(s.firstDiff).split('. ').slice(1).join('. ')}</div>
+        <div style="height:6px"></div>
+      </div>
+      <div class="nc-thick"></div>
+    </div>`).join('');
+    document.getElementById('practiceBtn').style.display = 'inline-flex';
+    document.getElementById('practiceBtn').textContent = `↻ Practice these ${missed.length} word${missed.length>1?'s':''}`;
+    window.__missed = missed.map(s => s.card);
+  }
+  go('results');
+}
+function practiceMissed(){ startSession('missed', window.__missed || []); }
+
+/* Jump straight to the moment worth seeing. */
+function demoWrong() {
+  startSession('all');
+  setTimeout(() => {
+    S.idx = 1; renderCard();                       // "ice cream"
+    setTimeout(() => { document.getElementById('answer').value = 'icecream'; submitAnswer(); }, 120);
+  }, 120);
+}
+
+/* ════════════════════════ EDITOR / MISC ════════════════════════ */
+function saveCard() {
+  const h = document.getElementById('edHint'), a = document.getElementById('edAns');
+  if (!h.value.trim()) { snack('A hint is required'); h.focus(); return; }
+  if (!a.value.trim()) { snack('An answer is required'); a.focus(); return; }
+  snack('Card saved'); h.value = ''; a.value = ''; h.focus();
+  const n = document.getElementById('cardNo');
+  const next = parseInt(n.textContent.split(' ')[1]) + 1;
+  n.textContent = 'Card ' + next;
+  document.getElementById('cardNoHead').textContent = String(next);
+}
+function runImport() {
+  document.getElementById('importResult').innerHTML = `
+    <div class="section-label"><span>RESULT</span></div>
+    <p class="b-med" style="padding:0 var(--s4) var(--s2)">Imported 2 sets · 1 renamed · 1 couldn't be read</p>
+    <div class="divider full"></div>
+    <div class="row" style="cursor:default"><span class="lead" style="color:var(--diff-correct)">✓</span><span class="txt"><span class="p">SAT Words</span><span class="s">Imported · 42 cards</span></span></div>
+    <div class="row" style="cursor:default"><span class="lead" style="color:var(--diff-correct)">✓</span><span class="txt"><span class="p">Tricky Doubles</span><span class="s">Imported · 36 cards</span></span></div>
+    <div class="row" style="cursor:default"><span class="lead">⌨</span><span class="txt"><span class="p">Homophones → Homophones (2)</span><span class="s">Renamed · 44 cards</span></span></div>
+    <button class="row" onclick="snack('Unexpected token &lt; in JSON at position 0')"><span class="lead" style="color:var(--error)">⚠</span><span class="txt"><span class="p" style="color:var(--error)">old-backup.cards</span><span class="s">Couldn't be read — not valid JSON. Nothing was deleted.</span></span><span class="lead">→</span></button>`;
+}
+function pickFormat(b, legacy) {
+  segPick(b);
+  document.getElementById('legacyWarn').style.display = legacy ? 'flex' : 'none';
+  document.getElementById('fmtNote').textContent = legacy
+    ? 'Opens in the original Vocab Cards.'
+    : 'Keeps everything: ids, dates, multiple hints and answers.';
+}
+
+/* ════════════════════════ THE MARKING LAB (phone 2) ════════════════════════ */
+function renderLab() {
+  const correct = document.getElementById('labCorrect').value;
+  const typed   = document.getElementById('labTyped').value;
+  const out = document.getElementById('labOut'), say = document.getElementById('labSay');
+  if (!correct) { out.innerHTML = ''; say.textContent = ''; return; }
+  if (isCorrect(typed, correct)) {
+    out.innerHTML = `<div class="confirm gridline" style="--fs:16px">✓ <span>Correct</span> <span class="word">${correct}</span></div>`;
+    say.textContent = 'Screen reader: “Correct. ' + correct + '.”';
+  } else {
+    const d = computeSpellingDiff(typed.trim(), correct);
+    out.innerHTML = renderDiff(d, { showAttempt:true });
+    say.textContent = 'Screen reader: “' + announce(d) + '”';
+  }
+}
+const LEGEND = [
+  ['ravenous','ravanous',
+   '<b>A WRONG LETTER.</b> You typed a different letter. Red, bold, a <b>solid</b> underline, and struck through in your attempt — a strike is the standard delete mark.'],
+  ['ravenous','ravenus',
+   '<b>A MISSING LETTER.</b> You left it out. Violet, bold, a <b>dashed</b> underline, a tinted cell, and a <b>∧</b> caret where you typed nothing — the caret is the standard insertion mark.'],
+  ['ravenous','ravenious',
+   '<b>AN EXTRA LETTER.</b> It doesn\'t belong. Struck through in your attempt, and the correct row shows a <b>·</b> because no letter belongs there.'],
+  ['receive','recieve',
+   '<b>SWAPPED LETTERS.</b> You wrote them the wrong way round. The <b>ribbon</b> loops over one and under the other — the proofreader\'s transpose mark. It is the only mark that spans two cells, and the only one that marks a letter <i>without</i> striking it.'],
+  ['ice cream','icecream',
+   '<b>A MISSING SPACE.</b> The <b>#</b> is the standard proofreader\'s mark for "insert a space". An error every other app renders as invisible.'],
+];
+const VECTORS = [
+  ['ravenous','ravenus','#3 omitted character'],
+  ['ravenous','ravenious','#4 extra character'],
+  ['ravenous','ravanous','#5 wrong character'],
+  ['ravenous','xyz','#9 every character its own segment'],
+  ['ice cream','icecream','#11 THE MISSING-SPACE CASE'],
+  ['ice cream','ice  cream','#13 extra space'],
+  ['a','b','#14 the script.length === 1 special case'],
+  ['receive','recieve','NEW — transposition (Damerau-Levenshtein)'],
+  ['their','thier','NEW — transposition'],
+];
+function buildStatic() {
+  document.getElementById('legend').querySelector('.nc-body').innerHTML = LEGEND.map(([c,t,txt]) =>
+    `<div class="page compact" style="margin:0 0 var(--s3)">
+       <div class="nc-body">${renderDiff(computeSpellingDiff(t,c),{showAttempt:true,compact:true})}<div style="height:6px"></div></div>
+       <div class="nc-thick"></div>
+     </div>
+     <div class="lt" style="margin:0 0 20px">${txt}</div>`).join('');
+  document.getElementById('vectors').querySelector('.nc-body').innerHTML = VECTORS.map(([c,t,label]) =>
+    `<div style="margin-bottom:14px">
+       <div class="b-small" style="color:var(--ink-variant);margin-bottom:2px">${label} — “${c}” typed as “${t}”</div>
+       <div class="page compact" style="margin:0">
+         <div class="nc-body">${renderDiff(computeSpellingDiff(t,c),{showAttempt:true,compact:true})}<div style="height:6px"></div></div>
+       </div>
+     </div>`).join('');
+  document.getElementById('firstrun-demo').innerHTML =
+    `<div class="nc-head"><span class="paper-label">A cold dessert</span></div>
+     <div class="nc-body">${renderDiff(computeSpellingDiff('icecream','ice cream'), { showAttempt:true })}<div style="height:8px"></div></div>
+     <div class="nc-thick"></div>`;
+  document.getElementById('setPreview').innerHTML = CARDS.slice(0,3).map(c =>
+    `<div class="row" style="cursor:default;align-items:flex-start"><span class="txt">
+       <span class="p" style="font-weight:400;font-size:15px">${c.hint}</span>
+       <span class="s" style="font-family:var(--font-mono);font-size:14px;color:var(--on-surface)">${c.answer}</span>
+     </span></div><div class="divider"></div>`).join('');
+  document.getElementById('editorList').innerHTML = CARDS.map(c =>
+    `<button class="row" onclick="snack('Inline edit')"><span class="lead">⠿</span><span class="txt">
+       <span class="p" style="font-weight:400;font-size:15px">${c.hint}</span>
+       <span class="s" style="font-family:var(--font-mono);font-size:14px;color:var(--on-surface)">${c.answer}</span>
+     </span><span class="lead">✎</span></button><div class="divider"></div>`).join('');
+  document.getElementById('troubleList').innerHTML = [
+    ['embarrass','embarass',4,'Tuesday'], ['receive','recieve',3,'Monday'], ['ice cream','icecream',3,'last week']
+  ].map(([c,t,n,when],i) =>
+    `<div class="page compact" style="margin:0 var(--s4) var(--s3)">
+       <div class="nc-body">
+         <div class="gridline" style="--fs:16px;font-family:var(--font-mono);font-weight:700;color:var(--ink)">${i+1}. ${c}</div>
+         ${renderDiff(computeSpellingDiff(t,c),{showAttempt:false,compact:true})}
+         <div class="gridline" style="--fs:12px;color:var(--ink-variant)">missed ${n}× · last ${when}</div>
+         <div style="height:6px"></div>
+       </div>
+       <div class="nc-thick"></div>
+     </div>`).join('');
+}
+
+/* keyboard: Enter submits inside the session */
+document.getElementById('answer').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); submitAnswer(); } });
+document.getElementById('edAns').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); saveCard(); } });
+document.getElementById('edHint').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); document.getElementById('edAns').focus(); } });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeDialog(); closeSheet(); } });
+
+/* ── Put the answer input's baseline on the writing rule ──────────────────
+   Measured, not assumed: a browser <input> places its baseline differently
+   from a text run, and by how much depends on the font in use. Build a probe
+   on <body> (always rendered — measuring inside a hidden screen returns zeros)
+   containing a text run and an <input> with identical typography, read both
+   baselines via a zero-width inline sibling, and store the delta.
+   Prototype-only; React Native's TextInput lays out as text.               */
+function calibrateAnswerLine() {
+  const probe = document.createElement('div');
+  probe.style.cssText = 'position:fixed;left:-9999px;top:0;width:400px';
+  probe.innerHTML =
+    `<div style="line-height:40px;font-size:28px;font-family:var(--font-mono);font-weight:500;letter-spacing:.5px">` +
+      `x<span id="_a" style="display:inline-block;width:0;height:0"></span></div>` +
+    `<span style="display:inline-block">` +
+      `<input id="_i" value="x" style="line-height:40px;font-size:28px;font-family:var(--font-mono);` +
+      `font-weight:500;letter-spacing:.5px;border:0;padding:0;margin:0;height:auto;` +
+      `box-sizing:content-box;width:60px;display:inline-block;vertical-align:baseline">` +
+      `<span id="_b" style="display:inline-block;width:0;height:0;vertical-align:baseline"></span></span>`;
+  document.body.appendChild(probe);
+  const a = probe.querySelector('#_a'), i = probe.querySelector('#_i'), b2 = probe.querySelector('#_b');
+  const textBaseline  = a.getBoundingClientRect().bottom - a.parentElement.getBoundingClientRect().top;
+  const inputBaseline = b2.getBoundingClientRect().bottom - i.getBoundingClientRect().top;
+  probe.remove();
+  const fix = textBaseline - inputBaseline;   // negative: pull the input up
+  document.documentElement.style.setProperty('--answer-fix', fix.toFixed(2) + 'px');
+}
+calibrateAnswerLine();
+buildStatic(); renderLab();
+</script>
+</body>
+</html>
