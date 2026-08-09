@@ -20,16 +20,21 @@ import { join, relative, resolve } from 'node:path';
 const MOBILE_ROOT = resolve(__dirname, '../../..');
 
 /**
- * The one module allowed to load the Firebase SDK, and the two that call it.
+ * The only modules allowed to load the Firebase SDK.
  *
- * All three use a guarded `require()` **inside a function**, so nothing
- * evaluates until a signed-in code path runs. Type-only imports are erased at
- * build time and are always fine.
+ * Each uses a guarded `require()` **inside a function**, so nothing evaluates
+ * until a signed-in code path runs. Type-only imports are erased at build time
+ * and are always fine.
+ *
+ * Note the sync *engine* is deliberately absent: it talks to the `SyncBackend`
+ * port, and `backend.ts` is the only adapter that knows Firestore exists. Keep
+ * this list as short as it can be — every entry is a place the guarantee has
+ * to be re-checked by hand.
  */
 const ALLOWED = [
   'src/services/firebase.ts',
   'src/features/auth/api.ts',
-  'src/features/sync/api.ts',
+  'src/features/sync/backend.ts',
 ];
 
 /**

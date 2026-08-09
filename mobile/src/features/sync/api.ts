@@ -1,36 +1,32 @@
 /**
  * CAP-13 — the sync engine.
  *
- * Moves entities between the local repositories and Firestore, using the pure
- * decisions in `logic.ts`. Nothing here runs unless the user has signed in.
+ * Orchestration only: it asks `logic.ts` what to do and a {@link SyncBackend}
+ * to do it. Nothing here runs unless the user has signed in.
  *
- * Firestore layout, per the capability spec:
+ * The ordering decisions in this file are the ones that matter, and each is
+ * commented where it happens:
  *
- * ```
- * users/{uid}                 profile
- * users/{uid}/sets/{setId}    one document per set
- * users/{uid}/cards/{cardId}  ONE DOCUMENT PER CARD, flat, carrying setId
- * users/{uid}/meta/trophies   trophy state
- * users/{uid}/meta/preferences the syncing subset of preferences
- * ```
- *
- * Cards are flat and per-card rather than nested under a set, because a set of
- * 200 cards edited on two devices must merge per card; whole-set granularity
- * would discard one device's edits wholesale.
+ * - The server's copies are applied locally **before** anything is uploaded,
+ *   so a half-failed pass leaves the user with strictly more data, never less.
+ * - Cloud data is erased **before** the auth user is deleted, because after
+ *   deletion the rules deny every write and the documents would be orphaned
+ *   beyond their owner's reach.
+ * - A failure never damages local data and never blocks the app.
  */
 
-import type { Card, CardSet, IdentityContext, Tracked } from '@/features/identity/types';
+import type { Card, CardSet, IdentityContext } from '@/features/identity/types';
 import { libraryRepository } from '@/features/library/api';
 import type { LibraryRepository } from '@/features/library/api';
 import { trophyRepository } from '@/features/trophies/api';
 import type { TrophyRepository } from '@/features/trophies/api';
 import { mergeTrophyState } from '@/features/trophies/logic';
-import type { TrophyState } from '@/features/trophies/types';
-import { getFirebase } from '@/services/firebase';
 import { identityContext as defaultIdentityContext } from '@/services/identityContext';
 
+import { FirestoreBackend } from './backend';
+import type { SyncBackend } from './backend';
 import { planSync, summarizeAdoption } from './logic';
-import type { AdoptionReport, Remote } from './types';
+import type { AdoptionReport } from './types';
 
 /** The result of one sync pass. */
 export interface SyncOutcome {
@@ -45,20 +41,25 @@ export interface SyncOutcome {
 export class SyncService {
   private readonly library: LibraryRepository;
   private readonly trophies: TrophyRepository;
+  private readonly backend: SyncBackend;
   private readonly context: IdentityContext;
 
   /**
    * @param library The card repository to read and write.
    * @param trophies The trophy repository.
+   * @param backend The server to sync against. Tests inject an in-memory
+   *                double; the app uses Firestore.
    * @param context The clock, for the local watermark.
    */
   constructor(
     library: LibraryRepository = libraryRepository,
     trophies: TrophyRepository = trophyRepository,
+    backend: SyncBackend = new FirestoreBackend(),
     context: IdentityContext = defaultIdentityContext,
   ) {
     this.library = library;
     this.trophies = trophies;
+    this.backend = backend;
     this.context = context;
   }
 
@@ -66,159 +67,79 @@ export class SyncService {
    * Run a full sync pass.
    *
    * Safe to call repeatedly: it is a reconciliation, not a queue drain, so an
-   * interrupted pass simply leaves work for the next one. Local data is never
-   * destroyed by a failure — the plan is computed first and only then applied.
+   * interrupted pass simply leaves work for the next one.
    *
    * @param uid The signed-in user's id.
    * @returns What the pass did, or the reason it failed.
    */
   async sync(uid: string): Promise<SyncOutcome> {
     try {
-      /* eslint-disable @typescript-eslint/no-require-imports -- see services/firebase.ts */
-      const firestore = require('firebase/firestore') as typeof import('firebase/firestore');
-      /* eslint-enable @typescript-eslint/no-require-imports */
-      const { db } = getFirebase();
-      const { collection, doc, serverTimestamp, writeBatch } = firestore;
-
+      // The watermark is captured BEFORE reading, not after writing. If it were
+      // taken at the end of the pass, any edit made *during* the pass would get
+      // a timestamp earlier than the watermark, be marked reconciled, and never
+      // be uploaded — a silently lost change. Taking it first means such an
+      // edit stays dirty and the next pass picks it up.
+      const watermark = this.context.now();
       const local = await this.library.readAllForSync();
-
-      const remoteSets = await readCollection<CardSet>(firestore, db, uid, 'sets');
-      const remoteCards = await readCollection<Card>(firestore, db, uid, 'cards');
+      const [remoteSets, remoteCards] = await Promise.all([
+        this.backend.readSets(uid),
+        this.backend.readCards(uid),
+      ]);
 
       const setPlan = planSync(local.sets, remoteSets);
       const cardPlan = planSync(local.cards, remoteCards);
 
-      // Apply the server's copies locally first. If the upload half then fails,
-      // the user has strictly more data than they started with, never less.
+      // Download first. If the upload half then fails, the user has strictly
+      // more data than they started with — never less.
       await this.library.applyFromSync(
         setPlan.toApplyLocally as CardSet[],
         cardPlan.toApplyLocally as Card[],
       );
 
-      // Upload in batches. Firestore caps a batch at 500 writes.
-      const uploads: { path: 'sets' | 'cards'; entity: Tracked }[] = [
-        ...setPlan.toUpload.map((entity) => ({ path: 'sets' as const, entity })),
-        ...cardPlan.toUpload.map((entity) => ({ path: 'cards' as const, entity })),
-      ];
-      for (let i = 0; i < uploads.length; i += 400) {
-        const batch = writeBatch(db);
-        for (const { path, entity } of uploads.slice(i, i + 400)) {
-          batch.set(doc(collection(doc(db, 'users', uid), path), entity.id), {
-            ...entity,
-            // The SERVER stamps the ordering timestamp. The rules require
-            // exactly this, because last-writer-wins is only sound if a client
-            // cannot choose its own position in the order.
-            serverUpdatedAt: serverTimestamp(),
-          });
-        }
-        await batch.commit();
-      }
+      await this.backend.writeEntities(uid, 'sets', setPlan.toUpload);
+      await this.backend.writeEntities(uid, 'cards', cardPlan.toUpload);
 
-      // Trophies: max() per counter and a union of notified ids —
-      // order-independent because the counters are monotonic.
-      await this.syncTrophies(firestore, db, uid);
+      // Trophies merge by max() per counter and a union of notified ids —
+      // order-independent, because the counters are monotonic.
+      const remoteTrophies = await this.backend.readTrophies(uid);
+      const localTrophies = await this.trophies.load();
+      const mergedTrophies =
+        remoteTrophies === null ? localTrophies : mergeTrophyState(localTrophies, remoteTrophies);
+      await this.trophies.save(mergedTrophies);
+      await this.backend.writeTrophies(uid, mergedTrophies);
 
-      const syncedAt = this.context.now();
+      // Recorded only for what actually moved, and only after it moved — a
+      // watermark written optimistically would make a failed upload look
+      // reconciled and the change would never be retried.
       await this.library.markSynced(
-        syncedAt,
-        [...setPlan.toUpload, ...setPlan.toApplyLocally].map((e) => e.id),
-        [...cardPlan.toUpload, ...cardPlan.toApplyLocally].map((e) => e.id),
+        watermark,
+        [...setPlan.toUpload, ...setPlan.toApplyLocally].map((entity) => entity.id),
+        [...cardPlan.toUpload, ...cardPlan.toApplyLocally].map((entity) => entity.id),
       );
 
       return { ok: true, report: summarizeAdoption(setPlan, cardPlan, 0) };
     } catch (error) {
-      // A failed sync must never damage local data or block the app; the user
-      // stays fully functional offline and the next pass retries.
+      // Local data is untouched and the app stays fully usable offline.
       return { ok: false, reasonKey: toSyncErrorKey(error) };
     }
   }
 
   /**
-   * Merge trophy state with the server's copy.
-   *
-   * @param firestore The Firestore module.
-   * @param db The Firestore handle.
-   * @param uid The signed-in user's id.
-   */
-  private async syncTrophies(
-    firestore: typeof import('firebase/firestore'),
-    db: import('firebase/firestore').Firestore,
-    uid: string,
-  ): Promise<void> {
-    const { doc, getDoc, setDoc, serverTimestamp } = firestore;
-    const ref = doc(db, 'users', uid, 'meta', 'trophies');
-    const snapshot = await getDoc(ref);
-    const localState = await this.trophies.load();
-    const merged = snapshot.exists()
-      ? mergeTrophyState(localState, snapshot.data() as TrophyState)
-      : localState;
-    await this.trophies.save(merged);
-    await setDoc(ref, { ...merged, serverUpdatedAt: serverTimestamp() });
-  }
-
-  /**
    * Erase every document belonging to a user.
    *
-   * Called before the auth user is deleted: once it is gone the rules deny
-   * every write, so the documents would be orphaned beyond the user's reach.
+   * Called *before* the auth user is deleted — see the file header.
    *
    * @param uid The user whose data to erase.
    */
   async deleteAllCloudData(uid: string): Promise<void> {
-    /* eslint-disable @typescript-eslint/no-require-imports -- see services/firebase.ts */
-    const firestore = require('firebase/firestore') as typeof import('firebase/firestore');
-    /* eslint-enable @typescript-eslint/no-require-imports */
-    const { collection, deleteDoc, doc, getDocs, writeBatch } = firestore;
-    const { db } = getFirebase();
-
-    for (const path of ['sets', 'cards', 'meta'] as const) {
-      const snapshot = await getDocs(collection(doc(db, 'users', uid), path));
-      const docs = snapshot.docs;
-      for (let i = 0; i < docs.length; i += 400) {
-        const batch = writeBatch(db);
-        for (const entry of docs.slice(i, i + 400)) batch.delete(entry.ref);
-        await batch.commit();
-      }
-    }
-    await deleteDoc(doc(db, 'users', uid));
+    await this.backend.deleteAll(uid);
   }
 }
 
 /**
- * Read one of a user's collections.
+ * Map a Firestore or network error onto an i18n key.
  *
- * @param firestore The Firestore module.
- * @param db The Firestore handle.
- * @param uid The signed-in user's id.
- * @param path The collection name.
- * @returns Every document, with the server timestamp normalised to an ISO
- *          string so the pure merge logic never sees a Firestore `Timestamp`.
- */
-async function readCollection<T extends Tracked>(
-  firestore: typeof import('firebase/firestore'),
-  db: import('firebase/firestore').Firestore,
-  uid: string,
-  path: 'sets' | 'cards',
-): Promise<Remote<T>[]> {
-  const { collection, doc, getDocs } = firestore;
-  const snapshot = await getDocs(collection(doc(db, 'users', uid), path));
-  return snapshot.docs.map((entry) => {
-    const data = entry.data() as T & { serverUpdatedAt?: { toDate?: () => Date } | string | null };
-    const raw = data.serverUpdatedAt;
-    const serverUpdatedAt =
-      raw === null || raw === undefined
-        ? null
-        : typeof raw === 'string'
-          ? raw
-          : typeof raw.toDate === 'function'
-            ? raw.toDate().toISOString()
-            : null;
-    return { ...data, serverUpdatedAt } as Remote<T>;
-  });
-}
-
-/**
- * Map a Firestore error onto an i18n key.
+ * Firebase's own messages are developer-facing, so they are never shown.
  *
  * @param error The thrown value.
  * @returns The i18n key describing it.
