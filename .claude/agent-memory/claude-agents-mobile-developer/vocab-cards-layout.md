@@ -56,4 +56,10 @@ with bold markers, so a naive string replace on `partial` silently misses.
   gets its diffs from an in-memory hand-off (`features/session/handoff.ts`).
   That is the documented resolution of a genuine CAP-6 self-contradiction.
 
+**Obligations hidden inside P1 capabilities.** Not every launch-blocking
+requirement lives in a P0 row. CAP-15 is P1 but states that *"the recording is
+effectively P0"*, and CAP-13 §13.1's optionality constraint is explicitly
+P0 inside a P1 capability. When judging whether a launch build is complete,
+read the P1 bodies too, not just the priority column.
+
 Related: [[spec-defects-spelling-diff]] · [[vocab-cards-landmines]]

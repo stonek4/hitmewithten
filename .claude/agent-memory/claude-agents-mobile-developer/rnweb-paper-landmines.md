@@ -41,6 +41,26 @@ Every one of these was found by **driving the web build**, and every one passed
   two independently-varying numbers cannot be one key — it renders the singular
   form ("2 set imported"). Split it into two messages, each its own `<Text>`.
   Never concatenate them into one string; that is untranslatable.
+- **`onTouchEnd` on a `View` never fires for a mouse click**, so a "tappable"
+  row is dead on web — and a plain `View` is not focusable, so there is no
+  keyboard path to it either. Use `Pressable`.
+- **`router.back()` silently does nothing when the history stack is empty** —
+  which is every deep link, bookmark and reload, because web serves real URLs.
+  The navigator logs "GO_BACK was not handled" and the user is stranded.
+  `src/lib/navigation.ts`'s `goBackOrHome()` is the fix; use it everywhere.
+- **`AccessibilityInfo.isReduceMotionEnabled()` is asynchronous.** A component
+  that animates on mount runs its animation before the answer arrives, moving
+  the screen for a user who asked for no movement. `useReduceMotion()` returns
+  a `resolved` flag; treat "not yet known" as reduce-motion.
+- **`Animated.Value.__getValue()` is a private RN internal** — present at
+  runtime, absent from the public types, so `tsc` rejects it while Jest passes.
+  There is no public synchronous read (`addListener` fires only on change, so
+  it cannot observe a value that never moved). Isolate the cast in one helper
+  and add a guard test that fails if RN removes it.
+- **`useRef(new Animated.Value(x)).current` trips `react-hooks/refs`**
+  ("cannot access refs during render"). Use lazy `useState(() => …)`.
+- **Paper's `Snackbar` has no `onShow`.** Tie side effects to the visibility
+  prop changing in an effect instead.
 - Benign noise to ignore on web: `Animated: useNativeDriver is not supported`.
 
 **How to apply:** before adding any Paper component to a flex column, or any
