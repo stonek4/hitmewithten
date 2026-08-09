@@ -313,5 +313,54 @@
       "website": "vocabcards.com"
     },
     "legal": "© 2017–2026 Kevin Stoner"
+  },
+  "sync": {
+    "section": "Sync",
+    "signedOutTitle": "Sync across devices",
+    "signedOutBody": "Vocab Cards works completely without an account, and always will. Sign in only if you want your sets to follow you to another device.",
+    "signIn": "Sign in",
+    "signUp": "Create an account",
+    "signOut": "Sign out",
+    "email": "Email",
+    "password": "Password",
+    "signedInAs": "Signed in as {{email}}",
+    "syncNow": "Sync now",
+    "notConfigured": "Sync is not available in this build.",
+    "status": {
+      "signedOut": "Not signed in — everything is stored on this device",
+      "idle": "Up to date",
+      "syncing": "Syncing…",
+      "pending": "Changes waiting to sync",
+      "error": "Could not sync. Your data is safe on this device."
+    },
+    "adoption": "Uploaded {{uploaded, number}}, brought down {{downloaded, number}}, merged {{merged, number}}.",
+    "conflictNote": "If you edit the same set on two devices, the edit that reaches the server last is the one that is kept. This is a personal library, not a shared one.",
+    "signOutDialog": {
+      "title": "Sign out?",
+      "body": "Your card sets stay on this device.",
+      "keep": "Sign out",
+      "remove": "Sign out and remove from this device",
+      "removeWarning": "This deletes this device's copy. Your cloud copy is kept."
+    },
+    "deleteAccount": {
+      "label": "Delete account",
+      "title": "Delete your account?",
+      "body": "This permanently deletes your account and everything stored in the cloud: your card sets, cards, trophies and settings. It cannot be undone.",
+      "exportFirst": "Export your library first",
+      "keepLocalQuestion": "Keep the copy on this device?",
+      "confirm": "Delete my account",
+      "done": "Your account and cloud data have been deleted."
+    },
+    "error": {
+      "invalidEmail": "That email address does not look right.",
+      "wrongPassword": "That email or password is not correct.",
+      "emailInUse": "There is already an account with that email.",
+      "weakPassword": "Please choose a password of at least 6 characters.",
+      "network": "No connection. Your data is safe on this device.",
+      "notConfigured": "Sync is not available in this build.",
+      "recentLoginRequired": "Please sign in again before deleting your account.",
+      "permissionDenied": "We could not access your cloud data.",
+      "unknown": "Something went wrong. Your data is safe on this device."
+    }
   }
 }

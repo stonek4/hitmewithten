@@ -152,9 +152,9 @@ export function needsUpload(entity: Tracked): boolean {
  * @param renamed How many sets were renamed to resolve a name collision.
  * @returns The report.
  */
-export function summarizeAdoption<T extends Tracked>(
-  setPlan: SyncPlan<T>,
-  cardPlan: SyncPlan<T>,
+export function summarizeAdoption<S extends Tracked, C extends Tracked>(
+  setPlan: SyncPlan<S>,
+  cardPlan: SyncPlan<C>,
   renamed: number,
 ): {
   uploaded: number;
@@ -163,7 +163,7 @@ export function summarizeAdoption<T extends Tracked>(
   renamed: number;
   cards: number;
 } {
-  const count = (plan: SyncPlan<T>, actions: SyncAction[]): number =>
+  const count = <T extends Tracked>(plan: SyncPlan<T>, actions: SyncAction[]): number =>
     plan.decisions.filter((d) => actions.includes(d.action)).length;
 
   return {

@@ -8,12 +8,26 @@
  * correctly with no account and no network.
  */
 
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Platform, ScrollView, StyleSheet, View } from 'react-native';
-import { Appbar, Divider, List, SegmentedButtons, Switch, Text } from 'react-native-paper';
+import {
+  Appbar,
+  Button,
+  Dialog,
+  Divider,
+  HelperText,
+  List,
+  Portal,
+  SegmentedButtons,
+  Switch,
+  Text,
+  TextInput,
+} from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { usePreferences } from '@/features/preferences/hooks';
+import { useSync } from '@/features/sync/hooks';
 import { QUICK_TEST_SIZES } from '@/features/preferences/types';
 import type { Appearance, PromptSide, QuickTestSize } from '@/features/preferences/types';
 import { MIN_TOUCH_TARGET, useAppTheme } from '@/theme';
@@ -28,6 +42,12 @@ export default function SettingsScreen(): React.JSX.Element {
   const { t } = useTranslation();
   const theme = useAppTheme();
   const { preferences, update } = usePreferences();
+  const sync = useSync();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [showSignIn, setShowSignIn] = useState(false);
+  const [confirmingSignOut, setConfirmingSignOut] = useState(false);
+  const [confirmingDelete, setConfirmingDelete] = useState(false);
 
   const styles = StyleSheet.create({
     screen: { flex: 1, backgroundColor: theme.colors.background },
@@ -155,7 +175,161 @@ export default function SettingsScreen(): React.JSX.Element {
             />
           )}
         />
+        <Divider />
+
+        {/* CAP-13 §13.1: sign-in is DISCOVERABLE here and nowhere else. There
+            is no wall, no interstitial and no signed-out empty state — the app
+            is complete without an account, and this section says so. */}
+        <List.Subheader>{t('sync.section')}</List.Subheader>
+        {!sync.configured ? (
+          <View style={styles.group}>
+            <Text variant="bodyMedium" testID="sync-unavailable">
+              {t('sync.notConfigured')}
+            </Text>
+          </View>
+        ) : sync.account === null ? (
+          <View style={styles.group}>
+            <Text variant="titleSmall">{t('sync.signedOutTitle')}</Text>
+            <Text variant="bodySmall" style={styles.description}>
+              {t('sync.signedOutBody')}
+            </Text>
+            <Text variant="bodySmall" style={styles.description} testID="sync-status">
+              {t('sync.status.signedOut')}
+            </Text>
+            <Button mode="outlined" onPress={() => setShowSignIn(true)} testID="open-sign-in">
+              {t('sync.signIn')}
+            </Button>
+          </View>
+        ) : (
+          <View style={styles.group}>
+            <Text variant="titleSmall" testID="signed-in-as">
+              {t('sync.signedInAs', { email: sync.account.email ?? '' })}
+            </Text>
+            <Text variant="bodySmall" style={styles.description} testID="sync-status">
+              {t(`sync.status.${sync.status}`)}
+            </Text>
+            {/* The conflict rule, surfaced in plain language rather than left
+                as a surprise (US-I7). */}
+            <Text variant="bodySmall" style={styles.description}>
+              {t('sync.conflictNote')}
+            </Text>
+            {sync.errorKey !== null ? (
+              <HelperText type="error" visible>
+                {t(sync.errorKey)}
+              </HelperText>
+            ) : null}
+            <Button mode="outlined" onPress={() => void sync.syncNow()} testID="sync-now">
+              {t('sync.syncNow')}
+            </Button>
+            <Button mode="text" onPress={() => setConfirmingSignOut(true)} testID="sign-out">
+              {t('sync.signOut')}
+            </Button>
+            {/* Required in-app by both stores for any app offering accounts. */}
+            <Button
+              mode="text"
+              textColor={theme.colors.error}
+              onPress={() => setConfirmingDelete(true)}
+              testID="delete-account"
+            >
+              {t('sync.deleteAccount.label')}
+            </Button>
+          </View>
+        )}
       </ScrollView>
+
+      <Portal>
+        <Dialog visible={showSignIn} onDismiss={() => setShowSignIn(false)}>
+          <Dialog.Title>{t('sync.signIn')}</Dialog.Title>
+          <Dialog.Content>
+            <TextInput
+              mode="outlined"
+              label={t('sync.email')}
+              value={email}
+              onChangeText={setEmail}
+              autoCapitalize="none"
+              autoComplete="email"
+              keyboardType="email-address"
+              testID="sync-email"
+            />
+            <TextInput
+              mode="outlined"
+              label={t('sync.password')}
+              value={password}
+              onChangeText={setPassword}
+              secureTextEntry
+              autoCapitalize="none"
+              testID="sync-password"
+            />
+            {sync.errorKey !== null ? (
+              <HelperText type="error" visible testID="sync-error">
+                {t(sync.errorKey)}
+              </HelperText>
+            ) : null}
+          </Dialog.Content>
+          <Dialog.Actions>
+            <Button onPress={() => setShowSignIn(false)}>{t('common.cancel')}</Button>
+            <Button
+              onPress={async () => {
+                if (await sync.signUp(email, password)) setShowSignIn(false);
+              }}
+              testID="do-sign-up"
+            >
+              {t('sync.signUp')}
+            </Button>
+            <Button
+              onPress={async () => {
+                if (await sync.signIn(email, password)) setShowSignIn(false);
+              }}
+              testID="do-sign-in"
+            >
+              {t('sync.signIn')}
+            </Button>
+          </Dialog.Actions>
+        </Dialog>
+
+        {/* Signing out must never be an accidental deletion (US-I4): keeping
+            local data is the default and removing it is a separate, warned
+            choice. */}
+        <Dialog visible={confirmingSignOut} onDismiss={() => setConfirmingSignOut(false)}>
+          <Dialog.Title>{t('sync.signOutDialog.title')}</Dialog.Title>
+          <Dialog.Content>
+            <Text variant="bodyMedium">{t('sync.signOutDialog.body')}</Text>
+          </Dialog.Content>
+          <Dialog.Actions>
+            <Button onPress={() => setConfirmingSignOut(false)}>{t('common.cancel')}</Button>
+            <Button
+              onPress={async () => {
+                setConfirmingSignOut(false);
+                await sync.signOut();
+              }}
+              testID="confirm-sign-out"
+            >
+              {t('sync.signOutDialog.keep')}
+            </Button>
+          </Dialog.Actions>
+        </Dialog>
+
+        <Dialog visible={confirmingDelete} onDismiss={() => setConfirmingDelete(false)}>
+          <Dialog.Title>{t('sync.deleteAccount.title')}</Dialog.Title>
+          <Dialog.Content>
+            <Text variant="bodyMedium">{t('sync.deleteAccount.body')}</Text>
+            <Text variant="bodyMedium">{t('sync.deleteAccount.exportFirst')}</Text>
+          </Dialog.Content>
+          <Dialog.Actions>
+            <Button onPress={() => setConfirmingDelete(false)}>{t('common.cancel')}</Button>
+            <Button
+              textColor={theme.colors.error}
+              onPress={async () => {
+                setConfirmingDelete(false);
+                await sync.deleteAccount();
+              }}
+              testID="confirm-delete-account"
+            >
+              {t('sync.deleteAccount.confirm')}
+            </Button>
+          </Dialog.Actions>
+        </Dialog>
+      </Portal>
     </SafeAreaView>
   );
 }

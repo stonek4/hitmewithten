@@ -647,6 +647,99 @@ export class LibraryRepository {
     return detectNameConflict(document.sets, name.trim(), document.cardCounts);
   }
 
+  // ── Sync support (CAP-13) ─────────────────────────────────────────────
+
+  /**
+   * Read every set and card, **including tombstones**, for a sync pass.
+   *
+   * Tombstones are included deliberately: they are what stop a deletion on one
+   * device being resurrected by another.
+   *
+   * @returns Every stored set and card.
+   */
+  async readAllForSync(): Promise<{ sets: CardSet[]; cards: Card[] }> {
+    const { document } = await this.readDocument();
+    const cards: Card[] = [];
+    for (const set of document.sets) cards.push(...(await this.readAllCards(set.id)));
+    return { sets: document.sets, cards };
+  }
+
+  /**
+   * Apply entities pulled from the server, overwriting local copies by id.
+   *
+   * Union by id: an entity that exists only remotely is added, one that exists
+   * on both is replaced, and one that exists only locally is untouched — the
+   * caller has already decided which of those the server's copy should win.
+   *
+   * @param sets Sets to write.
+   * @param cards Cards to write.
+   */
+  async applyFromSync(sets: readonly CardSet[], cards: readonly Card[]): Promise<void> {
+    if (sets.length === 0 && cards.length === 0) return;
+    const { document } = await this.readDocument();
+
+    const bySetId = new Map(document.sets.map((set) => [set.id, set]));
+    for (const set of sets) bySetId.set(set.id, set);
+
+    // Cards are grouped per set document, so a card whose setId changed has to
+    // be removed from its old group as well as added to its new one.
+    const incomingCardIds = new Set(cards.map((card) => card.id));
+    const grouped = new Map<string, Card[]>();
+    for (const set of bySetId.values()) {
+      const existing = (await this.readAllCards(set.id)).filter(
+        (card) => !incomingCardIds.has(card.id),
+      );
+      grouped.set(set.id, existing);
+    }
+    for (const card of cards) {
+      if (!grouped.has(card.setId)) grouped.set(card.setId, []);
+      (grouped.get(card.setId) as Card[]).push(card);
+    }
+
+    const cardCounts: Record<string, number> = { ...document.cardCounts };
+    for (const [setId, group] of grouped) {
+      await this.store.setItem(cardsKey(setId), JSON.stringify(group));
+      cardCounts[setId] = group.filter(isAlive).length;
+    }
+
+    await this.writeDocument({ ...document, sets: [...bySetId.values()], cardCounts });
+  }
+
+  /**
+   * Stamp entities as reconciled with the server.
+   *
+   * Does **not** touch `updatedAt` — recording that a sync happened is not a
+   * change to the entity, and stamping it would make everything permanently
+   * dirty and re-upload forever.
+   *
+   * @param syncedAt The watermark to record.
+   * @param setIds The sets that were reconciled.
+   * @param cardIds The cards that were reconciled.
+   */
+  async markSynced(
+    syncedAt: string,
+    setIds: readonly string[],
+    cardIds: readonly string[],
+  ): Promise<void> {
+    const setIdSet = new Set(setIds);
+    const cardIdSet = new Set(cardIds);
+    const { document } = await this.readDocument();
+
+    const sets = document.sets.map((set) => (setIdSet.has(set.id) ? { ...set, syncedAt } : set));
+    await this.writeDocument({ ...document, sets });
+
+    for (const set of sets) {
+      const existing = await this.readAllCards(set.id);
+      if (!existing.some((card) => cardIdSet.has(card.id))) continue;
+      await this.store.setItem(
+        cardsKey(set.id),
+        JSON.stringify(
+          existing.map((card) => (cardIdSet.has(card.id) ? { ...card, syncedAt } : card)),
+        ),
+      );
+    }
+  }
+
   /**
    * Read the library's summary rows without the rest of the snapshot.
    *

@@ -39,6 +39,18 @@ export const SESSION_HISTORY_KEY = `${KEY_PREFIX}sessions`;
  */
 export const CARD_STATS_KEY = `${KEY_PREFIX}cardStats`;
 
+/**
+ * The locally-remembered account (CAP-13).
+ *
+ * Its **presence is the opt-in marker**. The app reads this on every launch to
+ * decide whether to touch Firebase at all; for a user who has never signed in
+ * it is one storage read and no network.
+ */
+export const ACCOUNT_KEY = `${KEY_PREFIX}account`;
+
+/** The last successful sync watermark, per collection (CAP-13). */
+export const SYNC_STATE_KEY = `${KEY_PREFIX}syncState`;
+
 /** User preferences (CAP-10). */
 export const PREFERENCES_KEY = `${KEY_PREFIX}preferences`;
 
