@@ -31,6 +31,9 @@ export const TROPHIES_KEY = `${KEY_PREFIX}trophies`;
 /** Local-only session history, carrying no card content (CAP-6). */
 export const SESSION_HISTORY_KEY = `${KEY_PREFIX}sessions`;
 
+/** User preferences (CAP-10). */
+export const PREFERENCES_KEY = `${KEY_PREFIX}preferences`;
+
 /**
  * The record of the one-time legacy `localStorage` migration (CAP-8).
  *

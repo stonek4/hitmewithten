@@ -35,6 +35,7 @@ import { Page } from '@/components/Page';
 import { evaluateAnswer } from '@/features/evaluation/logic';
 import type { AnswerEvaluation } from '@/features/evaluation/types';
 import { libraryRepository } from '@/features/library/api';
+import { usePreferences } from '@/features/preferences/hooks';
 import { sessionHistoryRepository } from '@/features/session/api';
 import { rememberFinishedSession } from '@/features/session/handoff';
 import {
@@ -65,6 +66,7 @@ export default function SessionScreen(): React.JSX.Element {
   const { t } = useTranslation();
   const theme = useAppTheme();
   const grid = usePageGrid();
+  const { preferences } = usePreferences();
   const { setId, mode, cardIds } = useLocalSearchParams<{
     setId: string;
     mode: string;
@@ -117,7 +119,10 @@ export default function SessionScreen(): React.JSX.Element {
         setId,
         cards: selected,
         mode: sessionMode,
-        quickSize: 10,
+        // CAP-10: both of these were hard-coded until the settings screen
+        // existed. Defaults still match the legacy app exactly.
+        quickSize: preferences.quickTestSize,
+        flipped: preferences.defaultPromptSide === 'answer',
         startedAt: identityContext.now(),
       });
       if (result.ok) setSession(result.session);
@@ -134,7 +139,7 @@ export default function SessionScreen(): React.JSX.Element {
     return () => {
       cancelled = true;
     };
-  }, [setId, mode, cardIds, t]);
+  }, [setId, mode, cardIds, t, preferences.quickTestSize, preferences.defaultPromptSide]);
 
   const card = session === null ? null : currentCard(session);
 
@@ -188,7 +193,9 @@ export default function SessionScreen(): React.JSX.Element {
 
   const submit = useCallback(() => {
     if (session === null || card === null) return;
-    const result = evaluateAnswer(typed, answersFor(card, session.flipped));
+    const result = evaluateAnswer(typed, answersFor(card, session.flipped), {
+      caseSensitive: preferences.caseSensitive,
+    });
     if (result.correct) {
       setEvaluation(null);
       setTyped('');
@@ -211,7 +218,7 @@ export default function SessionScreen(): React.JSX.Element {
     // keystroke rather than needing it cleared first.
     setSelection({ start: 0, end: typed.length });
     inputRef.current?.focus();
-  }, [card, session, typed, finish, unlocks]);
+  }, [card, session, typed, finish, unlocks, preferences.caseSensitive]);
 
   const styles = useMemo(
     () =>

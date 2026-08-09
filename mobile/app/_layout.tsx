@@ -19,6 +19,8 @@ import { Platform, useColorScheme } from 'react-native';
 import { PaperProvider } from 'react-native-paper';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
+import { PreferencesProvider, usePreferences } from '@/features/preferences/hooks';
+import { resolveScheme } from '@/features/preferences/logic';
 import { initI18n } from '@/i18n';
 import { themeForScheme } from '@/theme';
 
@@ -35,6 +37,22 @@ initI18n();
  * @returns The app shell.
  */
 export default function RootLayout(): React.JSX.Element {
+  return (
+    <PreferencesProvider>
+      <AppShell />
+    </PreferencesProvider>
+  );
+}
+
+/**
+ * The themed navigator, inside the preferences provider.
+ *
+ * Split out so the Appearance setting (CAP-10, device-local, default `system`)
+ * can drive the theme — a provider cannot consume its own context.
+ *
+ * @returns The themed app shell.
+ */
+function AppShell(): React.JSX.Element {
   useFonts({
     Inter_400Regular,
     Inter_500Medium,
@@ -45,8 +63,9 @@ export default function RootLayout(): React.JSX.Element {
     JetBrainsMono_700Bold,
   });
 
-  const scheme = useColorScheme();
-  const theme = themeForScheme(scheme);
+  const systemScheme = useColorScheme();
+  const { preferences } = usePreferences();
+  const theme = themeForScheme(resolveScheme(preferences.appearance, systemScheme));
 
   return (
     <SafeAreaProvider>

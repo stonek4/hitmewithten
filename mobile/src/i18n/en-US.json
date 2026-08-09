@@ -230,5 +230,40 @@
     "done": "Saved {{filename}}",
     "failed": "Could not save the file.",
     "nothingToExport": "There is nothing to export yet."
+  },
+  "settings": {
+    "title": "Settings",
+    "open": "Settings",
+    "sectionDrilling": "Drilling",
+    "sectionApp": "This device",
+    "caseSensitive": {
+      "label": "Require exact case",
+      "description": "When off, RAVENOUS is accepted for ravenous."
+    },
+    "quickTestSize": {
+      "label": "Quick test size",
+      "description": "How many cards a quick test draws.",
+      "option": "{{count, number}} cards"
+    },
+    "promptSide": {
+      "label": "Show first",
+      "hint": "Hint first",
+      "answer": "Answer first"
+    },
+    "appearance": {
+      "label": "Appearance",
+      "system": "System",
+      "light": "Light",
+      "dark": "Dark",
+      "description": "Kept on this device only."
+    },
+    "haptics": {
+      "label": "Vibration",
+      "description": "Kept on this device only."
+    },
+    "analytics": {
+      "label": "Share anonymous usage data",
+      "description": "Counts only — never your cards, answers or set names. Kept on this device only."
+    }
   }
 }
