@@ -1,0 +1,135 @@
+rules_version = '2';
+
+// Vocab Cards — Firestore security rules (CAP-13).
+//
+// The trust boundary. Everything here protects one user's data from every other
+// user's client, so none of it may be relegated to the app.
+//
+// Governing rules from the capability spec:
+//   - Default-deny. Anything not matched below is denied.
+//   - A user can read and write ONLY their own data.
+//   - Card content is never readable by anyone but its owner.
+//   - Every new collection or field ships with matching rule coverage.
+//
+// NOTE ON THE PROJECT: these deploy to `vocards-62df8`, which today serves the
+// legacy app's Analytics and Hosting only. Firestore has never had a consumer,
+// so this ruleset is the first. Deploying it does not affect the legacy app.
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ---- helpers ---------------------------------------------------------
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return signedIn() && request.auth.uid == userId;
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    // Every synced entity carries CAP-12's identity block. Rules validate
+    // SHAPE and SCALARS only — they cannot iterate a list, so per-entry
+    // validation of `hints`/`answers` is enforced client-side and, if it ever
+    // needs to be authoritative, belongs in a Cloud Function. Stated
+    // explicitly rather than left implicit.
+    function hasTrackedShape() {
+      return incoming().keys().hasAll(
+               ['id', 'createdAt', 'updatedAt', 'deletedAt', 'schemaVersion'])
+             && incoming().id is string
+             && incoming().id.size() > 0
+             && incoming().createdAt is string
+             && incoming().updatedAt is string
+             && (incoming().deletedAt == null || incoming().deletedAt is string)
+             && incoming().schemaVersion is int
+             && incoming().schemaVersion >= 1;
+    }
+
+    // The server's own ordering timestamp. Last-writer-wins depends on this
+    // being the SERVER's clock, so a client may only ever write the sentinel —
+    // never a value it chose. Without this check a client could backdate a
+    // write and win a conflict it should have lost, or postdate one and win
+    // every future conflict forever.
+    function serverStamped() {
+      return incoming().serverUpdatedAt == request.time;
+    }
+
+    // The document's id must match the entity's own id, so a client cannot
+    // file one entity under another's key.
+    function idMatches(docId) {
+      return incoming().id == docId;
+    }
+
+    // ---- per-user data ---------------------------------------------------
+
+    match /users/{userId} {
+
+      // The user's own profile document. Deliberately minimal: this app has no
+      // social surface and no reason to store a name or a photo.
+      allow read: if isOwner(userId);
+      allow create, update: if isOwner(userId)
+                            && incoming().keys().hasOnly(['uid', 'createdAt', 'lastSeenAt'])
+                            && incoming().uid == userId;
+      allow delete: if isOwner(userId);
+
+      // Card sets.
+      match /sets/{setId} {
+        allow read: if isOwner(userId);
+        allow create, update: if isOwner(userId)
+                              && hasTrackedShape()
+                              && idMatches(setId)
+                              && serverStamped()
+                              && incoming().name is string
+                              && incoming().name.size() > 0
+                              && incoming().name.size() <= 100
+                              && incoming().order is int;
+        // Deletions are SOFT (CAP-12 tombstones) and travel as updates, so a
+        // hard delete is never part of the sync path. It is allowed only so
+        // account deletion can actually erase data.
+        allow delete: if isOwner(userId);
+      }
+
+      // Cards — PER-CARD DOCUMENTS, not one document per set. A 200-card set
+      // edited on two devices must merge per card; whole-set granularity would
+      // discard one device's edits wholesale.
+      match /cards/{cardId} {
+        allow read: if isOwner(userId);
+        allow create, update: if isOwner(userId)
+                              && hasTrackedShape()
+                              && idMatches(cardId)
+                              && serverStamped()
+                              && incoming().setId is string
+                              && incoming().setId.size() > 0
+                              && incoming().order is int
+                              && incoming().hints is list
+                              && incoming().hints.size() > 0
+                              && incoming().hints.size() <= 32
+                              && incoming().answers is list
+                              && incoming().answers.size() > 0
+                              && incoming().answers.size() <= 32;
+        allow delete: if isOwner(userId);
+      }
+
+      // Trophy state and the syncing subset of preferences. Fixed document ids,
+      // so the collection is closed rather than open-ended.
+      match /meta/{docId} {
+        allow read: if isOwner(userId);
+        allow create, update: if isOwner(userId)
+                              && docId in ['trophies', 'preferences']
+                              && serverStamped();
+        allow delete: if isOwner(userId);
+      }
+    }
+
+    // ---- default deny ----------------------------------------------------
+    // Anything not matched above is denied. Listed explicitly so the intent is
+    // obvious to a reader rather than implied by omission.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

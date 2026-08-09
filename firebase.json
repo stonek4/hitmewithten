@@ -1,0 +1,13 @@
+{
+  "//": "Firestore config for the REBUILD (mobile/). Hosting for the legacy app is configured separately in hmwt_app/firebase.json and is deliberately not referenced here, so deploying these rules cannot touch the live site.",
+  "firestore": {
+    "rules": "firestore.rules",
+    "indexes": "firestore.indexes.json"
+  },
+  "emulators": {
+    "auth": { "port": 9099 },
+    "firestore": { "port": 8080 },
+    "ui": { "enabled": true, "port": 4000 },
+    "singleProjectMode": true
+  }
+}

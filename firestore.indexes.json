@@ -1,0 +1,22 @@
+{
+  "indexes": [
+    {
+      "//": "Cards are stored flat under users/{uid}/cards so they can be per-card documents. Listing one set's cards in order therefore needs a composite index; without it the query fails at runtime with a FAILED_PRECONDITION the moment a user has more than one set.",
+      "collectionGroup": "cards",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "setId", "order": "ASCENDING" },
+        { "fieldPath": "order", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "//": "Incremental sync pulls only what changed since the last watermark, per collection.",
+      "collectionGroup": "cards",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "serverUpdatedAt", "order": "ASCENDING" }
+      ]
+    }
+  ],
+  "fieldOverrides": []
+}
