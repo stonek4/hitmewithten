@@ -25,6 +25,19 @@ export const LIBRARY_KEY = `${KEY_PREFIX}library`;
 /** Quarantined values that could not be parsed. */
 export const QUARANTINE_KEY = `${KEY_PREFIX}quarantine`;
 
+/** The user's lifetime trophy progress (CAP-7). */
+export const TROPHIES_KEY = `${KEY_PREFIX}trophies`;
+
+/**
+ * The record of the one-time legacy `localStorage` migration (CAP-8).
+ *
+ * Its presence is what stops the migration re-running. Legacy data is **read,
+ * never deleted** — this marker lives in *our* namespace precisely so that
+ * adopting a returning user's library never writes to, or removes, the data the
+ * old app still owns.
+ */
+export const LEGACY_MIGRATION_KEY = `${KEY_PREFIX}legacyMigration`;
+
 /**
  * The storage key holding one set's cards.
  *

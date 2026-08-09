@@ -107,17 +107,26 @@
   },
   "import": {
     "title": "Import",
+    "openImport": "Import card sets",
     "pickFiles": "Choose .cards files",
+    "intro": "Bring in card sets exported from Vocab Cards. You can choose several files at once.",
+    "picking": "Choosing files…",
+    "working": "Importing…",
+    "noneChosen": "No files chosen.",
     "legacyFound": {
       "heading": "We found your old card sets",
-      "body": "{{count, number}} set from vocabcards.com is ready to bring across.",
-      "body_other": "{{count, number}} sets from vocabcards.com are ready to bring across.",
-      "action": "Bring them across"
+      "body": "We brought {{count, number}} set across from vocabcards.com.",
+      "body_other": "We brought {{count, number}} sets across from vocabcards.com.",
+      "trophies": "Your trophy progress came across too.",
+      "kept": "Nothing was removed from your old library.",
+      "dismiss": "Got it",
+      "cards": "That is {{count, number}} card in total.",
+      "cards_other": "That is {{count, number}} cards in total."
     },
     "outcome": {
       "imported": "Imported",
       "renamed": "Imported as “{{name}}”",
-      "replaced": "Replaced",
+      "replaced": "Replaced the existing set",
       "failed": "Could not be imported",
       "quarantined": "Set aside — we could not read it"
     },
@@ -125,10 +134,16 @@
       "notJson": "The file is not valid JSON.",
       "notAnArray": "The file does not contain a list of cards.",
       "noUsableCards": "The file contains no card with both a hint and an answer.",
-      "empty": "The file is empty."
+      "empty": "The file is empty.",
+      "nameEmpty": "The filename does not give the set a name.",
+      "nameTooLong": "The filename is too long to use as a set name."
     },
-    "summary": "{{imported, number}} set imported, {{failed, number}} skipped.",
-    "summary_other": "{{imported, number}} sets imported, {{failed, number}} skipped."
+    "cardsImported": "{{count, number}} card",
+    "cardsImported_other": "{{count, number}} cards",
+    "summaryImported": "Imported {{count, number}} set.",
+    "summaryImported_other": "Imported {{count, number}} sets.",
+    "summarySkipped": "{{count, number}} file was skipped.",
+    "summarySkipped_other": "{{count, number}} files were skipped."
   },
   "storage": {
     "reason": {

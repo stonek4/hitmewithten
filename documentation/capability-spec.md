@@ -47,7 +47,7 @@ or code.
 | [CAP-5](#cap-5--feedback-presentation-p0) | Feedback Presentation | P0 | 6.4, 9 | US-D2, D3, D3a, D4–D6 | **built** |
 | [CAP-6](#cap-6--session-results--missed-word-practice-p0) | Session Results & Missed-Word Practice | P0 | 6.5 | US-E1–E4 | not built |
 | [CAP-7](#cap-7--trophies--counters-p0) | Trophies & Counters | P0 | 6.6 | US-F1–F4 | not built |
-| [CAP-8](#cap-8--legacy-import--migration-p0) | Legacy Import & Migration | P0 | 6.7 | US-G1–G3 | not built |
+| [CAP-8](#cap-8--legacy-import--migration-p0) | Legacy Import & Migration | P0 | 6.7 | US-G1–G3 | built |
 | [CAP-9](#cap-9--export--native-file-format-p0) | Export & Native File Format | P0 | 6.7 | US-G4 | not built |
 | [CAP-10](#cap-10--settings--preferences-p0) | Settings & Preferences | P0 | 6.8 | US-H1–H3 | not built |
 | [CAP-11](#cap-11--starter-content-p0) | Starter Content | P0 | 6.1 | US-A7 | not built |

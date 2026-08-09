@@ -24,6 +24,7 @@ import {
 } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { useLegacyMigration } from '@/features/import/hooks';
 import { useLibrary } from '@/features/library/hooks';
 import { validateSetName } from '@/features/library/logic';
 import type { CardSetSummary, NameConflict } from '@/features/library/types';
@@ -39,6 +40,9 @@ export default function LibraryScreen(): React.JSX.Element {
   const { t } = useTranslation();
   const theme = useAppTheme();
   const library = useLibrary();
+  // Adopt a returning web user's vocabcards.com library on first launch, with
+  // no user action. Refreshes the list we have already read once it lands.
+  const migration = useLegacyMigration(() => void library.refresh());
 
   const [creating, setCreating] = useState(false);
   const [name, setName] = useState('');
@@ -90,7 +94,38 @@ export default function LibraryScreen(): React.JSX.Element {
     <SafeAreaView style={styles.screen} edges={['top', 'left', 'right']}>
       <Appbar.Header elevated>
         <Appbar.Content title={t('library.title')} />
+        <Appbar.Action
+          icon="file-import-outline"
+          accessibilityLabel={t('import.openImport')}
+          onPress={() => router.push('/import')}
+          testID="open-import"
+        />
       </Appbar.Header>
+
+      {migration.record !== null ? (
+        <Banner
+          visible
+          icon="tray-arrow-down"
+          testID="migration-banner"
+          actions={[{ label: t('import.legacyFound.dismiss'), onPress: migration.dismiss }]}
+        >
+          {/* Separate messages rather than one concatenated sentence: each
+              number pluralises independently, and a sentence built from
+              fragments cannot be translated. */}
+          <View>
+            <Text variant="bodyMedium">
+              {t('import.legacyFound.body', { count: migration.record.sets })}
+            </Text>
+            <Text variant="bodyMedium">
+              {t('import.legacyFound.cards', { count: migration.record.cards })}
+            </Text>
+            {migration.record.trophiesMigrated ? (
+              <Text variant="bodyMedium">{t('import.legacyFound.trophies')}</Text>
+            ) : null}
+            <Text variant="bodyMedium">{t('import.legacyFound.kept')}</Text>
+          </View>
+        </Banner>
+      ) : null}
 
       {library.quarantined.length > 0 ? (
         <Banner
