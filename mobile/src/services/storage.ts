@@ -31,6 +31,14 @@ export const TROPHIES_KEY = `${KEY_PREFIX}trophies`;
 /** Local-only session history, carrying no card content (CAP-6). */
 export const SESSION_HISTORY_KEY = `${KEY_PREFIX}sessions`;
 
+/**
+ * Per-card performance stats (CAP-15's P0 recording half).
+ *
+ * Written from v1 so that enabling scheduling later is a feature rather than a
+ * migration with no history behind it.
+ */
+export const CARD_STATS_KEY = `${KEY_PREFIX}cardStats`;
+
 /** User preferences (CAP-10). */
 export const PREFERENCES_KEY = `${KEY_PREFIX}preferences`;
 

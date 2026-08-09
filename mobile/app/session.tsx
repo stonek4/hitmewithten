@@ -52,6 +52,7 @@ import {
   startSession,
 } from '@/features/session/logic';
 import type { SessionState } from '@/features/session/logic';
+import { cardStatsRepository } from '@/features/stats/api';
 import { trophyRepository } from '@/features/trophies/api';
 import { useTrophyUnlocks } from '@/features/trophies/hooks';
 import { fireHaptic } from '@/services/haptics';
@@ -158,6 +159,9 @@ export default function SessionScreen(): React.JSX.Element {
     const ended = endSession(state, now);
     const record = buildSessionRecord(ended, now);
     await sessionHistoryRepository.append(record);
+    // CAP-15's recording half is effectively P0: written from v1 so enabling
+    // scheduling later is a feature, not a migration with no history behind it.
+    await cardStatsRepository.recordSession(ended.cardStates);
     // The diffs travel in memory, never to storage — the persisted record must
     // carry no card content (features/session/handoff.ts).
     rememberFinishedSession(ended);

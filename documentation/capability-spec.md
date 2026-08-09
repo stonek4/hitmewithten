@@ -54,7 +54,7 @@ or code.
 | [CAP-12](#cap-12--entity-identity--change-tracking-p0) | Entity Identity & Change Tracking | P0 | 6.1, 6.9 | US-A3, US-A4, US-I1 | **built** |
 | [CAP-13](#cap-13--optional-account--cloud-sync-p1--v1-commitment) | Optional Account & Cloud Sync | **P1 · v1 commitment** | 6.9 | US-I1–I7 | not built |
 | [CAP-14](#cap-14--speech-synthesis--dictation-p1) | Speech Synthesis & Dictation | P1 | 6.10 | US-J1–J4 | not built |
-| [CAP-15](#cap-15--scheduling--smart-review-p1) | Scheduling & Smart Review | P1 | 6.11 | US-K1–K3 | not built |
+| [CAP-15](#cap-15--scheduling--smart-review-p1) | Scheduling & Smart Review | P1 | 6.11 | US-K1–K3 | partial — the P0 recording half is built; scheduling is not |
 | [CAP-16](#cap-16--trouble-words--error-insights-p1--differentiator) | Trouble Words & Error Insights | **P1 · differentiator** | 6.12 | US-L1–L4 | not built |
 | [CAP-17](#cap-17--delimited-text--third-party-import-p1) | Delimited-Text & Third-Party Import | P1 | 6.7, 6.2 | US-B5, US-G5–G7 | not built |
 | [CAP-18](#cap-18--about-changelog--legal-p0) | About, Changelog & Legal | P0 | 6.13 | US-M1–M3 | built |
