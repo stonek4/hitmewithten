@@ -27,6 +27,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { exportService } from '@/features/export/api';
 import { useLegacyMigration } from '@/features/import/hooks';
+import { useStarterContent } from '@/features/starter/hooks';
 import { useLibrary } from '@/features/library/hooks';
 import { validateSetName } from '@/features/library/logic';
 import type { CardSetSummary, NameConflict } from '@/features/library/types';
@@ -46,6 +47,9 @@ export default function LibraryScreen(): React.JSX.Element {
   // Adopt a returning web user's vocabcards.com library on first launch, with
   // no user action. Refreshes the list we have already read once it lands.
   const migration = useLegacyMigration(() => void library.refresh());
+  // Seed the starter sets on a genuine first run, after the migration has had
+  // its say — a returning user's own library must win over four new sets.
+  useStarterContent(!migration.running, () => void library.refresh());
 
   const [creating, setCreating] = useState(false);
   const [name, setName] = useState('');

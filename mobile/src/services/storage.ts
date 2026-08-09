@@ -35,6 +35,15 @@ export const SESSION_HISTORY_KEY = `${KEY_PREFIX}sessions`;
 export const PREFERENCES_KEY = `${KEY_PREFIX}preferences`;
 
 /**
+ * The marker recording that starter content has been considered (CAP-11).
+ *
+ * Checked for **presence**, never compared against the current content
+ * version: bumping the version in a future release must not re-seed sets the
+ * user has already deleted or edited.
+ */
+export const STARTER_CONTENT_KEY = `${KEY_PREFIX}starterContent`;
+
+/**
  * The record of the one-time legacy `localStorage` migration (CAP-8).
  *
  * Its presence is what stops the migration re-running. Legacy data is **read,
