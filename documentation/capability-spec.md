@@ -52,7 +52,7 @@ or code.
 | [CAP-10](#cap-10--settings--preferences-p0) | Settings & Preferences | P0 | 6.8 | US-H1–H3 | built |
 | [CAP-11](#cap-11--starter-content-p0) | Starter Content | P0 | 6.1 | US-A7 | built |
 | [CAP-12](#cap-12--entity-identity--change-tracking-p0) | Entity Identity & Change Tracking | P0 | 6.1, 6.9 | US-A3, US-A4, US-I1 | **built** |
-| [CAP-13](#cap-13--optional-account--cloud-sync-p1--v1-commitment) | Optional Account & Cloud Sync | **P1 · v1 commitment** | 6.9 | US-I1–I7 | not built |
+| [CAP-13](#cap-13--optional-account--cloud-sync-p1--v1-commitment) | Optional Account & Cloud Sync | **P1 · v1 commitment** | 6.9 | US-I1–I7 | partial — §13.1 optionality built and verified; auth, engine and rules written, signed-in path unverified pending console setup |
 | [CAP-14](#cap-14--speech-synthesis--dictation-p1) | Speech Synthesis & Dictation | P1 | 6.10 | US-J1–J4 | not built |
 | [CAP-15](#cap-15--scheduling--smart-review-p1) | Scheduling & Smart Review | P1 | 6.11 | US-K1–K3 | partial — the P0 recording half is built; scheduling is not |
 | [CAP-16](#cap-16--trouble-words--error-insights-p1--differentiator) | Trouble Words & Error Insights | **P1 · differentiator** | 6.12 | US-L1–L4 | not built |
