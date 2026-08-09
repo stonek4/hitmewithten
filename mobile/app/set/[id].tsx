@@ -39,7 +39,9 @@ import { CARD_TEXT_MAX_LENGTH } from '@/features/identity/types';
 import type { Card } from '@/features/identity/types';
 import { libraryRepository } from '@/features/library/api';
 import { useCards } from '@/features/library/hooks';
+import { usePreferences } from '@/features/preferences/hooks';
 import { saveExport } from '@/services/fileShare';
+import { fireHaptic } from '@/services/haptics';
 import { MIN_TOUCH_TARGET, useAppTheme } from '@/theme';
 import { goBackOrHome } from '@/lib/navigation';
 
@@ -55,6 +57,7 @@ export default function SetDetailScreen(): React.JSX.Element {
   const setId = typeof id === 'string' ? id : null;
 
   const { cards, addCard, updateCard, deleteCard, moveCard } = useCards(setId);
+  const { preferences } = usePreferences();
   const [setName, setSetName] = useState('');
   const [hint, setHint] = useState('');
   const [answer, setAnswer] = useState('');
@@ -351,6 +354,7 @@ export default function SetDetailScreen(): React.JSX.Element {
               icon="delete-outline"
               accessibilityLabel={t('cards.deleteCard')}
               onPress={() => {
+                fireHaptic('destructiveConfirm', preferences.haptics);
                 void deleteCard(item.id);
                 setToast(t('cards.deleted'));
               }}

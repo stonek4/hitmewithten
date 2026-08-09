@@ -21,8 +21,10 @@ import { libraryRepository } from '@/features/library/api';
 import { sessionHistoryRepository } from '@/features/session/api';
 import { clearFinishedSession, takeFinishedSession } from '@/features/session/handoff';
 import type { SessionRecord } from '@/features/session/logic';
+import { usePreferences } from '@/features/preferences/hooks';
 import { useTrophyUnlocks } from '@/features/trophies/hooks';
 import { formatDuration } from '@/lib/format';
+import { fireHaptic } from '@/services/haptics';
 import { useAppTheme } from '@/theme';
 
 /** One row of the missed-word list. */
@@ -51,6 +53,14 @@ export default function ResultsScreen(): React.JSX.Element {
   // drilling screen navigates away, so its toast would never be seen there.
   // Results is where that unlock actually lands.
   const unlocks = useTrophyUnlocks();
+  const { preferences } = usePreferences();
+
+  useEffect(() => {
+    // Paper's Snackbar has no onShow, so the unlock haptic is tied to the
+    // pending trophy appearing instead. Gated on the Haptics preference and a
+    // no-op on web.
+    if (unlocks.pending !== null) fireHaptic('trophyUnlocked', preferences.haptics);
+  }, [unlocks.pending, preferences.haptics]);
 
   useEffect(() => {
     let cancelled = false;

@@ -54,6 +54,7 @@ import {
 import type { SessionState } from '@/features/session/logic';
 import { trophyRepository } from '@/features/trophies/api';
 import { useTrophyUnlocks } from '@/features/trophies/hooks';
+import { fireHaptic } from '@/services/haptics';
 import { identityContext } from '@/services/identityContext';
 import { typeStyle, useAppTheme, usePageGrid } from '@/theme';
 import { goBackOrHome } from '@/lib/navigation';
@@ -203,6 +204,8 @@ export default function SessionScreen(): React.JSX.Element {
       setSelection(undefined);
       const advanced = recordPass(session);
       setSession(advanced);
+      fireHaptic('answerCorrect', preferences.haptics);
+      if (isFinished(advanced)) fireHaptic('sessionComplete', preferences.haptics);
       // Counters feed the trophy thresholds users have already partially
       // earned, so they are recorded per submission, not at the end — an
       // abandoned session must still count what actually happened.
@@ -214,12 +217,13 @@ export default function SessionScreen(): React.JSX.Element {
     }
     setEvaluation(result);
     setSession(recordWrongAttempt(session, result.diff));
+    fireHaptic('answerWrong', preferences.haptics);
     void trophyRepository.increment({ failed: 1 }).then(() => void unlocks.check());
     // Keep the text and select it entirely, so a retry replaces it in one
     // keystroke rather than needing it cleared first.
     setSelection({ start: 0, end: typed.length });
     inputRef.current?.focus();
-  }, [card, session, typed, finish, unlocks, preferences.caseSensitive]);
+  }, [card, session, typed, finish, unlocks, preferences.caseSensitive, preferences.haptics]);
 
   const styles = useMemo(
     () =>

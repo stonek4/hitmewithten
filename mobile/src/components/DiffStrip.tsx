@@ -21,14 +21,15 @@
  *   live-region announcement is the accessible representation.
  */
 
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { StyleSheet, Text, View } from 'react-native';
+import { Animated, StyleSheet, Text, View } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 
 import type { DiffSegment } from '@/features/evaluation/types';
 import { spellOutRuns, summarizeDiff, toColumns } from '@/features/feedback/logic';
 import type { DiffColumn, DiffErrorDescriptor } from '@/features/feedback/logic';
+import { useFadeIn, useNudge, useReduceMotion } from '@/lib/motion';
 import { baselineOffset, typeStyle, typography, useAppTheme, usePageGrid } from '@/theme';
 import type { AppTheme, TypeVariantName } from '@/theme';
 
@@ -80,6 +81,26 @@ export function DiffStrip({
   const columns = useMemo(() => toColumns(diff), [diff]);
   const announcement = useAnnouncement(diff);
 
+  // Decoration only. Both values rest at identity — opacity 1, translateX 0 —
+  // so a skipped, interrupted or disabled animation leaves the strip fully
+  // visible and exactly in place. Motion never carries state here.
+  const { reduceMotion, resolved } = useReduceMotion();
+  // Treat "not yet known" as reduce-motion: erring toward no movement is always
+  // safe, and moving the screen for someone who asked us not to is not.
+  const suppressMotion = reduceMotion || !resolved;
+  const opacity = useFadeIn(diff, suppressMotion);
+  const { translateX, nudge } = useNudge(suppressMotion);
+
+  useEffect(() => {
+    // The attention nudge fires with each new diff. Under reduce-motion this is
+    // a no-op and the diff itself is still shown — the feedback is never
+    // removed, only the movement.
+    nudge();
+    // `nudge` is stable enough for this purpose and intentionally excluded; the
+    // trigger is the diff changing.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [diff, suppressMotion]);
+
   const correctVariant: TypeVariantName = size === 'compact' ? 'diffCompact' : 'diffCell';
   const correctFontSize = typography[correctVariant].size * grid.fontScale;
   const attemptFontSize = typography.diffAttempt.size * grid.fontScale;
@@ -95,8 +116,8 @@ export function DiffStrip({
   );
 
   return (
-    <View
-      style={styles.container}
+    <Animated.View
+      style={[styles.container, { opacity, transform: [{ translateX }] }]}
       testID={testID}
       // Polite, never assertive: it must not interrupt the user typing their
       // retry. The composed sentence is the accessible representation of the
@@ -138,7 +159,7 @@ export function DiffStrip({
           />
         ))}
       </View>
-    </View>
+    </Animated.View>
   );
 }
 
