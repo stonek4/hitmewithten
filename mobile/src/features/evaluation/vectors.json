@@ -1,0 +1,447 @@
+{
+  "_comment": [
+    "Ground-truth vectors for CAP-4, transcribed from documentation/spelling-diff-spec.md §9.",
+    "Deliberately JSON, not TypeScript: this file is the single source of truth for BOTH the",
+    "Jest suite and scripts/verify-diff-spec.mjs (which runs the spec's own reference listing).",
+    "A .json file is loadable by both without a module resolver, so the two can never drift.",
+    "",
+    "legacy[]        — 15 vectors CAPTURED FROM THE LIVE PRODUCTION SITE. Ground truth.",
+    "                  A failure means compatibility with what users see today is broken.",
+    "                  2 of the 15 exercise the exact-match path (exactMatch: true).",
+    "transposition[] — 14 vectors of SPECIFIED behaviour, new in v0.2. No production",
+    "                  counterpart exists. A failure means the new feature broke, or the",
+    "                  tie-break order changed.",
+    "structured[]    — §9.4's expected DiffSegment[] for the tricky cases, asserted",
+    "                  directly because the structured form is what the UI consumes."
+  ],
+
+  "legacy": [
+    {
+      "id": "1",
+      "correct": "ravenous",
+      "typed": "ravenous",
+      "exactMatch": true,
+      "exercises": "Exact match"
+    },
+    {
+      "id": "2",
+      "correct": "ravenous",
+      "typed": "RaVeNoUs",
+      "exactMatch": true,
+      "exercises": "Case-insensitivity; echoes the stored casing"
+    },
+    {
+      "id": "3",
+      "correct": "ravenous",
+      "typed": "ravenus",
+      "exactMatch": false,
+      "legacyHtml": "raven<em>o</em>us",
+      "exercises": "Omitted character -> missing"
+    },
+    {
+      "id": "4",
+      "correct": "ravenous",
+      "typed": "ravenious",
+      "exactMatch": false,
+      "legacyHtml": "raven<em>-</em>ous",
+      "exercises": "Extra character -> extra"
+    },
+    {
+      "id": "5",
+      "correct": "ravenous",
+      "typed": "ravanous",
+      "exactMatch": false,
+      "legacyHtml": "rav<em>e</em>nous",
+      "exercises": "Wrong character -> wrong"
+    },
+    {
+      "id": "6",
+      "correct": "ravenous",
+      "typed": "ravenou",
+      "exactMatch": false,
+      "legacyHtml": "ravenou<em>s</em>",
+      "exercises": "Truncated at the end"
+    },
+    {
+      "id": "7",
+      "correct": "ravenous",
+      "typed": "avenous",
+      "exactMatch": false,
+      "legacyHtml": "<em>r</em>avenous",
+      "exercises": "Missing first character"
+    },
+    {
+      "id": "8",
+      "correct": "ravenous",
+      "typed": "ravenouss",
+      "exactMatch": false,
+      "legacyHtml": "ravenous<em>-</em>",
+      "exercises": "Doubled last character"
+    },
+    {
+      "id": "9",
+      "correct": "ravenous",
+      "typed": "xyz",
+      "exactMatch": false,
+      "legacyHtml": "<em>r</em><em>a</em><em>v</em><em>e</em><em>n</em><em>o</em><em>u</em><em>s</em>",
+      "exercises": "Every character its own segment"
+    },
+    {
+      "id": "10",
+      "correct": "ravenous",
+      "typed": "",
+      "exactMatch": false,
+      "legacyHtml": "<em>r</em><em>a</em><em>v</em><em>e</em><em>n</em><em>o</em><em>u</em><em>s</em>",
+      "exercises": "Empty submission"
+    },
+    {
+      "id": "11",
+      "correct": "ice cream",
+      "typed": "icecream",
+      "exactMatch": false,
+      "legacyHtml": "ice<em>&nbsp;_&nbsp;</em>cream",
+      "exercises": "THE MISSING-SPACE CASE"
+    },
+    {
+      "id": "12",
+      "correct": "ice cream",
+      "typed": "ice creem",
+      "exactMatch": false,
+      "legacyHtml": "ice cre<em>a</em>m",
+      "exercises": "Substitution after a space"
+    },
+    {
+      "id": "13",
+      "correct": "ice cream",
+      "typed": "ice  cream",
+      "exactMatch": false,
+      "legacyHtml": "ice <em>-</em>cream",
+      "exercises": "Extra space"
+    },
+    {
+      "id": "14",
+      "correct": "a",
+      "typed": "b",
+      "exactMatch": false,
+      "legacyHtml": "<em>a</em>",
+      "exercises": "The script.length === 1 special case"
+    },
+    {
+      "id": "15",
+      "correct": "ab",
+      "typed": "a",
+      "exactMatch": false,
+      "legacyHtml": "a<em>b</em>",
+      "exercises": "Single missing character"
+    }
+  ],
+
+  "transposition": [
+    {
+      "id": "T1",
+      "correct": "receive",
+      "typed": "recieve",
+      "swaps": 1,
+      "exercises": "The canonical ie/ei swap",
+      "segments": [
+        { "status": "ok", "char": "r" },
+        { "status": "ok", "char": "e" },
+        { "status": "ok", "char": "c" },
+        { "status": "transposed", "char": "e", "typed": "i", "pairId": 0 },
+        { "status": "transposed", "char": "i", "typed": "e", "pairId": 0 },
+        { "status": "ok", "char": "v" },
+        { "status": "ok", "char": "e" }
+      ]
+    },
+    {
+      "id": "T2",
+      "correct": "their",
+      "typed": "thier",
+      "swaps": 1,
+      "exercises": "Classic ie swap",
+      "segments": [
+        { "status": "ok", "char": "t" },
+        { "status": "ok", "char": "h" },
+        { "status": "transposed", "char": "e", "typed": "i", "pairId": 0 },
+        { "status": "transposed", "char": "i", "typed": "e", "pairId": 0 },
+        { "status": "ok", "char": "r" }
+      ]
+    },
+    {
+      "id": "T3",
+      "correct": "friend",
+      "typed": "freind",
+      "swaps": 1,
+      "exercises": "Classic ei swap",
+      "segments": [
+        { "status": "ok", "char": "f" },
+        { "status": "ok", "char": "r" },
+        { "status": "transposed", "char": "i", "typed": "e", "pairId": 0 },
+        { "status": "transposed", "char": "e", "typed": "i", "pairId": 0 },
+        { "status": "ok", "char": "n" },
+        { "status": "ok", "char": "d" }
+      ]
+    },
+    {
+      "id": "T4",
+      "correct": "the",
+      "typed": "hte",
+      "swaps": 1,
+      "exercises": "Swap at the very start",
+      "segments": [
+        { "status": "transposed", "char": "t", "typed": "h", "pairId": 0 },
+        { "status": "transposed", "char": "h", "typed": "t", "pairId": 0 },
+        { "status": "ok", "char": "e" }
+      ]
+    },
+    {
+      "id": "T5",
+      "correct": "ravenous",
+      "typed": "arvenous",
+      "swaps": 1,
+      "exercises": "Swap at the start, longer word",
+      "segments": [
+        { "status": "transposed", "char": "r", "typed": "a", "pairId": 0 },
+        { "status": "transposed", "char": "a", "typed": "r", "pairId": 0 },
+        { "status": "ok", "char": "v" },
+        { "status": "ok", "char": "e" },
+        { "status": "ok", "char": "n" },
+        { "status": "ok", "char": "o" },
+        { "status": "ok", "char": "u" },
+        { "status": "ok", "char": "s" }
+      ]
+    },
+    {
+      "id": "T6",
+      "correct": "ravenous",
+      "typed": "ravenosu",
+      "swaps": 1,
+      "exercises": "Swap at the very end",
+      "segments": [
+        { "status": "ok", "char": "r" },
+        { "status": "ok", "char": "a" },
+        { "status": "ok", "char": "v" },
+        { "status": "ok", "char": "e" },
+        { "status": "ok", "char": "n" },
+        { "status": "ok", "char": "o" },
+        { "status": "transposed", "char": "u", "typed": "s", "pairId": 0 },
+        { "status": "transposed", "char": "s", "typed": "u", "pairId": 0 }
+      ]
+    },
+    {
+      "id": "T7",
+      "correct": "abcd",
+      "typed": "badc",
+      "swaps": 2,
+      "exercises": "DOUBLE SWAP — pairId disambiguates four consecutive transposed segments",
+      "segments": [
+        { "status": "transposed", "char": "a", "typed": "b", "pairId": 0 },
+        { "status": "transposed", "char": "b", "typed": "a", "pairId": 0 },
+        { "status": "transposed", "char": "c", "typed": "d", "pairId": 1 },
+        { "status": "transposed", "char": "d", "typed": "c", "pairId": 1 }
+      ]
+    },
+    {
+      "id": "T8",
+      "correct": "their friend",
+      "typed": "thier freind",
+      "swaps": 2,
+      "exercises": "Two swaps across two words",
+      "segments": [
+        { "status": "ok", "char": "t" },
+        { "status": "ok", "char": "h" },
+        { "status": "transposed", "char": "e", "typed": "i", "pairId": 0 },
+        { "status": "transposed", "char": "i", "typed": "e", "pairId": 0 },
+        { "status": "ok", "char": "r" },
+        { "status": "ok", "char": " " },
+        { "status": "ok", "char": "f" },
+        { "status": "ok", "char": "r" },
+        { "status": "transposed", "char": "i", "typed": "e", "pairId": 1 },
+        { "status": "transposed", "char": "e", "typed": "i", "pairId": 1 },
+        { "status": "ok", "char": "n" },
+        { "status": "ok", "char": "d" }
+      ]
+    },
+    {
+      "id": "T9",
+      "correct": "receive",
+      "typed": "recieved",
+      "swaps": 1,
+      "exercises": "Swap plus a surplus character",
+      "segments": [
+        { "status": "ok", "char": "r" },
+        { "status": "ok", "char": "e" },
+        { "status": "ok", "char": "c" },
+        { "status": "transposed", "char": "e", "typed": "i", "pairId": 0 },
+        { "status": "transposed", "char": "i", "typed": "e", "pairId": 0 },
+        { "status": "ok", "char": "v" },
+        { "status": "ok", "char": "e" },
+        { "status": "extra", "char": "", "typed": "d" }
+      ]
+    },
+    {
+      "id": "T10",
+      "correct": "receive",
+      "typed": "reciev",
+      "swaps": 1,
+      "exercises": "Swap plus an omitted character",
+      "segments": [
+        { "status": "ok", "char": "r" },
+        { "status": "ok", "char": "e" },
+        { "status": "ok", "char": "c" },
+        { "status": "transposed", "char": "e", "typed": "i", "pairId": 0 },
+        { "status": "transposed", "char": "i", "typed": "e", "pairId": 0 },
+        { "status": "ok", "char": "v" },
+        { "status": "missing", "char": "e" }
+      ]
+    },
+    {
+      "id": "T11",
+      "correct": "ice cream",
+      "typed": "iec cream",
+      "swaps": 1,
+      "exercises": "Swap immediately before a space",
+      "segments": [
+        { "status": "ok", "char": "i" },
+        { "status": "transposed", "char": "c", "typed": "e", "pairId": 0 },
+        { "status": "transposed", "char": "e", "typed": "c", "pairId": 0 },
+        { "status": "ok", "char": " " },
+        { "status": "ok", "char": "c" },
+        { "status": "ok", "char": "r" },
+        { "status": "ok", "char": "e" },
+        { "status": "ok", "char": "a" },
+        { "status": "ok", "char": "m" }
+      ]
+    },
+    {
+      "id": "T12",
+      "correct": "letter",
+      "typed": "leter",
+      "swaps": 0,
+      "exercises": "NEGATIVE CONTROL — repeated letters must NOT report a swap",
+      "segments": [
+        { "status": "ok", "char": "l" },
+        { "status": "ok", "char": "e" },
+        { "status": "missing", "char": "t" },
+        { "status": "ok", "char": "t" },
+        { "status": "ok", "char": "e" },
+        { "status": "ok", "char": "r" }
+      ]
+    },
+    {
+      "id": "T13",
+      "correct": "success",
+      "typed": "sucess",
+      "swaps": 0,
+      "exercises": "NEGATIVE CONTROL — repeated letters + omission must NOT report a swap",
+      "segments": [
+        { "status": "ok", "char": "s" },
+        { "status": "ok", "char": "u" },
+        { "status": "missing", "char": "c" },
+        { "status": "ok", "char": "c" },
+        { "status": "ok", "char": "e" },
+        { "status": "ok", "char": "s" },
+        { "status": "ok", "char": "s" }
+      ]
+    },
+    {
+      "id": "T14",
+      "correct": "ab",
+      "typed": "ba",
+      "swaps": 1,
+      "exercises": "Minimal case: the whole word is one swap",
+      "segments": [
+        { "status": "transposed", "char": "a", "typed": "b", "pairId": 0 },
+        { "status": "transposed", "char": "b", "typed": "a", "pairId": 0 }
+      ]
+    }
+  ],
+
+  "structured": [
+    {
+      "id": "3",
+      "correct": "ravenous",
+      "typed": "ravenus",
+      "segments": [
+        { "status": "ok", "char": "r" },
+        { "status": "ok", "char": "a" },
+        { "status": "ok", "char": "v" },
+        { "status": "ok", "char": "e" },
+        { "status": "ok", "char": "n" },
+        { "status": "missing", "char": "o" },
+        { "status": "ok", "char": "u" },
+        { "status": "ok", "char": "s" }
+      ]
+    },
+    {
+      "id": "4",
+      "correct": "ravenous",
+      "typed": "ravenious",
+      "segments": [
+        { "status": "ok", "char": "r" },
+        { "status": "ok", "char": "a" },
+        { "status": "ok", "char": "v" },
+        { "status": "ok", "char": "e" },
+        { "status": "ok", "char": "n" },
+        { "status": "extra", "char": "", "typed": "i" },
+        { "status": "ok", "char": "o" },
+        { "status": "ok", "char": "u" },
+        { "status": "ok", "char": "s" }
+      ]
+    },
+    {
+      "id": "5",
+      "correct": "ravenous",
+      "typed": "ravanous",
+      "segments": [
+        { "status": "ok", "char": "r" },
+        { "status": "ok", "char": "a" },
+        { "status": "ok", "char": "v" },
+        { "status": "wrong", "char": "e", "typed": "a" },
+        { "status": "ok", "char": "n" },
+        { "status": "ok", "char": "o" },
+        { "status": "ok", "char": "u" },
+        { "status": "ok", "char": "s" }
+      ]
+    },
+    {
+      "id": "11",
+      "correct": "ice cream",
+      "typed": "icecream",
+      "segments": [
+        { "status": "ok", "char": "i" },
+        { "status": "ok", "char": "c" },
+        { "status": "ok", "char": "e" },
+        { "status": "missing", "char": " " },
+        { "status": "ok", "char": "c" },
+        { "status": "ok", "char": "r" },
+        { "status": "ok", "char": "e" },
+        { "status": "ok", "char": "a" },
+        { "status": "ok", "char": "m" }
+      ]
+    },
+    {
+      "id": "13",
+      "correct": "ice cream",
+      "typed": "ice  cream",
+      "segments": [
+        { "status": "ok", "char": "i" },
+        { "status": "ok", "char": "c" },
+        { "status": "ok", "char": "e" },
+        { "status": "ok", "char": " " },
+        { "status": "extra", "char": "", "typed": " " },
+        { "status": "ok", "char": "c" },
+        { "status": "ok", "char": "r" },
+        { "status": "ok", "char": "e" },
+        { "status": "ok", "char": "a" },
+        { "status": "ok", "char": "m" }
+      ]
+    },
+    {
+      "id": "14",
+      "correct": "a",
+      "typed": "b",
+      "segments": [{ "status": "missing", "char": "a" }]
+    }
+  ]
+}

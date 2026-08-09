@@ -1,0 +1,154 @@
+{
+  "common": {
+    "appName": "Vocab Cards",
+    "cancel": "Cancel",
+    "save": "Save",
+    "delete": "Delete",
+    "done": "Done",
+    "retry": "Try again",
+    "close": "Close",
+    "back": "Back",
+    "cardCount": "{{count, number}} card",
+    "cardCount_other": "{{count, number}} cards",
+    "loading": "Loading…"
+  },
+  "library": {
+    "title": "Vocab Cards",
+    "empty": {
+      "heading": "No card sets yet",
+      "body": "Create a set to start drilling spellings.",
+      "action": "Create a set"
+    },
+    "createSet": "Create a set",
+    "setName": "Set name",
+    "setNamePlaceholder": "e.g. SAT Words",
+    "currentSet": "Current set",
+    "setCurrent": "Use this set",
+    "renameSet": "Rename set",
+    "deleteSet": "Delete set",
+    "rowAccessibility": "{{name}}, {{count, number}} card",
+    "rowAccessibility_other": "{{name}}, {{count, number}} cards",
+    "sortBy": {
+      "name": "Name",
+      "recent": "Recently used",
+      "size": "Card count"
+    },
+    "search": "Search sets",
+    "errors": {
+      "nameEmpty": "Enter a name for the set.",
+      "nameTooLong": "Set names are limited to {{max, number}} characters."
+    },
+    "conflict": {
+      "title": "A set called “{{name}}” already exists",
+      "body": "Replacing it will permanently delete its {{count, number}} card.",
+      "body_other": "Replacing it will permanently delete its {{count, number}} cards.",
+      "replace": "Replace",
+      "rename": "Keep both",
+      "renameSuggestion": "It will be saved as “{{name}}”.",
+      "cancel": "Cancel"
+    }
+  },
+  "cards": {
+    "hint": "Hint",
+    "answer": "Answer",
+    "addCard": "Add card",
+    "empty": {
+      "heading": "No cards yet",
+      "body": "Add a hint and the word it stands for.",
+      "action": "Add a card"
+    },
+    "errors": {
+      "hintEmpty": "Enter a hint.",
+      "answerEmpty": "Enter an answer.",
+      "tooLong": "Limited to {{max, number}} characters."
+    }
+  },
+  "session": {
+    "title": "Test",
+    "progress": "{{position, number}} of {{total, number}}",
+    "answerLabel": "Your answer",
+    "submit": "Check",
+    "next": "Next",
+    "endTest": "End test",
+    "correct": "Correct",
+    "notQuite": "Not quite — try again",
+    "cannotStart": {
+      "noSet": "Choose a set before starting a test.",
+      "noSetAction": "Choose a set",
+      "emptySet": "“{{name}}” has no cards yet.",
+      "emptySetAction": "Add cards"
+    }
+  },
+  "diff": {
+    "title": "Correct spelling",
+    "yourAttempt": "What you typed",
+    "legend": {
+      "wrong": "Wrong letter",
+      "missing": "Missing letter",
+      "extra": "Extra letter",
+      "transposed": "Swapped letters",
+      "missingSpace": "Missing space"
+    },
+    "announcement": "Incorrect. Correct spelling: {{spelled}}. {{errors}}",
+    "announcementNoDetail": "Incorrect. Correct spelling: {{spelled}}.",
+    "spelledSpace": "space",
+    "errorList": "{{errors}}",
+    "error": {
+      "missing": "You left out the letter {{char}}.",
+      "missingSpace": "You left out a space.",
+      "wrong": "You typed {{typed}} instead of {{char}}.",
+      "extra": "You typed an extra {{typed}}.",
+      "extraSpace": "You typed an extra space.",
+      "transposed": "You swapped the {{first}} and the {{second}}."
+    },
+    "andMore": "And {{count, number}} more error.",
+    "andMore_other": "And {{count, number}} more errors.",
+    "overCap": "That answer is too long to mark letter by letter."
+  },
+  "import": {
+    "title": "Import",
+    "pickFiles": "Choose .cards files",
+    "legacyFound": {
+      "heading": "We found your old card sets",
+      "body": "{{count, number}} set from vocabcards.com is ready to bring across.",
+      "body_other": "{{count, number}} sets from vocabcards.com are ready to bring across.",
+      "action": "Bring them across"
+    },
+    "outcome": {
+      "imported": "Imported",
+      "renamed": "Imported as “{{name}}”",
+      "replaced": "Replaced",
+      "failed": "Could not be imported",
+      "quarantined": "Set aside — we could not read it"
+    },
+    "reason": {
+      "notJson": "The file is not valid JSON.",
+      "notAnArray": "The file does not contain a list of cards.",
+      "noUsableCards": "The file contains no card with both a hint and an answer.",
+      "empty": "The file is empty."
+    },
+    "summary": "{{imported, number}} set imported, {{failed, number}} skipped.",
+    "summary_other": "{{imported, number}} sets imported, {{failed, number}} skipped."
+  },
+  "storage": {
+    "reason": {
+      "badDocument": "The saved library could not be read.",
+      "badIdentity": "An item was missing its identifying details.",
+      "badSet": "A card set could not be read.",
+      "badCard": "A card could not be read.",
+      "badCardList": "A set’s cards could not be read.",
+      "futureSchema": "This data was saved by a newer version of Vocab Cards."
+    },
+    "quarantine": {
+      "heading": "Some saved data could not be read",
+      "body": "{{count, number}} item was set aside so the rest of your library still works. Nothing was deleted.",
+      "body_other": "{{count, number}} items were set aside so the rest of your library still works. Nothing was deleted.",
+      "action": "Details"
+    }
+  },
+  "a11y": {
+    "diffStrip": "Spelling feedback",
+    "correctAnswerRow": "Correct spelling",
+    "attemptRow": "What you typed"
+  }
+}

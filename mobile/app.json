@@ -1,0 +1,43 @@
+{
+  "expo": {
+    "name": "Vocab Cards",
+    "slug": "vocab-cards",
+    "scheme": "vocabcards",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#FCF8EE",
+      "dark": {
+        "backgroundColor": "#121316"
+      }
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.kszapps.vocabcards"
+    },
+    "android": {
+      "package": "com.kszapps.vocabcards",
+      "adaptiveIcon": {
+        "backgroundColor": "#FCF8EE",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "predictiveBackGestureEnabled": false
+    },
+    "web": {
+      "favicon": "./assets/favicon.png",
+      "bundler": "metro",
+      "output": "static"
+    },
+    "plugins": ["expo-router", "expo-font", "expo-localization"],
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}
