@@ -27,6 +27,7 @@ import { evaluateAnswer } from '@/features/evaluation/logic';
 import type { AnswerEvaluation } from '@/features/evaluation/types';
 import { libraryRepository } from '@/features/library/api';
 import { sessionHistoryRepository } from '@/features/session/api';
+import { rememberFinishedSession } from '@/features/session/handoff';
 import {
   answersFor,
   buildSessionRecord,
@@ -54,7 +55,11 @@ export default function SessionScreen(): React.JSX.Element {
   const { t } = useTranslation();
   const theme = useAppTheme();
   const grid = usePageGrid();
-  const { setId, mode } = useLocalSearchParams<{ setId: string; mode: string }>();
+  const { setId, mode, cardIds } = useLocalSearchParams<{
+    setId: string;
+    mode: string;
+    cardIds?: string;
+  }>();
 
   const [session, setSession] = useState<SessionState | null>(null);
   const [startError, setStartError] = useState<string | null>(null);
@@ -83,11 +88,24 @@ export default function SessionScreen(): React.JSX.Element {
       }
       const { cards } = await libraryRepository.listCards(setId);
       if (cancelled) return;
+
+      const sessionMode = mode === 'all' ? 'all' : mode === 'missed' ? 'missed' : 'quick';
+      // Missed-word practice is seeded BY ID. Cards deleted since the session
+      // simply do not resolve, which is the specified graceful degradation —
+      // never an error, never a blank screen.
+      const selected =
+        sessionMode === 'missed' && typeof cardIds === 'string'
+          ? cardIds
+              .split(',')
+              .map((id) => cards.find((card) => card.id === id))
+              .filter((card): card is (typeof cards)[number] => card !== undefined)
+          : cards;
+
       const result = startSession({
         id: identityContext.newId(),
         setId,
-        cards,
-        mode: mode === 'all' ? 'all' : 'quick',
+        cards: selected,
+        mode: sessionMode,
         quickSize: 10,
         startedAt: identityContext.now(),
       });
@@ -105,7 +123,7 @@ export default function SessionScreen(): React.JSX.Element {
     return () => {
       cancelled = true;
     };
-  }, [setId, mode, t]);
+  }, [setId, mode, cardIds, t]);
 
   const card = session === null ? null : currentCard(session);
 
@@ -119,8 +137,15 @@ export default function SessionScreen(): React.JSX.Element {
    */
   const finish = useCallback(async (state: SessionState): Promise<void> => {
     const now = identityContext.now();
-    const record = buildSessionRecord(endSession(state, now), now);
+    const ended = endSession(state, now);
+    const record = buildSessionRecord(ended, now);
     await sessionHistoryRepository.append(record);
+    // The diffs travel in memory, never to storage — the persisted record must
+    // carry no card content (features/session/handoff.ts).
+    rememberFinishedSession(ended);
+    // `replace`, not `push`: the finished session must not be reachable again
+    // by going back, which would resume a session that has already been closed.
+    router.replace({ pathname: '/results', params: { sessionId: record.id } });
   }, []);
 
   /**
@@ -247,7 +272,7 @@ export default function SessionScreen(): React.JSX.Element {
               total: session.cardStates.length,
             })}
           </Text>
-          <Button mode="contained" onPress={() => router.back()} testID="session-done">
+          <Button mode="contained" onPress={() => router.dismissTo('/')} testID="session-done">
             {t('common.done')}
           </Button>
         </View>

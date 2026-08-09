@@ -86,7 +86,8 @@
       "body_other": "{{count, number}} cards are still to go. Your progress so far will be saved.",
       "confirm": "End test",
       "keepGoing": "Keep going"
-    }
+    },
+    "missedTitle": "Missed words"
   },
   "diff": {
     "title": "Correct spelling",
@@ -174,5 +175,24 @@
     "diffStrip": "Spelling feedback",
     "correctAnswerRow": "Correct spelling",
     "attemptRow": "What you typed"
+  },
+  "results": {
+    "title": "Results",
+    "completed": "{{count, number}} card completed",
+    "completed_other": "{{count, number}} cards completed",
+    "firstTry": "{{count, number}} right first time",
+    "wrongAttempts": "{{count, number}} wrong attempt",
+    "wrongAttempts_other": "{{count, number}} wrong attempts",
+    "elapsed": "Time: {{time}}",
+    "endedEarly": "You ended this test early.",
+    "perfect": "Every card right first time.",
+    "missedHeading": "Words to work on",
+    "noneMissed": "Nothing missed — nice.",
+    "practiceMissed": "Practice missed words",
+    "practiceMissedCount": "Practice {{count, number}} word",
+    "practiceMissedCount_other": "Practice {{count, number}} words",
+    "done": "Done",
+    "missedGone": "This card has since been deleted.",
+    "unavailable": "These results are no longer available."
   }
 }
