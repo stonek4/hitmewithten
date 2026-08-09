@@ -95,6 +95,12 @@ export default function LibraryScreen(): React.JSX.Element {
       <Appbar.Header elevated>
         <Appbar.Content title={t('library.title')} />
         <Appbar.Action
+          icon="trophy-outline"
+          accessibilityLabel={t('trophies.open')}
+          onPress={() => router.push('/trophies')}
+          testID="open-trophies"
+        />
+        <Appbar.Action
           icon="file-import-outline"
           accessibilityLabel={t('import.openImport')}
           onPress={() => router.push('/import')}

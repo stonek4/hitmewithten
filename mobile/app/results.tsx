@@ -12,7 +12,7 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FlatList, StyleSheet, View } from 'react-native';
-import { Appbar, Button, Divider, Text } from 'react-native-paper';
+import { Appbar, Button, Divider, Snackbar, Text } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { DiffStrip } from '@/components/DiffStrip';
@@ -21,6 +21,7 @@ import { libraryRepository } from '@/features/library/api';
 import { sessionHistoryRepository } from '@/features/session/api';
 import { clearFinishedSession, takeFinishedSession } from '@/features/session/handoff';
 import type { SessionRecord } from '@/features/session/logic';
+import { useTrophyUnlocks } from '@/features/trophies/hooks';
 import { formatDuration } from '@/lib/format';
 import { useAppTheme } from '@/theme';
 
@@ -46,6 +47,10 @@ export default function ResultsScreen(): React.JSX.Element {
   const [record, setRecord] = useState<SessionRecord | null>(null);
   const [missed, setMissed] = useState<MissedRow[]>([]);
   const [loading, setLoading] = useState(true);
+  // A threshold crossed on the LAST card of a session unlocks just as the
+  // drilling screen navigates away, so its toast would never be seen there.
+  // Results is where that unlock actually lands.
+  const unlocks = useTrophyUnlocks();
 
   useEffect(() => {
     let cancelled = false;
@@ -80,11 +85,15 @@ export default function ResultsScreen(): React.JSX.Element {
       setRecord(stored);
       setMissed(rows);
       setLoading(false);
+      await unlocks.check();
     }
     void load();
     return () => {
       cancelled = true;
     };
+    // `unlocks` is intentionally excluded: this must run once per session id,
+    // and its `check` identity changes on every render.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sessionId]);
 
   const styles = StyleSheet.create({
@@ -226,6 +235,19 @@ export default function ResultsScreen(): React.JSX.Element {
           {t('results.done')}
         </Button>
       </View>
+
+      <Snackbar
+        visible={unlocks.pending !== null}
+        onDismiss={unlocks.dismiss}
+        duration={4000}
+        testID="trophy-toast"
+      >
+        {unlocks.pending === null
+          ? ''
+          : t('trophies.toast', {
+              name: t(`trophies.goal.${unlocks.pending.type}`, { goal: unlocks.pending.goal }),
+            })}
+      </Snackbar>
     </SafeAreaView>
   );
 }

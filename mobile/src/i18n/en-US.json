@@ -194,5 +194,26 @@
     "done": "Done",
     "missedGone": "This card has since been deleted.",
     "unavailable": "These results are no longer available."
+  },
+  "trophies": {
+    "title": "Trophies",
+    "open": "Trophies",
+    "counters": {
+      "tested": "Cards tested",
+      "passed": "Cards spelled right",
+      "failed": "Cards missed"
+    },
+    "goal": {
+      "tested": "Test {{goal, number}} cards",
+      "passed": "Spell {{goal, number}} cards right",
+      "failed": "Miss {{goal, number}} cards"
+    },
+    "unlockedOn": "Unlocked {{date}}",
+    "progressTo": "{{current, number}} of {{goal, number}}",
+    "locked": "Locked",
+    "unlocked": "Unlocked",
+    "summary": "{{count, number}} of {{total, number}} unlocked",
+    "toast": "Trophy unlocked — {{name}}",
+    "rowAccessibility": "{{name}}. {{status}}. {{progress}}."
   }
 }

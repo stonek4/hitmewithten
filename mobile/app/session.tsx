@@ -18,7 +18,16 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import type { TextInput as RNTextInput } from 'react-native';
-import { Appbar, Button, Dialog, Portal, ProgressBar, Text, TextInput } from 'react-native-paper';
+import {
+  Appbar,
+  Button,
+  Dialog,
+  Portal,
+  ProgressBar,
+  Snackbar,
+  Text,
+  TextInput,
+} from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { DiffStrip } from '@/components/DiffStrip';
@@ -43,6 +52,7 @@ import {
 } from '@/features/session/logic';
 import type { SessionState } from '@/features/session/logic';
 import { trophyRepository } from '@/features/trophies/api';
+import { useTrophyUnlocks } from '@/features/trophies/hooks';
 import { identityContext } from '@/services/identityContext';
 import { typeStyle, useAppTheme, usePageGrid } from '@/theme';
 
@@ -77,6 +87,7 @@ export default function SessionScreen(): React.JSX.Element {
    */
   const [selection, setSelection] = useState<{ start: number; end: number } | undefined>(undefined);
   const [confirmingEnd, setConfirmingEnd] = useState(false);
+  const unlocks = useTrophyUnlocks();
   const inputRef = useRef<RNTextInput>(null);
 
   useEffect(() => {
@@ -187,7 +198,7 @@ export default function SessionScreen(): React.JSX.Element {
       // Counters feed the trophy thresholds users have already partially
       // earned, so they are recorded per submission, not at the end — an
       // abandoned session must still count what actually happened.
-      void trophyRepository.increment({ passed: 1, tested: 1 });
+      void trophyRepository.increment({ passed: 1, tested: 1 }).then(() => void unlocks.check());
       if (isFinished(advanced)) void finish(advanced);
       // Focus stays on the input so the next card can be typed immediately.
       inputRef.current?.focus();
@@ -195,12 +206,12 @@ export default function SessionScreen(): React.JSX.Element {
     }
     setEvaluation(result);
     setSession(recordWrongAttempt(session, result.diff));
-    void trophyRepository.increment({ failed: 1 });
+    void trophyRepository.increment({ failed: 1 }).then(() => void unlocks.check());
     // Keep the text and select it entirely, so a retry replaces it in one
     // keystroke rather than needing it cleared first.
     setSelection({ start: 0, end: typed.length });
     inputRef.current?.focus();
-  }, [card, session, typed, finish]);
+  }, [card, session, typed, finish, unlocks]);
 
   const styles = useMemo(
     () =>
@@ -392,6 +403,21 @@ export default function SessionScreen(): React.JSX.Element {
           </Button>
         </View>
       </ScrollView>
+
+      {/* A missed toast is not a lost event — the trophies screen is the
+          durable record. This is dismissible and never blocks the drill. */}
+      <Snackbar
+        visible={unlocks.pending !== null}
+        onDismiss={unlocks.dismiss}
+        duration={4000}
+        testID="trophy-toast"
+      >
+        {unlocks.pending === null
+          ? ''
+          : t('trophies.toast', {
+              name: t(`trophies.goal.${unlocks.pending.type}`, { goal: unlocks.pending.goal }),
+            })}
+      </Snackbar>
 
       <Portal>
         <Dialog visible={confirmingEnd} onDismiss={() => setConfirmingEnd(false)}>
