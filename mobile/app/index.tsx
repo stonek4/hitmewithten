@@ -19,16 +19,19 @@ import {
   FAB,
   List,
   Portal,
+  Snackbar,
   Text,
   TextInput,
 } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { exportService } from '@/features/export/api';
 import { useLegacyMigration } from '@/features/import/hooks';
 import { useLibrary } from '@/features/library/hooks';
 import { validateSetName } from '@/features/library/logic';
 import type { CardSetSummary, NameConflict } from '@/features/library/types';
 import { SET_NAME_MAX_LENGTH } from '@/features/identity/types';
+import { saveExport } from '@/services/fileShare';
 import { MIN_TOUCH_TARGET, useAppTheme } from '@/theme';
 
 /**
@@ -48,6 +51,20 @@ export default function LibraryScreen(): React.JSX.Element {
   const [name, setName] = useState('');
   const [nameError, setNameError] = useState<string | null>(null);
   const [conflict, setConflict] = useState<NameConflict | null>(null);
+  const [toast, setToast] = useState<string | null>(null);
+
+  /**
+   * Export the whole library as one native, multi-set file.
+   */
+  const exportAll = useCallback(async (): Promise<void> => {
+    const payload = await exportService.exportNative(null);
+    if (payload === null) {
+      setToast(t('export.nothingToExport'));
+      return;
+    }
+    const saved = await saveExport(payload.filename, payload.contents, payload.mimeType);
+    setToast(saved ? t('export.done', { filename: payload.filename }) : t('export.failed'));
+  }, [t]);
 
   const styles = StyleSheet.create({
     screen: { flex: 1, backgroundColor: theme.colors.background },
@@ -94,6 +111,12 @@ export default function LibraryScreen(): React.JSX.Element {
     <SafeAreaView style={styles.screen} edges={['top', 'left', 'right']}>
       <Appbar.Header elevated>
         <Appbar.Content title={t('library.title')} />
+        <Appbar.Action
+          icon="export-variant"
+          accessibilityLabel={t('export.nativeAll')}
+          onPress={() => void exportAll()}
+          testID="export-all"
+        />
         <Appbar.Action
           icon="trophy-outline"
           accessibilityLabel={t('trophies.open')}
@@ -257,6 +280,10 @@ export default function LibraryScreen(): React.JSX.Element {
           </Dialog.Actions>
         </Dialog>
       </Portal>
+
+      <Snackbar visible={toast !== null} onDismiss={() => setToast(null)} testID="library-toast">
+        {toast ?? ''}
+      </Snackbar>
     </SafeAreaView>
   );
 }

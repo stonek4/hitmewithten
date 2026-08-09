@@ -118,8 +118,8 @@
   "import": {
     "title": "Import",
     "openImport": "Import card sets",
-    "pickFiles": "Choose .cards files",
-    "intro": "Bring in card sets exported from Vocab Cards. You can choose several files at once.",
+    "pickFiles": "Choose files",
+    "intro": "Bring in .vocabcards or .cards files. You can choose several at once.",
     "picking": "Choosing files…",
     "working": "Importing…",
     "noneChosen": "No files chosen.",
@@ -146,7 +146,9 @@
       "noUsableCards": "The file contains no card with both a hint and an answer.",
       "empty": "The file is empty.",
       "nameEmpty": "The filename does not give the set a name.",
-      "nameTooLong": "The filename is too long to use as a set name."
+      "nameTooLong": "The filename is too long to use as a set name.",
+      "notNative": "The file is not a Vocab Cards export.",
+      "futureFormat": "This file was made by a newer version of Vocab Cards (format {{version, number}})."
     },
     "cardsImported": "{{count, number}} card",
     "cardsImported_other": "{{count, number}} cards",
@@ -215,5 +217,18 @@
     "summary": "{{count, number}} of {{total, number}} unlocked",
     "toast": "Trophy unlocked — {{name}}",
     "rowAccessibility": "{{name}}. {{status}}. {{progress}}."
+  },
+  "export": {
+    "title": "Export",
+    "openExport": "Export",
+    "native": "Export set",
+    "nativeAll": "Export whole library",
+    "legacy": "Export for the old app (.cards)",
+    "lossyTitle": "Some detail will be dropped",
+    "lossyBody": "The old app only understands one hint and one answer per card, so extras will not be included. Your set here is unchanged.",
+    "lossyConfirm": "Export anyway",
+    "done": "Saved {{filename}}",
+    "failed": "Could not save the file.",
+    "nothingToExport": "There is nothing to export yet."
   }
 }

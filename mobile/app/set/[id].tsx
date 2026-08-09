@@ -10,10 +10,23 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FlatList, StyleSheet, View } from 'react-native';
 import type { TextInput as RNTextInput } from 'react-native';
-import { Appbar, Button, Divider, HelperText, List, Text, TextInput } from 'react-native-paper';
+import {
+  Appbar,
+  Button,
+  Dialog,
+  Divider,
+  HelperText,
+  List,
+  Portal,
+  Snackbar,
+  Text,
+  TextInput,
+} from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { exportService } from '@/features/export/api';
 import { CARD_TEXT_MAX_LENGTH } from '@/features/identity/types';
+import { saveExport } from '@/services/fileShare';
 import { libraryRepository } from '@/features/library/api';
 import { useCards } from '@/features/library/hooks';
 import { MIN_TOUCH_TARGET, useAppTheme } from '@/theme';
@@ -34,6 +47,8 @@ export default function SetDetailScreen(): React.JSX.Element {
   const [hint, setHint] = useState('');
   const [answer, setAnswer] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [toast, setToast] = useState<string | null>(null);
+  const [lossyPending, setLossyPending] = useState(false);
   const hintRef = useRef<RNTextInput>(null);
 
   useEffect(() => {
@@ -83,11 +98,65 @@ export default function SetDetailScreen(): React.JSX.Element {
     [cards.length, setId],
   );
 
+  /**
+   * Export this set in the native, lossless format.
+   */
+  const exportNative = useCallback(async (): Promise<void> => {
+    if (setId === null) return;
+    const payload = await exportService.exportNative([setId]);
+    if (payload === null) {
+      setToast(t('export.nothingToExport'));
+      return;
+    }
+    const saved = await saveExport(payload.filename, payload.contents, payload.mimeType);
+    setToast(saved ? t('export.done', { filename: payload.filename }) : t('export.failed'));
+  }, [setId, t]);
+
+  /**
+   * Export this set in the legacy `.cards` format.
+   *
+   * Legacy export is lossy by definition, so a set that would actually lose
+   * something warns first — the warning is skipped when nothing would be lost,
+   * because a confirmation nobody needs is just friction.
+   *
+   * @param confirmed True when the user has already accepted the loss.
+   */
+  const exportLegacy = useCallback(
+    async (confirmed: boolean): Promise<void> => {
+      if (setId === null) return;
+      const payload = await exportService.exportLegacy(setId);
+      if (payload === null) {
+        setToast(t('export.nothingToExport'));
+        return;
+      }
+      if (payload.lossy && !confirmed) {
+        setLossyPending(true);
+        return;
+      }
+      setLossyPending(false);
+      const saved = await saveExport(payload.filename, payload.contents, payload.mimeType);
+      setToast(saved ? t('export.done', { filename: payload.filename }) : t('export.failed'));
+    },
+    [setId, t],
+  );
+
   return (
     <SafeAreaView style={styles.screen} edges={['top', 'left', 'right']}>
       <Appbar.Header elevated>
         <Appbar.BackAction onPress={() => router.back()} accessibilityLabel={t('common.back')} />
         <Appbar.Content title={setName} />
+        <Appbar.Action
+          icon="export-variant"
+          accessibilityLabel={t('export.native')}
+          onPress={() => void exportNative()}
+          testID="export-native"
+        />
+        <Appbar.Action
+          icon="file-export-outline"
+          accessibilityLabel={t('export.legacy')}
+          onPress={() => void exportLegacy(false)}
+          testID="export-legacy"
+        />
       </Appbar.Header>
 
       <View style={styles.editor}>
@@ -166,6 +235,24 @@ export default function SetDetailScreen(): React.JSX.Element {
           )}
         />
       )}
+      <Portal>
+        <Dialog visible={lossyPending} onDismiss={() => setLossyPending(false)}>
+          <Dialog.Title>{t('export.lossyTitle')}</Dialog.Title>
+          <Dialog.Content>
+            <Text variant="bodyMedium">{t('export.lossyBody')}</Text>
+          </Dialog.Content>
+          <Dialog.Actions>
+            <Button onPress={() => setLossyPending(false)}>{t('common.cancel')}</Button>
+            <Button onPress={() => void exportLegacy(true)} testID="export-lossy-confirm">
+              {t('export.lossyConfirm')}
+            </Button>
+          </Dialog.Actions>
+        </Dialog>
+      </Portal>
+
+      <Snackbar visible={toast !== null} onDismiss={() => setToast(null)} testID="export-toast">
+        {toast ?? ''}
+      </Snackbar>
     </SafeAreaView>
   );
 }

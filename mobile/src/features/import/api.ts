@@ -11,6 +11,11 @@
  * name collisions route through CAP-1's conflict handling.
  */
 
+import {
+  isNativeFilename,
+  nativeSetToCards,
+  parseNativeExport,
+} from '@/features/export/logic';
 import { libraryRepository } from '@/features/library/api';
 import type { LibraryRepository } from '@/features/library/api';
 import { validateSetName } from '@/features/library/logic';
@@ -152,6 +157,39 @@ export class ImportService {
     const items: ImportItemResult[] = [];
 
     for (const file of files) {
+      // The native format is multi-set and self-describing, so it is detected
+      // by content as well as by extension — a renamed download still imports.
+      const looksNative = isNativeFilename(file.name) || file.text.includes('"vocabcards"');
+      if (looksNative) {
+        const native = parseNativeExport(file.text);
+        if (!native.ok) {
+          items.push({
+            sourceName: file.name,
+            outcome: 'quarantined',
+            setId: null,
+            cardCount: 0,
+            reasonKey: native.reasonKey,
+            reasonParams: native.reasonParams,
+          });
+          continue;
+        }
+        // One file may carry many sets; each is reported separately.
+        for (const set of native.value.sets) {
+          items.push(
+            await this.importOne(
+              file.name,
+              set.name,
+              nativeSetToCards(set).map((card) => ({
+                definitions: card.hints,
+                answers: card.answers,
+              })),
+              policy,
+            ),
+          );
+        }
+        continue;
+      }
+
       const parsed = parseLegacyCards(file.text);
       if (!parsed.ok) {
         // Quarantined, not dropped: the reason is surfaced to the user.
