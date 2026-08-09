@@ -28,6 +28,9 @@ export const QUARANTINE_KEY = `${KEY_PREFIX}quarantine`;
 /** The user's lifetime trophy progress (CAP-7). */
 export const TROPHIES_KEY = `${KEY_PREFIX}trophies`;
 
+/** Local-only session history, carrying no card content (CAP-6). */
+export const SESSION_HISTORY_KEY = `${KEY_PREFIX}sessions`;
+
 /**
  * The record of the one-time legacy `localStorage` migration (CAP-8).
  *

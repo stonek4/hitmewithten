@@ -1,35 +1,68 @@
 /**
- * CAP-3 — pure session mechanics. **Partial**: the drilling loop and its
- * counter semantics only. Modes beyond `quick`/`all`, flip, the session record
- * and the results hand-off are not built yet.
+ * CAP-3 — pure session mechanics.
  *
- * No React, no storage: a session state and an action in, a new state out.
+ * A session state and an action in, a new state out. No React, no storage, no
+ * evaluation: the screen calls CAP-4 and hands the verdict here.
+ *
+ * Three rules from the capability spec are encoded structurally rather than by
+ * convention, because their absence causes the worst confirmed defects in the
+ * live app:
+ *
+ * - **Validate before navigating.** {@link startSession} returns a refusal
+ *   rather than a half-built session, so an empty set can never reach the
+ *   drilling screen.
+ * - **Unlimited retries.** There is no attempt cap, no reveal-answer and no
+ *   override; a card advances only via {@link recordPass}.
+ * - **Back on the first card is a no-op**, not an exit from the whole test.
  */
 
+import type { DiffSegment } from '@/features/evaluation/types';
 import type { Card } from '@/features/identity/types';
 
-/** Which cards a session draws. */
-export type SessionMode = 'quick' | 'all';
+/**
+ * Which cards a session draws.
+ *
+ * Persisted in session history, so these strings are stable identifiers and
+ * only their display names are translated. `review` and `dictation` are P1.
+ */
+export type SessionMode = 'quick' | 'all' | 'missed';
 
 /** Per-card progress within one session. */
 export interface SessionCardState {
   cardId: string;
+  /** The card's hints, as authored. */
+  hints: string[];
+  /** The card's accepted answers, as authored. */
+  answers: string[];
   /** Wrong attempts on this card **in this session**. */
   attempts: number;
   passed: boolean;
-  /** The prompt shown, resolved at session start. */
-  promptShown: string;
-  /** Every accepted answer for this card. */
-  answersExpected: string[];
+  /**
+   * The **first** diff recorded for this card, for the results screen.
+   *
+   * First rather than last: it is the mistake the user actually made, before
+   * they started narrowing in on the answer.
+   */
+  firstDiff: DiffSegment[] | null;
 }
 
 /** A drilling session in progress. */
 export interface SessionState {
+  id: string;
   setId: string;
   mode: SessionMode;
+  /**
+   * When true, hints become the accepted answers and answers become the
+   * prompt. Every CAP-4 rule applies unchanged to the swapped values.
+   */
+  flipped: boolean;
   cardStates: SessionCardState[];
   /** Position in `cardStates`. */
   index: number;
+  startedAt: string;
+  endedAt: string | null;
+  /** True when the user ended the test with cards remaining. */
+  endedEarly: boolean;
   /**
    * Lifetime counters, with **exactly** the legacy semantics, because they feed
    * trophy thresholds users have already partially earned (CAP-3, CAP-7):
@@ -38,6 +71,31 @@ export interface SessionState {
    * increments it three times.
    */
   counters: { tested: number; passed: number; failed: number };
+}
+
+/**
+ * The persisted record of a finished session.
+ *
+ * **Carries no card content** — only ids, counts and timings — so history stays
+ * compact and CAP-19's no-content analytics rule is structurally easy to
+ * honour.
+ */
+export interface SessionRecord {
+  id: string;
+  setId: string;
+  mode: SessionMode;
+  flipped: boolean;
+  startedAt: string;
+  endedAt: string;
+  endedEarly: boolean;
+  cardsCompleted: number;
+  /** Cards passed without a single wrong attempt. */
+  firstTryPasses: number;
+  /** Total wrong attempts across the session. */
+  wrongAttempts: number;
+  elapsedMs: number;
+  /** Cards missed at least once, **by id** so a later edit cannot break them. */
+  missedCardIds: string[];
 }
 
 /**
@@ -78,23 +136,29 @@ export type SessionStartResult =
 /**
  * Build a session from a set's cards.
  *
+ * @param options.id The session's id.
  * @param options.setId The set being drilled, or null when none is selected.
  * @param options.cards The set's live cards.
- * @param options.mode `quick` draws `quickSize` cards at random; `all` uses
- *                     every card.
+ * @param options.mode `quick` draws `quickSize` cards at random; `all` and
+ *                     `missed` use every card given.
+ * @param options.flipped Whether to start with the sides swapped.
  * @param options.quickSize How many cards a quick test draws. If the set holds
  *                          fewer, what exists is used.
+ * @param options.startedAt The start instant, ISO-8601.
  * @param options.random Randomness source, injected for deterministic tests.
  * @returns The session, or the reason it cannot start.
  */
 export function startSession(options: {
+  id: string;
   setId: string | null;
   cards: readonly Card[];
   mode: SessionMode;
+  flipped?: boolean;
   quickSize?: number;
+  startedAt: string;
   random?: () => number;
 }): SessionStartResult {
-  const { setId, cards, mode, quickSize = 10, random = Math.random } = options;
+  const { id, setId, cards, mode, flipped = false, quickSize = 10, startedAt, random = Math.random } = options;
   if (setId === null) return { ok: false, error: 'noSet' };
   if (cards.length === 0) return { ok: false, error: 'emptySet' };
 
@@ -104,36 +168,88 @@ export function startSession(options: {
   return {
     ok: true,
     session: {
+      id,
       setId,
       mode,
+      flipped,
       index: 0,
+      startedAt,
+      endedAt: null,
+      endedEarly: false,
       counters: { tested: 0, passed: 0, failed: 0 },
       cardStates: selected.map((card) => ({
         cardId: card.id,
+        hints: [...card.hints],
+        answers: [...card.answers],
         attempts: 0,
         passed: false,
-        promptShown: card.hints[0],
-        answersExpected: [...card.answers],
+        firstDiff: null,
       })),
     },
   };
 }
 
 /**
+ * The prompt shown for a card, honouring the flip.
+ *
+ * @param card The card's session state.
+ * @param flipped Whether the sides are swapped.
+ * @returns The text to show as the prompt.
+ */
+export function promptFor(card: SessionCardState, flipped: boolean): string {
+  return flipped ? card.answers[0] : card.hints[0];
+}
+
+/**
+ * The answers accepted for a card, honouring the flip.
+ *
+ * Flipping swaps the roles wholesale: the hints become the accepted answers.
+ * Every CAP-4 rule — case folding, internal whitespace, the diff — applies
+ * unchanged to the swapped values.
+ *
+ * @param card The card's session state.
+ * @param flipped Whether the sides are swapped.
+ * @returns Every accepted answer, in the author's declared order.
+ */
+export function answersFor(card: SessionCardState, flipped: boolean): string[] {
+  return flipped ? card.hints : card.answers;
+}
+
+/**
+ * Swap the prompt and answer sides mid-session.
+ *
+ * Progress is deliberately **kept**: the user is drilling the same cards, and
+ * discarding their progress for changing how they want to be asked would be a
+ * punishment for using the feature.
+ *
+ * @param session The session to flip.
+ * @returns A new session with the sides swapped.
+ */
+export function flip(session: SessionState): SessionState {
+  return { ...session, flipped: !session.flipped };
+}
+
+/**
  * Record a wrong attempt.
  *
  * `failed` increments on **every** wrong attempt, and neither the card nor the
- * progress moves — a card advances only by being answered correctly. There is
- * no attempt cap, no reveal-answer and no override.
+ * progress moves — a card advances only by being answered correctly.
  *
  * @param session The session to advance.
+ * @param diff The diff produced for this attempt, kept only if it is the first
+ *             one recorded for this card.
  * @returns A new session state.
  */
-export function recordWrongAttempt(session: SessionState): SessionState {
+export function recordWrongAttempt(
+  session: SessionState,
+  diff: readonly DiffSegment[] = [],
+): SessionState {
   const cardStates = [...session.cardStates];
+  const current = cardStates[session.index];
   cardStates[session.index] = {
-    ...cardStates[session.index],
-    attempts: cardStates[session.index].attempts + 1,
+    ...current,
+    attempts: current.attempts + 1,
+    firstDiff: current.firstDiff ?? [...diff],
   };
   return {
     ...session,
@@ -211,4 +327,58 @@ export function progress(session: SessionState): number {
  */
 export function currentCard(session: SessionState): SessionCardState | null {
   return isFinished(session) ? null : session.cardStates[session.index];
+}
+
+/**
+ * End a session, whether it finished or was abandoned.
+ *
+ * @param session The session to end.
+ * @param endedAt The end instant, ISO-8601.
+ * @returns A new, closed session. `endedEarly` is set when cards remained.
+ */
+export function endSession(session: SessionState, endedAt: string): SessionState {
+  return { ...session, endedAt, endedEarly: !isFinished(session) };
+}
+
+/**
+ * The cards missed at least once, in session order.
+ *
+ * Referenced **by id**, so a "practice missed" session still works if the card
+ * was edited between sessions and degrades gracefully if it was deleted.
+ *
+ * @param session The session to read.
+ * @returns The missed cards' states.
+ */
+export function missedCards(session: SessionState): SessionCardState[] {
+  return session.cardStates.filter((card) => card.attempts > 0);
+}
+
+/**
+ * Build the persisted record of a session.
+ *
+ * A results view is produced for **every** session, including those ended
+ * early; an abandoned session reports only what was completed.
+ *
+ * @param session The session to summarise. Should already be ended.
+ * @param endedAt The end instant, used when the session was not explicitly
+ *                ended.
+ * @returns The record, carrying no card content.
+ */
+export function buildSessionRecord(session: SessionState, endedAt: string): SessionRecord {
+  const ended = session.endedAt ?? endedAt;
+  const completed = session.cardStates.filter((card) => card.passed);
+  return {
+    id: session.id,
+    setId: session.setId,
+    mode: session.mode,
+    flipped: session.flipped,
+    startedAt: session.startedAt,
+    endedAt: ended,
+    endedEarly: session.endedEarly,
+    cardsCompleted: completed.length,
+    firstTryPasses: completed.filter((card) => card.attempts === 0).length,
+    wrongAttempts: session.cardStates.reduce((total, card) => total + card.attempts, 0),
+    elapsedMs: Math.max(0, Date.parse(ended) - Date.parse(session.startedAt)),
+    missedCardIds: missedCards(session).map((card) => card.cardId),
+  };
 }

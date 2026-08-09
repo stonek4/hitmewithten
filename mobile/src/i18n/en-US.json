@@ -77,6 +77,15 @@
       "noSetAction": "Choose a set",
       "emptySet": "“{{name}}” has no cards yet.",
       "emptySetAction": "Add cards"
+    },
+    "flip": "Swap sides",
+    "flipped": "Answer first",
+    "endConfirm": {
+      "title": "End this test?",
+      "body": "{{count, number}} card is still to go. Your progress so far will be saved.",
+      "body_other": "{{count, number}} cards are still to go. Your progress so far will be saved.",
+      "confirm": "End test",
+      "keepGoing": "Keep going"
     }
   },
   "diff": {

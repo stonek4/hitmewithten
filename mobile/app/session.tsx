@@ -18,7 +18,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import type { TextInput as RNTextInput } from 'react-native';
-import { Appbar, Button, ProgressBar, Text, TextInput } from 'react-native-paper';
+import { Appbar, Button, Dialog, Portal, ProgressBar, Text, TextInput } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { DiffStrip } from '@/components/DiffStrip';
@@ -26,15 +26,23 @@ import { Page } from '@/components/Page';
 import { evaluateAnswer } from '@/features/evaluation/logic';
 import type { AnswerEvaluation } from '@/features/evaluation/types';
 import { libraryRepository } from '@/features/library/api';
+import { sessionHistoryRepository } from '@/features/session/api';
 import {
+  answersFor,
+  buildSessionRecord,
   currentCard,
+  endSession,
+  flip,
   isFinished,
   progress,
+  promptFor,
   recordPass,
   recordWrongAttempt,
   startSession,
 } from '@/features/session/logic';
 import type { SessionState } from '@/features/session/logic';
+import { trophyRepository } from '@/features/trophies/api';
+import { identityContext } from '@/services/identityContext';
 import { typeStyle, useAppTheme, usePageGrid } from '@/theme';
 
 /**
@@ -63,6 +71,7 @@ export default function SessionScreen(): React.JSX.Element {
    * cursor is never trapped at the start of the field.
    */
   const [selection, setSelection] = useState<{ start: number; end: number } | undefined>(undefined);
+  const [confirmingEnd, setConfirmingEnd] = useState(false);
   const inputRef = useRef<RNTextInput>(null);
 
   useEffect(() => {
@@ -75,10 +84,12 @@ export default function SessionScreen(): React.JSX.Element {
       const { cards } = await libraryRepository.listCards(setId);
       if (cancelled) return;
       const result = startSession({
+        id: identityContext.newId(),
         setId,
         cards,
         mode: mode === 'all' ? 'all' : 'quick',
         quickSize: 10,
+        startedAt: identityContext.now(),
       });
       if (result.ok) setSession(result.session);
       else {
@@ -98,25 +109,73 @@ export default function SessionScreen(): React.JSX.Element {
 
   const card = session === null ? null : currentCard(session);
 
+  /**
+   * Close a session and persist its record.
+   *
+   * A results record is produced for **every** session, including one ended
+   * early — an abandoned session reports only what was completed.
+   *
+   * @param state The session to close.
+   */
+  const finish = useCallback(async (state: SessionState): Promise<void> => {
+    const now = identityContext.now();
+    const record = buildSessionRecord(endSession(state, now), now);
+    await sessionHistoryRepository.append(record);
+  }, []);
+
+  /**
+   * End the test early, from the back action.
+   *
+   * Always available, and it still produces a results record for the portion
+   * completed. **Validate, then navigate** — the record is written before the
+   * screen is torn down, so an abandoned session can never lose what happened.
+   */
+  const endEarly = useCallback(async (): Promise<void> => {
+    if (session !== null && !isFinished(session)) await finish(session);
+    setConfirmingEnd(false);
+    router.back();
+  }, [session, finish]);
+
+  /**
+   * Handle the end-test action, confirming first when cards remain.
+   *
+   * Ending a test is always available, but it is destructive of the user's
+   * momentum, so it asks — and only when there is actually something to lose.
+   */
+  const requestEnd = useCallback((): void => {
+    if (session === null || isFinished(session)) {
+      router.back();
+      return;
+    }
+    setConfirmingEnd(true);
+  }, [session]);
+
   const submit = useCallback(() => {
     if (session === null || card === null) return;
-    const result = evaluateAnswer(typed, card.answersExpected);
+    const result = evaluateAnswer(typed, answersFor(card, session.flipped));
     if (result.correct) {
       setEvaluation(null);
       setTyped('');
       setSelection(undefined);
-      setSession(recordPass(session));
+      const advanced = recordPass(session);
+      setSession(advanced);
+      // Counters feed the trophy thresholds users have already partially
+      // earned, so they are recorded per submission, not at the end — an
+      // abandoned session must still count what actually happened.
+      void trophyRepository.increment({ passed: 1, tested: 1 });
+      if (isFinished(advanced)) void finish(advanced);
       // Focus stays on the input so the next card can be typed immediately.
       inputRef.current?.focus();
       return;
     }
     setEvaluation(result);
-    setSession(recordWrongAttempt(session));
+    setSession(recordWrongAttempt(session, result.diff));
+    void trophyRepository.increment({ failed: 1 });
     // Keep the text and select it entirely, so a retry replaces it in one
     // keystroke rather than needing it cleared first.
     setSelection({ start: 0, end: typed.length });
     inputRef.current?.focus();
-  }, [card, session, typed]);
+  }, [card, session, typed, finish]);
 
   const styles = useMemo(
     () =>
@@ -199,8 +258,22 @@ export default function SessionScreen(): React.JSX.Element {
   return (
     <SafeAreaView style={styles.screen} edges={['top', 'left', 'right']}>
       <Appbar.Header elevated>
-        <Appbar.BackAction onPress={() => router.back()} accessibilityLabel={t('session.endTest')} />
+        <Appbar.BackAction onPress={requestEnd} accessibilityLabel={t('session.endTest')} />
         <Appbar.Content title={t('session.title')} />
+        <Appbar.Action
+          icon="swap-horizontal"
+          accessibilityLabel={t('session.flip')}
+          // accessibilityState so a screen reader announces WHICH way round the
+          // card currently is, not merely that a toggle exists.
+          accessibilityState={{ checked: session.flipped }}
+          onPress={() => {
+            setEvaluation(null);
+            setTyped('');
+            setSelection(undefined);
+            setSession(flip(session));
+          }}
+          testID="flip-sides"
+        />
       </Appbar.Header>
 
       <View style={styles.progress}>
@@ -221,7 +294,11 @@ export default function SessionScreen(): React.JSX.Element {
         keyboardShouldPersistTaps="handled"
       >
         <Page
-          label={<Text style={styles.label}>{t('cards.hint')}</Text>}
+          label={
+            <Text style={styles.label}>
+              {session.flipped ? t('cards.answer') : t('cards.hint')}
+            </Text>
+          }
           labelTrailing={
             <Text style={styles.label}>
               {t('session.progress', {
@@ -233,7 +310,7 @@ export default function SessionScreen(): React.JSX.Element {
           testID="drill-card"
         >
           <Text style={styles.prompt} testID="prompt">
-            {card?.promptShown}
+            {card === null ? '' : promptFor(card, session.flipped)}
           </Text>
 
           <TextInput
@@ -290,6 +367,27 @@ export default function SessionScreen(): React.JSX.Element {
           </Button>
         </View>
       </ScrollView>
+
+      <Portal>
+        <Dialog visible={confirmingEnd} onDismiss={() => setConfirmingEnd(false)}>
+          <Dialog.Title>{t('session.endConfirm.title')}</Dialog.Title>
+          <Dialog.Content>
+            <Text variant="bodyMedium">
+              {t('session.endConfirm.body', {
+                count: session.cardStates.length - session.index,
+              })}
+            </Text>
+          </Dialog.Content>
+          <Dialog.Actions>
+            <Button onPress={() => setConfirmingEnd(false)} testID="keep-going">
+              {t('session.endConfirm.keepGoing')}
+            </Button>
+            <Button onPress={() => void endEarly()} testID="confirm-end">
+              {t('session.endConfirm.confirm')}
+            </Button>
+          </Dialog.Actions>
+        </Dialog>
+      </Portal>
     </SafeAreaView>
   );
 }
