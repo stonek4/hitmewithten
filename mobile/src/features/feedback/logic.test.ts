@@ -68,11 +68,13 @@ describe('CAP-5 — summarizeDiff', () => {
     });
   });
 
-  it('reports a swap as ONE error, naming the characters in the CORRECT order', () => {
-    // spelling-diff-spec.md §7.3. Never two separate wrong-letter reports —
+  it('reports a swap as ONE error, naming the characters in the order the USER TYPED them', () => {
+    // spelling-diff-spec.md §7.3 as resolved 2026-08-09, matching
+    // design/spec.md §3.2.7 rule 2. Never two separate wrong-letter reports —
     // that is the misleading output this status exists to remove.
+    // The user typed "recieve", so they typed i before e.
     expect(summarizeDiff(computeSpellingDiff('recieve', 'receive'))).toEqual({
-      errors: [{ kind: 'transposed', first: 'e', second: 'i' }],
+      errors: [{ kind: 'transposed', first: 'i', second: 'e' }],
       more: 0,
     });
   });
@@ -80,9 +82,10 @@ describe('CAP-5 — summarizeDiff', () => {
   it('counts a transposed PAIR as one error toward the cap', () => {
     const summary = summarizeDiff(computeSpellingDiff('thier freind', 'their friend'));
     expect(summary).toEqual({
+      // Typed order: "thier" put i before e; "freind" put e before i.
       errors: [
-        { kind: 'transposed', first: 'e', second: 'i' },
         { kind: 'transposed', first: 'i', second: 'e' },
+        { kind: 'transposed', first: 'e', second: 'i' },
       ],
       more: 0,
     });

@@ -719,7 +719,7 @@ same information a sighted user gets from the marking:
 
 ```text
 Incorrect. Correct spelling: r-a-v-e-n-o-u-s. You left out the letter o.
-Incorrect. Correct spelling: r-e-c-e-i-v-e. You swapped e and i.
+Incorrect. Correct spelling: r-e-c-e-i-v-e. You swapped the i and the e.
 ```
 
 Rules:
@@ -728,8 +728,16 @@ Rules:
 - Summarise the errors in plain language, grouped by kind: *left out*, *typed X
   instead of Y*, *extra letter X*, *left out a space*, ***swapped X and Y***.
 - **A transposed pair is announced as one error**, naming both characters in the
-  **correct** order — "you swapped e and i", not two separate wrong-letter
-  reports. This mirrors rule 3.
+  order **the user typed them** — "you swapped the i and the e", not two
+  separate wrong-letter reports. This mirrors rule 3.
+
+  > **Resolved 2026-08-09 (Kevin's decision).** This rule previously said
+  > *correct* order, contradicting
+  > [design/spec.md §3.2.7](../design/spec.md) rule 2, which says typed order.
+  > The design document wins: the sentence describes **what the user did**, and
+  > naming the letters in the sequence they entered is the more natural reading
+  > at the moment they've just made the mistake. Implementations read `typed`
+  > on each half of the pair, not `char`.
 - Cap the enumeration (e.g. first three errors, then "and N more") so a wildly
   wrong answer doesn't produce a minute of speech.
 - Announce politely, never assertively — it must not interrupt the user typing

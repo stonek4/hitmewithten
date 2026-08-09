@@ -123,7 +123,7 @@ describe('CAP-5 — the accessible representation', () => {
   it('reports a swap as ONE error naming both characters', () => {
     renderDiff('recieve', 'receive');
     expect(screen.getByTestId('strip').props.accessibilityLabel).toBe(
-      'Incorrect. Correct spelling: r-e-c-e-i-v-e. You swapped the e and the i.',
+      'Incorrect. Correct spelling: r-e-c-e-i-v-e. You swapped the i and the e.',
     );
   });
 

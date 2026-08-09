@@ -132,8 +132,19 @@ export function summarizeDiff(
         );
         if (otherIndex === -1) return;
         pairedSecondHalves.add(otherIndex);
-        // Named in the CORRECT order (spelling-diff-spec.md §7.3).
-        all.push({ kind: 'transposed', first: segment.char, second: diff[otherIndex].char });
+        // Named in the order the USER TYPED them, not the correct order:
+        // "you swapped the i and the e" describes what they actually did.
+        // Kevin's decision, 2026-08-09, resolving a contradiction between
+        // design/spec.md §3.2.7 (typed order — this) and the older wording in
+        // spelling-diff-spec.md §7.3 (correct order); the spec has been
+        // corrected to match. On a `transposed` segment, `typed` is the other
+        // half of the pair, so reading `typed` left to right yields the
+        // sequence the user entered.
+        all.push({
+          kind: 'transposed',
+          first: segment.typed ?? segment.char,
+          second: diff[otherIndex].typed ?? diff[otherIndex].char,
+        });
         return;
       }
     }
