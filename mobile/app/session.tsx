@@ -56,6 +56,7 @@ import { trophyRepository } from '@/features/trophies/api';
 import { useTrophyUnlocks } from '@/features/trophies/hooks';
 import { identityContext } from '@/services/identityContext';
 import { typeStyle, useAppTheme, usePageGrid } from '@/theme';
+import { goBackOrHome } from '@/lib/navigation';
 
 /**
  * The drilling session screen.
@@ -174,7 +175,7 @@ export default function SessionScreen(): React.JSX.Element {
   const endEarly = useCallback(async (): Promise<void> => {
     if (session !== null && !isFinished(session)) await finish(session);
     setConfirmingEnd(false);
-    router.back();
+    goBackOrHome();
   }, [session, finish]);
 
   /**
@@ -185,7 +186,7 @@ export default function SessionScreen(): React.JSX.Element {
    */
   const requestEnd = useCallback((): void => {
     if (session === null || isFinished(session)) {
-      router.back();
+      goBackOrHome();
       return;
     }
     setConfirmingEnd(true);
@@ -254,14 +255,14 @@ export default function SessionScreen(): React.JSX.Element {
     return (
       <SafeAreaView style={styles.screen} edges={['top', 'left', 'right']}>
         <Appbar.Header elevated>
-          <Appbar.BackAction onPress={() => router.back()} accessibilityLabel={t('common.back')} />
+          <Appbar.BackAction onPress={() => goBackOrHome()} accessibilityLabel={t('common.back')} />
           <Appbar.Content title={t('session.title')} />
         </Appbar.Header>
         <View style={styles.body}>
           <Text variant="bodyLarge" testID="session-cannot-start">
             {startError}
           </Text>
-          <Button mode="contained" onPress={() => router.back()}>
+          <Button mode="contained" onPress={() => goBackOrHome()}>
             {t('session.cannotStart.noSetAction')}
           </Button>
         </View>

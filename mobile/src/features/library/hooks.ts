@@ -12,7 +12,7 @@ import type { Card } from '@/features/identity/types';
 
 import { libraryRepository } from './api';
 import type { LibraryRepository } from './api';
-import { searchSummaries, sortSummaries } from './logic';
+import { moveInList, searchSummaries, sortSummaries } from './logic';
 import type {
   CardSetSummary,
   LibrarySort,
@@ -166,7 +166,23 @@ export interface UseCardsResult {
    * @throws {RangeError} If either is blank after trimming.
    */
   addCard(hint: string, answer: string): Promise<void>;
+  /**
+   * Edit a card's hint and answer.
+   *
+   * @param cardId The card to edit.
+   * @param hint The new hint.
+   * @param answer The new answer.
+   * @throws {RangeError} If either is blank after trimming.
+   */
+  updateCard(cardId: string, hint: string, answer: string): Promise<void>;
   deleteCard(cardId: string): Promise<void>;
+  /**
+   * Move a card one position up or down.
+   *
+   * @param cardId The card to move.
+   * @param direction Which way to move it.
+   */
+  moveCard(cardId: string, direction: 'up' | 'down'): Promise<void>;
 }
 
 /**
@@ -218,6 +234,15 @@ export function useCards(
     [repository, setId, refresh],
   );
 
+  const updateCard = useCallback(
+    async (cardId: string, hint: string, answer: string): Promise<void> => {
+      if (setId === null) throw new RangeError('No set selected');
+      await repository.updateCard(setId, cardId, { hints: [hint], answers: [answer] });
+      await refresh();
+    },
+    [repository, setId, refresh],
+  );
+
   const deleteCard = useCallback(
     async (cardId: string): Promise<void> => {
       if (setId === null) return;
@@ -227,5 +252,24 @@ export function useCards(
     [repository, setId, refresh],
   );
 
-  return { cards, loading, refresh, addCard, deleteCard };
+  const moveCard = useCallback(
+    async (cardId: string, direction: 'up' | 'down'): Promise<void> => {
+      if (setId === null) return;
+      const from = cards.findIndex((card) => card.id === cardId);
+      if (from === -1) return;
+      const to = direction === 'up' ? from - 1 : from + 1;
+      // moveInList returns the list unchanged for an out-of-range move, so the
+      // control at either end is a harmless no-op rather than an error.
+      const reordered = moveInList(cards, from, to);
+      if (reordered[from]?.id === cards[from].id) return;
+      await repository.reorderCards(
+        setId,
+        reordered.map((card) => card.id),
+      );
+      await refresh();
+    },
+    [repository, setId, cards, refresh],
+  );
+
+  return { cards, loading, refresh, addCard, updateCard, deleteCard, moveCard };
 }

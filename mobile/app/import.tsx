@@ -5,7 +5,6 @@
  * users' archives have.
  */
 
-import { router } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FlatList, StyleSheet, View } from 'react-native';
@@ -16,6 +15,7 @@ import { importService } from '@/features/import/api';
 import type { ImportItemResult, ImportReport } from '@/features/import/types';
 import { pickCardsFiles } from '@/services/filePicker';
 import { MIN_TOUCH_TARGET, useAppTheme } from '@/theme';
+import { goBackOrHome } from '@/lib/navigation';
 
 /**
  * Pick `.cards` files and report what happened to each of them.
@@ -74,7 +74,7 @@ export default function ImportScreen(): React.JSX.Element {
   return (
     <SafeAreaView style={styles.screen} edges={['top', 'left', 'right']}>
       <Appbar.Header elevated>
-        <Appbar.BackAction onPress={() => router.back()} accessibilityLabel={t('common.back')} />
+        <Appbar.BackAction onPress={() => goBackOrHome()} accessibilityLabel={t('common.back')} />
         <Appbar.Content title={t('import.title')} />
       </Appbar.Header>
 

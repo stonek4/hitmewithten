@@ -175,6 +175,31 @@ export function searchSummaries(
 }
 
 /**
+ * Move one item within a list, by index.
+ *
+ * Reordering is offered as **tappable move up / move down controls**, not only
+ * as a drag: no action may be available exclusively via a gesture (C3). This
+ * helper is what those controls call, and it is pure so the edge cases — the
+ * first item moving up, the last moving down — are testable without a UI.
+ *
+ * @param items The list to reorder.
+ * @param from The index to move.
+ * @param to The index to move it to.
+ * @returns A new list. Returns the input unchanged when the move is a no-op or
+ *          either index is out of range, so a control at the end of the list
+ *          can be pressed harmlessly rather than needing to be disabled.
+ */
+export function moveInList<T>(items: readonly T[], from: number, to: number): T[] {
+  if (from === to) return [...items];
+  if (from < 0 || from >= items.length) return [...items];
+  if (to < 0 || to >= items.length) return [...items];
+  const next = [...items];
+  const [moved] = next.splice(from, 1);
+  next.splice(to, 0, moved);
+  return next;
+}
+
+/**
  * Decide what the current-set selection becomes after a set is deleted.
  *
  * Deleting the current set clears the selection to a **real null**, not the

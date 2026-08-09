@@ -8,7 +8,6 @@
  * correctly with no account and no network.
  */
 
-import { router } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { Platform, ScrollView, StyleSheet, View } from 'react-native';
 import { Appbar, Divider, List, SegmentedButtons, Switch, Text } from 'react-native-paper';
@@ -18,6 +17,7 @@ import { usePreferences } from '@/features/preferences/hooks';
 import { QUICK_TEST_SIZES } from '@/features/preferences/types';
 import type { Appearance, PromptSide, QuickTestSize } from '@/features/preferences/types';
 import { MIN_TOUCH_TARGET, useAppTheme } from '@/theme';
+import { goBackOrHome } from '@/lib/navigation';
 
 /**
  * The settings screen.
@@ -39,7 +39,7 @@ export default function SettingsScreen(): React.JSX.Element {
   return (
     <SafeAreaView style={styles.screen} edges={['top', 'left', 'right']}>
       <Appbar.Header elevated>
-        <Appbar.BackAction onPress={() => router.back()} accessibilityLabel={t('common.back')} />
+        <Appbar.BackAction onPress={() => goBackOrHome()} accessibilityLabel={t('common.back')} />
         <Appbar.Content title={t('settings.title')} />
       </Appbar.Header>
 

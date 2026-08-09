@@ -61,6 +61,24 @@
       "hintEmpty": "Enter a hint.",
       "answerEmpty": "Enter an answer.",
       "tooLong": "Limited to {{max, number}} characters."
+    },
+    "title": "Cards",
+    "editCard": "Edit card",
+    "saveCard": "Save card",
+    "deleteCard": "Delete card",
+    "moveUp": "Move up",
+    "moveDown": "Move down",
+    "position": "Card {{position, number}} of {{total, number}}",
+    "rowAccessibility": "{{answer}}. Hint: {{hint}}. Card {{position, number}} of {{total, number}}.",
+    "hintPlaceholder": "A great vocab app",
+    "answerPlaceholder": "vocabcards.com",
+    "added": "Card added",
+    "deleted": "Card deleted",
+    "unsaved": {
+      "title": "Discard this card?",
+      "body": "You have started a card but not finished it. Leaving now will discard it.",
+      "discard": "Discard",
+      "keep": "Keep editing"
     }
   },
   "session": {

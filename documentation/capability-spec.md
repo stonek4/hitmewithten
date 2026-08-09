@@ -41,7 +41,7 @@ or code.
 | ID | Capability | Priority | PRD § | Stories | Status |
 | --- | --- | --- | --- | --- | --- |
 | [CAP-1](#cap-1--card-set-library--local-storage-p0) | Card Set Library & Local Storage | P0 | 6.1 | US-A1–A6, US-A8 | **built** |
-| [CAP-2](#cap-2--card-authoring-p0) | Card Authoring | P0 | 6.2, 6.2.1 | US-B1–B4, US-B6 | not built |
+| [CAP-2](#cap-2--card-authoring-p0) | Card Authoring | P0 | 6.2, 6.2.1 | US-B1–B4, US-B6 | built |
 | [CAP-3](#cap-3--test-session-engine-p0) | Test Session Engine | P0 | 6.3 | US-C1–C10 | built |
 | [CAP-4](#cap-4--answer-evaluation--spelling-diff-p0--differentiator) | Answer Evaluation & Spelling Diff | **P0 · differentiator** | 6.4, 6.2.1 | US-D1, US-D3a, US-C4, US-C6 | **built** |
 | [CAP-5](#cap-5--feedback-presentation-p0) | Feedback Presentation | P0 | 6.4, 9 | US-D2, D3, D3a, D4–D6 | **built** |

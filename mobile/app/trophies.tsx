@@ -7,7 +7,6 @@
  * unlock date, and progress toward the next in each category.
  */
 
-import { router } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { SectionList, StyleSheet, View } from 'react-native';
 import { Appbar, Divider, ProgressBar, Text } from 'react-native-paper';
@@ -16,6 +15,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTrophies } from '@/features/trophies/hooks';
 import type { TrophyProgress, TrophyType } from '@/features/trophies/types';
 import { formatCount, formatDateTime } from '@/lib/format';
+import { goBackOrHome } from '@/lib/navigation';
 import { MIN_TOUCH_TARGET, useAppTheme } from '@/theme';
 
 /** The three categories, in the order the legacy roster declared them. */
@@ -55,7 +55,7 @@ export default function TrophiesScreen(): React.JSX.Element {
   return (
     <SafeAreaView style={styles.screen} edges={['top', 'left', 'right']}>
       <Appbar.Header elevated>
-        <Appbar.BackAction onPress={() => router.back()} accessibilityLabel={t('common.back')} />
+        <Appbar.BackAction onPress={() => goBackOrHome()} accessibilityLabel={t('common.back')} />
         <Appbar.Content title={t('trophies.title')} />
       </Appbar.Header>
 
