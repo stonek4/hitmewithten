@@ -56,6 +56,18 @@ with bold markers, so a naive string replace on `partial` silently misses.
   gets its diffs from an in-memory hand-off (`features/session/handoff.ts`).
   That is the documented resolution of a genuine CAP-6 self-contradiction.
 
+**Firebase / sync (CAP-13).** Project is `vocards-62df8` — the SAME one the
+legacy app uses; never create another. The SDK is loaded by a guarded
+`require()` inside a function in `services/firebase.ts`, never a top-level
+import, because CAP-13 §13.1's zero-network guarantee is P0 and the SDK begins
+auth-state resolution the instant `firebase/app` evaluates.
+`src/features/sync/optionality.test.ts` fails the build if anyone breaks that;
+it has been proven to fail against a real violation. The sync engine talks to a
+`SyncBackend` port, so `sync/backend.ts` is the only Firestore-aware module.
+**The Firestore emulator needs Java, which is not installed here** — the
+signed-in round trip cannot be verified in this environment. Console steps for
+Kevin are in `mobile/SYNC-SETUP.md`.
+
 **Obligations hidden inside P1 capabilities.** Not every launch-blocking
 requirement lives in a P0 row. CAP-15 is P1 but states that *"the recording is
 effectively P0"*, and CAP-13 §13.1's optionality constraint is explicitly
