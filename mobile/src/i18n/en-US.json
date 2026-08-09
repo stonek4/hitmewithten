@@ -283,5 +283,35 @@
       "label": "Share anonymous usage data",
       "description": "Counts only — never your cards, answers or set names. Kept on this device only."
     }
+  },
+  "about": {
+    "title": "About",
+    "open": "About",
+    "version": "Version {{version}}",
+    "tagline": "Spelling practice that tells you exactly what you got wrong.",
+    "description": "Vocab Cards drills spelling by making you type the answer, then showing you the difference letter by letter — the missing letter, the swapped pair, the space you left out.",
+    "changelog": "What's new",
+    "changeKind": {
+      "added": "New",
+      "changed": "Changed",
+      "fixed": "Fixed"
+    },
+    "releaseDate": "{{date}}",
+    "privacy": {
+      "title": "Privacy",
+      "open": "Privacy policy",
+      "localOnly": "Your cards stay on this device. Vocab Cards works fully offline, with no account, and your card sets, answers and progress are never sent anywhere.",
+      "noAccount": "There is no account, no sign-in and no sign-up. The app makes no network requests to us at all in this version.",
+      "sync": "Cloud sync is not part of this version. If it is added later, it will be optional, and this policy will say exactly what it stores before it ships.",
+      "analytics": "Anonymous usage counts (such as how many tests were started) can be shared to help improve the app. These never include your cards, answers, set names or anything you typed. You can turn this off in Settings at any time, and the setting is honoured before anything is sent.",
+      "export": "You can export everything you have, at any time, for free, offline and with no account.",
+      "contactIntro": "Questions about your data, or anything else:"
+    },
+    "contact": {
+      "label": "Contact",
+      "email": "support@vocabcards.com",
+      "website": "vocabcards.com"
+    },
+    "legal": "© 2017–2026 Kevin Stoner"
   }
 }

@@ -57,7 +57,7 @@ or code.
 | [CAP-15](#cap-15--scheduling--smart-review-p1) | Scheduling & Smart Review | P1 | 6.11 | US-K1–K3 | not built |
 | [CAP-16](#cap-16--trouble-words--error-insights-p1--differentiator) | Trouble Words & Error Insights | **P1 · differentiator** | 6.12 | US-L1–L4 | not built |
 | [CAP-17](#cap-17--delimited-text--third-party-import-p1) | Delimited-Text & Third-Party Import | P1 | 6.7, 6.2 | US-B5, US-G5–G7 | not built |
-| [CAP-18](#cap-18--about-changelog--legal-p0) | About, Changelog & Legal | P0 | 6.13 | US-M1–M3 | not built |
+| [CAP-18](#cap-18--about-changelog--legal-p0) | About, Changelog & Legal | P0 | 6.13 | US-M1–M3 | built |
 | [CAP-19](#cap-19--telemetry--analytics-p1) | Telemetry & Analytics | P1 | 5, 9 | US-H3, US-L4 | not built |
 | [CAP-20](#cap-20--premium-entitlement-p2) | Premium Entitlement | P2 | 8 | — | not built |
 

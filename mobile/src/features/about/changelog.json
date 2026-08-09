@@ -1,0 +1,64 @@
+{
+  "_comment": [
+    "CAP-18 changelog. DATA, not markup — so it can be rendered in-app,",
+    "localised, and reused verbatim in store release notes rather than being",
+    "retyped. The legacy app had this inline in a template.",
+    "",
+    "`version` must match package.json; `entries` are newest first. Each change",
+    "is a plain sentence with no formatting, so a renderer never has to parse",
+    "anything. `kind` groups them for display and is a stable identifier."
+  ],
+  "entries": [
+    {
+      "version": "1.0.0",
+      "date": "2026-08-09",
+      "changes": [
+        { "kind": "added", "text": "A complete rebuild of Vocab Cards for phone, tablet and web." },
+        {
+          "kind": "added",
+          "text": "Spelling feedback now marks swapped letters as one mistake instead of two, and shows a missing space instead of hiding it."
+        },
+        {
+          "kind": "added",
+          "text": "A trophies screen. All 24 trophies have existed since 2017, but there was never a way to see them."
+        },
+        {
+          "kind": "added",
+          "text": "Results after every test, with the words you missed and a one-tap way to drill just those."
+        },
+        {
+          "kind": "added",
+          "text": "Settings that actually do something: exact-case marking, quick-test size, which side shows first, and appearance."
+        },
+        {
+          "kind": "added",
+          "text": "Export your whole library to a single file, and bring it back on another device."
+        },
+        {
+          "kind": "changed",
+          "text": "Your existing card sets and trophy progress come across automatically. Nothing is removed from your old library."
+        },
+        {
+          "kind": "fixed",
+          "text": "Importing several .cards files at once now imports all of them. Previously only the first was read."
+        },
+        {
+          "kind": "fixed",
+          "text": "Creating a set with a name you already use no longer replaces the old set without asking."
+        },
+        {
+          "kind": "fixed",
+          "text": "Starting a test on an empty set no longer leaves the app on a blank screen."
+        },
+        {
+          "kind": "fixed",
+          "text": "Card text is never treated as markup, closing a security hole in the old web app."
+        },
+        {
+          "kind": "fixed",
+          "text": "Text now grows when you raise your device's font size."
+        }
+      ]
+    }
+  ]
+}
