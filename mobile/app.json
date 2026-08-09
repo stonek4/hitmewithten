@@ -2,6 +2,7 @@
   "expo": {
     "name": "Vocab Cards",
     "slug": "vocab-cards",
+    "owner": "kszapps",
     "scheme": "vocabcards",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -43,6 +44,12 @@
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "6721f5b1-74f8-4f44-8a10-730673c44a11"
+      }
     }
   }
 }
