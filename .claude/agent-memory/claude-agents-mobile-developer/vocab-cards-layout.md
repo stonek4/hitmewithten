@@ -18,10 +18,11 @@ web, iOS and Android. Same repo, no separate git init.
   edit them.** If a spec is wrong, report it; do not patch it.
 - `REBUILD_SPEC.md` — the frozen record of the old app's behaviour.
 
-**Tension worth knowing:** `documentation/capability-spec.md` tells implementers
-to keep its Status column current ("this table is the project's build tracker"),
-but the standing brief forbids editing `documentation/`. Report status changes
-for Kevin to apply rather than editing the table.
+**Status column:** keeping `documentation/capability-spec.md`'s Status column
+current is the **one permitted edit** in `documentation/` (that document asks
+implementers to do it). Everything else there is read-only — report spec
+defects, never patch them. Note the cells are sometimes written `**partial**`
+with bold markers, so a naive string replace on `partial` silently misses.
 
 **Conventions not visible from the tree:**
 
@@ -42,5 +43,17 @@ for Kevin to apply rather than editing the table.
   its construction constants are `pageSurface`**.
 - `mobile/.claude/skills/verify/SKILL.md` is the runtime-verification recipe
   (Expo web + headless Chromium in WSL2, with the real-data seeding steps).
+  **Seeding legacy `localStorage` via `context.addInitScript` before the app
+  boots** is how CAP-8's migration, CAP-7's trophy recovery and any
+  returning-user path get exercised — a fresh context only ever shows empty
+  states.
+- Storage lives under a `vc:` prefix (`services/storage.ts`). The legacy app's
+  unprefixed keys on the same origin are read through
+  `services/legacyStorage.ts`, which is **structurally read-only** — no
+  `setItem`, no `removeItem` — so no code path can touch a returning user's
+  original data.
+- Session records deliberately carry **no card content**; the results screen
+  gets its diffs from an in-memory hand-off (`features/session/handoff.ts`).
+  That is the documented resolution of a genuine CAP-6 self-contradiction.
 
 Related: [[spec-defects-spelling-diff]] · [[vocab-cards-landmines]]
