@@ -89,7 +89,7 @@
     "next": "Next",
     "endTest": "End test",
     "correct": "Correct",
-    "notQuite": "Not quite — try again",
+    "notQuite": "Not quite, try again",
     "cannotStart": {
       "noSet": "Choose a set before starting a test.",
       "noSetAction": "Choose a set",
@@ -156,7 +156,7 @@
       "renamed": "Imported as “{{name}}”",
       "replaced": "Replaced the existing set",
       "failed": "Could not be imported",
-      "quarantined": "Set aside — we could not read it"
+      "quarantined": "Set aside: we could not read it"
     },
     "reason": {
       "notJson": "The file is not valid JSON.",
@@ -207,7 +207,7 @@
     "endedEarly": "You ended this test early.",
     "perfect": "Every card right first time.",
     "missedHeading": "Words to work on",
-    "noneMissed": "Nothing missed — nice.",
+    "noneMissed": "Nothing missed. Nice.",
     "practiceMissed": "Practice missed words",
     "practiceMissedCount": "Practice {{count, number}} word",
     "practiceMissedCount_other": "Practice {{count, number}} words",
@@ -233,7 +233,7 @@
     "locked": "Locked",
     "unlocked": "Unlocked",
     "summary": "{{count, number}} of {{total, number}} unlocked",
-    "toast": "Trophy unlocked — {{name}}",
+    "toast": "Trophy unlocked: {{name}}",
     "rowAccessibility": "{{name}}. {{status}}. {{progress}}."
   },
   "export": {
@@ -281,7 +281,7 @@
     },
     "analytics": {
       "label": "Share anonymous usage data",
-      "description": "Counts only — never your cards, answers or set names. Kept on this device only."
+      "description": "Counts only, never your cards, answers or set names. Kept on this device only."
     }
   },
   "about": {
@@ -289,7 +289,7 @@
     "open": "About",
     "version": "Version {{version}}",
     "tagline": "Spelling practice that tells you exactly what you got wrong.",
-    "description": "Vocab Cards drills spelling by making you type the answer, then showing you the difference letter by letter — the missing letter, the swapped pair, the space you left out.",
+    "description": "Vocab Cards drills spelling by making you type the answer, then showing you the difference letter by letter: the missing letter, the swapped pair, the space you left out.",
     "changelog": "What's new",
     "changeKind": {
       "added": "New",
@@ -327,7 +327,7 @@
     "syncNow": "Sync now",
     "notConfigured": "Sync is not available in this build.",
     "status": {
-      "signedOut": "Not signed in — everything is stored on this device",
+      "signedOut": "Not signed in: everything is stored on this device",
       "idle": "Up to date",
       "syncing": "Syncing…",
       "pending": "Changes waiting to sync",
